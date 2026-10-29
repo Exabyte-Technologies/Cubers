@@ -1,0 +1,984 @@
+{
+  "schemaVersion": 1,
+  "method": "Original combinations of validated cubing triggers; Cubers IDs are not standard case numbers.",
+  "families": [
+    {
+      "family": "OLL",
+      "states": 216,
+      "cases": [
+        {
+          "id": "oll-cubers-001",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000010000010011111110",
+          "representative": "FRLFUBBLLBUFRRRRRRRUUFFFFFFDDDDDDDDDUUULLLLLLUURBBBBBB",
+          "algorithm": "F R U R' U' F' U2 F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-002",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000010000010111010111",
+          "representative": "BFFBULBRFLURRRRRRRUUUFFFFFFDDDDDDDDDRULLLLLLLUUUBBBBBB",
+          "algorithm": "F U R U' R' F' R U R' U R U2 R' U F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-003",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000010001010110110110",
+          "representative": "RFFRUBULLUURRRRRRRLUFFFFFFFDDDDDDDDDUUBLLLLLLUUBBBBBBB",
+          "algorithm": "F U R U' R' F' U' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-004",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000010001011010011011",
+          "representative": "URLFULRBBRUURRRRRRFUUFFFFFFDDDDDDDDDFUULLLLLLBULBBBBBB",
+          "algorithm": "F U R U' R' F' U F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-005",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000010101010010010111",
+          "representative": "URRFUBULRUUURRRRRRLUBFFFFFFDDDDDDDDDFUBLLLLLLFULBBBBBB",
+          "algorithm": "F U R U' R' U R U' R' F' U2 F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-006",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000010101011010110010",
+          "representative": "RBRFURULUFUURRRRRRLULFFFFFFDDDDDDDDDUUBLLLLLLFUBBBBBBB",
+          "algorithm": "F U R U' R' F' U R U2 R' U' R U' R' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-007",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011010000001111110",
+          "representative": "LURFUUBRBRLURRRRRRUUUFFFFFFDDDDDDDDDUULLLLLLLFBFBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-008",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011010000101010111",
+          "representative": "FUFUURBLBRURRRRRRRUUUFFFFFFDDDDDDDDDLBLLLLLLLUFUBBBBBB",
+          "algorithm": "F U R U' R' U R U' R' F' U2 F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-009",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011010001101110010",
+          "representative": "FUFUUFLLRUURRRRRRRBUBFFFFFFDDDDDDDDDLRULLLLLLUBUBBBBBB",
+          "algorithm": "F U R U' R' F' R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-010",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011010100000011111",
+          "representative": "BUFUUBRLRFUURRRRRRUUUFFFFFFDDDDDDDDDURBLLLLLLLFLBBBBBB",
+          "algorithm": "F U R U' R' F' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-011",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011010101000111010",
+          "representative": "FUBLUUFRBRFLRRRRRRUUUFFFFFFDDDDDDDDDLURLLLLLLUBUBBBBBB",
+          "algorithm": "F U R U' R' F' U' F U R U' R' F' R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-012",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011010101100010011",
+          "representative": "BURUUFFBRFUBRRRRRRLUUFFFFFFDDDDDDDDDULULLLLLLURLBBBBBB",
+          "algorithm": "F R U R' U' R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-013",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011011000100110110",
+          "representative": "RUUBUUBRLULFRRRRRRUUFFFFFFFDDDDDDDDDUULLLLLLLRFBBBBBBB",
+          "algorithm": "F R U R' U' F' U' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-014",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011011001000011011",
+          "representative": "BBRRUULUUFLURRRRRRBFLFFFFFFDDDDDDDDDRUULLLLLLFUUBBBBBB",
+          "algorithm": "F R U R' U' F' U' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-015",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011110001001010011",
+          "representative": "RUFFUUBLULBURRRRRRRUBFFFFFFDDDDDDDDDFUULLLLLLLRUBBBBBB",
+          "algorithm": "F U R U' R' F' R U R' U R U2 R' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-016",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011110100000110110",
+          "representative": "URRUUFLUBUUBRRRRRRULLFFFFFFDDDDDDDDDRBFLLLLLLUUFBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' U F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-017",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011111000000010111",
+          "representative": "UUUUUFBRBRUFRRRRRRUUUFFFFFFDDDDDDDDDFBLLLLLLLRLLBBBBBB",
+          "algorithm": "F U R U' R' F' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-018",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000011111001000110010",
+          "representative": "UUUUUFBRBUULRRRRRRRULFFFFFFDDDDDDDDDRBULLLLLLFLFBBBBBB",
+          "algorithm": "R U R' U R U2 R' F U R U' R' U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-019",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000110011010100100110",
+          "representative": "LLUFUUFURUBBRRRRRRURBFFFFFFDDDDDDDDDUURLLLLLLLUFBBBBBB",
+          "algorithm": "F R U R' U' F' U F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-020",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000110011011000001011",
+          "representative": "UURFUULBBRRURRRRRRBUUFFFFFFDDDDDDDDDFUULLLLLLFLLBBBBBB",
+          "algorithm": "R U R' U R U2 R' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-021",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000110111010000000111",
+          "representative": "UULUUFUBLUUURRRRRRRUFFFFFFFDDDDDDDDDBLFLLLLLLBRRBBBBBB",
+          "algorithm": "F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-022",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000110111011000100010",
+          "representative": "UUBUUFURFLULRRRRRRRUUFFFFFFDDDDDDDDDBBFLLLLLLULRBBBBBB",
+          "algorithm": "R U2 R' U' R U R' U' R U' R' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-023",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111000000011101110",
+          "representative": "LFBUUULRFUBURRRRRRUURFFFFFFDDDDDDDDDBLFLLLLLLRUUBBBBBB",
+          "algorithm": "F U R U' R' U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-024",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111000000111000111",
+          "representative": "BRFUUUBLFLFRRRRRRRUUUFFFFFFDDDDDDDDDRBLLLLLLLUUUBBBBBB",
+          "algorithm": "F U R U' R' F' U R U2 R' U' R U' R' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-025",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111000001111100010",
+          "representative": "RUBBUFLUBUUURRRRRRULLFFFFFFDDDDDDDDDFUFLLLLLLRRUBBBBBB",
+          "algorithm": "R U R' U R U2 R' U F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-026",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111000101010101010",
+          "representative": "FUFFURBUBRURRRRRRRUBUFFFFFFDDDDDDDDDLULLLLLLLULUBBBBBB",
+          "algorithm": "F R U R' U' R U R' U' F' U2 F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-027",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111001000110100110",
+          "representative": "FFLUUURBULLFRRRRRRUUBFFFFFFDDDDDDDDDURBLLLLLLUURBBBBBB",
+          "algorithm": "F U R U' R' U R U' R' F' R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-028",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111001001010001011",
+          "representative": "URFUUUBFRFBURRRRRRRUUFFFFFFDDDDDDDDDLLULLLLLLLUBBBBBBB",
+          "algorithm": "F R U R' U' F' U R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-029",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111100001011000011",
+          "representative": "FBUUUURFBRLBRRRRRRFUUFFFFFFDDDDDDDDDLRULLLLLLLUUBBBBBB",
+          "algorithm": "F U R U' R' U R U' R' F' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-030",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111100100010100110",
+          "representative": "LFFUUUULRURRRRRRRRLUBFFFFFFDDDDDDDDDUBBLLLLLLUUFBBBBBB",
+          "algorithm": "F R U R' U' F' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-031",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111101000010000111",
+          "representative": "BRBUUUUBUFFLRRRRRRRULFFFFFFDDDDDDDDDRLFLLLLLLUUUBBBBBB",
+          "algorithm": "F R U R' U' F' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-032",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "000111101001010100010",
+          "representative": "ULUUUULRLUBFRRRRRRBUFFFFFFFDDDDDDDDDBFULLLLLLRURBBBBBB",
+          "algorithm": "F U R U' R' U R U' R' F' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-033",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001010100010011110010",
+          "representative": "URLBUFFLUBUURRRRRRUURFFFFFFDDDDDDDDDFURLLLLLLBULBBBBBB",
+          "algorithm": "R U R' U R U2 R' F U R U' R' F' U' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-034",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001011110000001110010",
+          "representative": "FFURUUUULBBRRRRRRRFLUFFFFFFDDDDDDDDDUULLLLLLLBURBBBBBB",
+          "algorithm": "R U R' U R U2 R' U F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-035",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001011110100000010011",
+          "representative": "FUUUULUBLBURRRRRRRFUUFFFFFFDDDDDDDDDUFLLLLLLLBRRBBBBBB",
+          "algorithm": "F U R U' R' F' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-036",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001110010010001001011",
+          "representative": "RUBUUBFRULUURRRRRRLUBFFFFFFDDDDDDDDDFFULLLLLLRLUBBBBBB",
+          "algorithm": "F U R U' R' F' U' R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-037",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001110010110100100010",
+          "representative": "FURBUUULBUFBRRRRRRFULFFFFFFDDDDDDDDDUULLLLLLLURRBBBBBB",
+          "algorithm": "F R U R' U' R U R' U' F' U' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-038",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001110011010000101010",
+          "representative": "FUFUUFURUBURRRRRRRLURFFFFFFDDDDDDDDDLBBLLLLLLULUBBBBBB",
+          "algorithm": "R U R' U R U2 R' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-039",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001110011010100000011",
+          "representative": "FUFUUFULULUURRRRRRBUBFFFFFFDDDDDDDDDURRLLLLLLLBRBBBBBB",
+          "algorithm": "F R U R' U' F' R U2 R' U' R U' R' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-040",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001110110010001100010",
+          "representative": "BUURUUUFLUBBRRRRRRRUFFFFFFFDDDDDDDDDRUFLLLLLLLLUBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' U2 F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-041",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001110110110000000011",
+          "representative": "RUUFUUURFLLBRRRRRRRUUFFFFFFDDDDDDDDDUUFLLLLLLLBBBBBBBB",
+          "algorithm": "R U R' U R U2 R' F U R U' R' F' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-042",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001111001000010101010",
+          "representative": "RFUUUURRUFBBRRRRRRFULFFFFFFDDDDDDDDDULULLLLLLLUBBBBBBB",
+          "algorithm": "F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-043",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001111001000110000011",
+          "representative": "LULBURUUUBUURRRRRRRFRFFFFFFDDDDDDDDDUUFLLLLLLBLFBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' F R U R' U' F' U' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-044",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "001111100000011100010",
+          "representative": "FFUUUUUBRULFRRRRRRLUBFFFFFFDDDDDDDDDLRBLLLLLLRUUBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' F U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-045",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010011101000010010101",
+          "representative": "RULFUUURULLFRRRRRRBUBFFFFFFDDDDDDDDDFURLLLLLLUBUBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' F U R U' R' U R U' R' F'"
+        },
+        {
+          "id": "oll-cubers-046",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010011101001010110000",
+          "representative": "UBBFUUUUBRRLRRRRRRRLUFFFFFFDDDDDDDDDFUFLLLLLLUULBBBBBB",
+          "algorithm": "R U2 R' U' R U' R' U F R U R' U' R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-047",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010111010000001101100",
+          "representative": "RUFUUURUBUFURRRRRRURLFFFFFFDDDDDDDDDFBBLLLLLLLLUBBBBBB",
+          "algorithm": "F U R U' R' F' U2 F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-048",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010111010000101000101",
+          "representative": "LURUUULURFBBRRRRRRUFUFFFFFFDDDDDDDDDBRFLLLLLLULUBBBBBB",
+          "algorithm": "R U2 R' U' R U R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-049",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010111011000100100100",
+          "representative": "FUUUUURUBULLRRRRRRUFLFFFFFFDDDDDDDDDUBBLLLLLLFRRBBBBBB",
+          "algorithm": "R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-050",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010111011001000001001",
+          "representative": "RUFUUUUULBBURRRRRRBFUFFFFFFDDDDDDDDDFRRLLLLLLLLUBBBBBB",
+          "algorithm": "R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-051",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010111111000000000101",
+          "representative": "UUUUUUBUFLLFRRRRRRUBUFFFFFFDDDDDDDDDBFLLLLLLLRRRBBBBBB",
+          "algorithm": "R U R' U R U2 R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-052",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "010111111001000100000",
+          "representative": "FUUUUUFUUBBBRRRRRRULRFFFFFFDDDDDDDDDLRRLLLLLLLFUBBBBBB",
+          "algorithm": "R U R' U R U2 R' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-053",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "011010110010001110000",
+          "representative": "UFRUUUBBUBLURRRRRRUURFFFFFFDDDDDDDDDFRLLLLLLLFULBBBBBB",
+          "algorithm": "F R U R' U' F' R U R' U R U2 R'"
+        },
+        {
+          "id": "oll-cubers-054",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "011111110000001100000",
+          "representative": "UUFUUURUULFURRRRRRURBFFFFFFDDDDDDDDDRBBLLLLLLLLFBBBBBB",
+          "algorithm": "R U R' U R U2 R' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "oll-cubers-055",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "101010101010010010010",
+          "representative": "UBURULUFUFUFRRRRRRLULFFFFFFDDDDDDDDDBUBLLLLLLRURBBBBBB",
+          "algorithm": "R U R' U R U2 R' U2 F U R U' R' F' U' F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-056",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "101011111000000010010",
+          "representative": "UUUUURULULULRRRRRRBUBFFFFFFDDDDDDDDDRBRLLLLLLFFFBBBBBB",
+          "algorithm": "F R U R' U' F' U2 F R U R' U' F'"
+        },
+        {
+          "id": "oll-cubers-057",
+          "family": "OLL",
+          "puzzle": "3x3",
+          "pattern": "101111101000010000010",
+          "representative": "UUUFURUUULULRRRRRRBBBFFFFFFDDDDDDDDDRURLLLLLLFLFBBBBBB",
+          "algorithm": "F U R U' R' F' U2 F U R U' R' F'"
+        }
+      ]
+    },
+    {
+      "family": "PLL",
+      "states": 288,
+      "cases": [
+        {
+          "id": "pll-cubers-001",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBBFFRRRLLLF",
+          "representative": "UUUUUUUUUFFBRRRRRRBBLFFFFFFDDDDDDDDDRRRLLLLLLLLFBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-002",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBBFLRRFLLRF",
+          "representative": "UUUUUUUUULBRRRRRRRRLBFFFFFFDDDDDDDDDFFFLLLLLLBRLBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R U R U R' U' R' U' R' U R' U' R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-003",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBBFRRRLLLFF",
+          "representative": "UUUUUUUUUBFFRRRRRRFRRFFFFFFDDDDDDDDDLLLLLLLLLRBBBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U2 R U R U R U' R' U' R2"
+        },
+        {
+          "id": "pll-cubers-004",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBBRFRFLFLRL",
+          "representative": "UUUUUUUUURFRRRRRRRFLFFFFFFFDDDDDDDDDLRLLLLLLLBBBBBBBBB",
+          "algorithm": "R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-005",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBBRLRFRFLFL",
+          "representative": "UUUUUUUUURLRRRRRRRFRFFFFFFFDDDDDDDDDLFLLLLLLLBBBBBBBBB",
+          "algorithm": "R U' R U R U R U' R' U' R2"
+        },
+        {
+          "id": "pll-cubers-006",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBFFLRLRLRFB",
+          "representative": "UUUUUUUUULLRRRRRRRRFBFFFFFFDDDDDDDDDFBFLLLLLLBRLBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-007",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBFFRRLFLRLB",
+          "representative": "UUUUUUUUULFFRRRRRRBLBFFFFFFDDDDDDDDDFBRLLLLLLRRLBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "pll-cubers-008",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBFLFRFRBRLL",
+          "representative": "UUUUUUUUUFRBRRRRRRRLLFFFFFFDDDDDDDDDBBFLLLLLLLFRBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R U R U R' U' R' U' R' U R' U2 F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "pll-cubers-009",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBFLLRFFBRRL",
+          "representative": "UUUUUUUUURRLRRRRRRBBFFFFFFFDDDDDDDDDLLRLLLLLLFFBBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' F R U' R' U R U R2 F' R U R U' R' U F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "pll-cubers-010",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBFLRRFLBRFL",
+          "representative": "UUUUUUUUURLLRRRRRRBRFFFFFFFDDDDDDDDDLBRLLLLLLFFBBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 F R U' R' U R U R2 F' R U R U' R' U' R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-011",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBLLFRRLBFRF",
+          "representative": "UUUUUUUUURBLRRRRRRLRFFFFFFFDDDDDDDDDBLBLLLLLLFFRBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-012",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBLLRRRFBFLF",
+          "representative": "UUUUUUUUUBBLRRRRRRLRRFFFFFFDDDDDDDDDRFBLLLLLLFLFBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "pll-cubers-013",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBLRFRLRFFLB",
+          "representative": "UUUUUUUUUFLBRRRRRRBBLFFFFFFDDDDDDDDDRFRLLLLLLLRFBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U' R U R U R U' R' U' R2"
+        },
+        {
+          "id": "pll-cubers-014",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBBLRLRLFFFRB",
+          "representative": "UUUUUUUUUBLFRRRRRRFFRFFFFFFDDDDDDDDDLRLLLLLLLRBBBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "pll-cubers-015",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBFBFBRRLLLRF",
+          "representative": "UUUUUUUUULRRRRRRRRRLBFFFFFFDDDDDDDDDFBFLLLLLLBFLBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U' R U R U R U' R' U' R2"
+        },
+        {
+          "id": "pll-cubers-016",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBFBRLRFBFLRL",
+          "representative": "UUUUUUUUUBFBRRRRRRRLRFFFFFFDDDDDDDDDFBFLLLLLLLRLBBBBBB",
+          "algorithm": "R2 U R U R' U' R' U' R' U R' U' R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-017",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBFFLRRFBBRLL",
+          "representative": "UUUUUUUUULRRRRRRRRFBBFFFFFFDDDDDDDDDRLLLLLLLLBFFBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U F R U' R' U R U R2 F' R U R U' R' U' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "pll-cubers-018",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBLBFRRRFLLBF",
+          "representative": "UUUUUUUUUBRFRRRRRRFLRFFFFFFDDDDDDDDDLFLLLLLLLRBBBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-019",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBLBRFRFRFLBL",
+          "representative": "UUUUUUUUUFRFRRRRRRLBLFFFFFFDDDDDDDDDBLBLLLLLLRFRBBBBBB",
+          "algorithm": "R2 U R U R' U' R' U' R' U R' U R2 U R U R' U' R' U' R' U R'"
+        },
+        {
+          "id": "pll-cubers-020",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBLFFRRLBLRFB",
+          "representative": "UUUUUUUUURBLRRRRRRLFFFFFFFFDDDDDDDDDBRBLLLLLLFLRBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U R U' R U R U R U' R' U' R2"
+        },
+        {
+          "id": "pll-cubers-021",
+          "family": "PLL",
+          "puzzle": "3x3",
+          "pattern": "UUUUUUUUUBLFLBRFRBRFL",
+          "representative": "UUUUUUUUUFLBRRRRRRRBLFFFFFFDDDDDDDDDBRFLLLLLLLFRBBBBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 F R U' R' U R U R2 F' R U R U' R'"
+        }
+      ]
+    },
+    {
+      "family": "CLL",
+      "states": 648,
+      "cases": [
+        {
+          "id": "cll-cubers-001",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBFFLLUURRUU",
+          "representative": "LRLRUURRBBFFDDDDUULLFFBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' F R U' R' U R U R2 F' R U R U R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-002",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBFFLUUUURRL",
+          "representative": "LRLRUURRUBFFDDDDBFLLFUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U R' U' R U R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-003",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBFFUULRUURL",
+          "representative": "LRLRFBRRUUFFDDDDBFLLUUBB",
+          "algorithm": "R U2 R' U' R U R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-004",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBLRFLUURFUU",
+          "representative": "BRFRUURRLBFFDDDDUULLFLBB",
+          "algorithm": "R U R' U R U' R' U R U2 R' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-005",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBLRFUUUUFRL",
+          "representative": "LBRBRLRRFUFFDDDDUULLUFBB",
+          "algorithm": "R U2 R' U' R U' R' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-006",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBRLULFFRUUU",
+          "representative": "LFLBRRRRBUFFDDDDUULLUFBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U2 R U2 R'"
+        },
+        {
+          "id": "cll-cubers-007",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBRLUUFFUURL",
+          "representative": "LFLBRRRRUUFFDDDDBFLLUUBB",
+          "algorithm": "R U2 R' U' R U R' U' R U' R' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-008",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBUUFLRLRFUU",
+          "representative": "UUFFLBRRUUFFDDDDBRLLLRBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U' R' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-009",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBUUFURLUFRL",
+          "representative": "FUFULRRRUBFFDDDDLRLLBUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-010",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBUURLFFRLUU",
+          "representative": "UFUFUURRLRFFDDDDBBLLLRBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-011",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BBUURUFFULRL",
+          "representative": "FUFUBBRRURFFDDDDLRLLLUBB",
+          "algorithm": "R U R' U R U2 R' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-012",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFFBRRLUUUUL",
+          "representative": "BFFBRRRRLUFFDDDDUULLULBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U' R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-013",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFLUBRURUFUL",
+          "representative": "FBRUFLRRULFFDDDDUBLLURBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-014",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFLURUBFRULU",
+          "representative": "LRFUBURRLRFFDDDDBULLFUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-015",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFRUFRULUBUL",
+          "representative": "URFBUBRRULFFDDDDFRLLULBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-016",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFRULUFBRULU",
+          "representative": "UFLRFURRBUFFDDDDBULLLRBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-017",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFULBURURFLU",
+          "representative": "BFULBURRRUFFDDDDRFLLLUBB",
+          "algorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-018",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFULURBFURUL",
+          "representative": "RUBFULRRURFFDDDDULLLFBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-019",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFURFULURBLU",
+          "representative": "RLUFLURRBUFFDDDDFRLLBUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R'"
+        },
+        {
+          "id": "cll-cubers-020",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFURURFBULUL",
+          "representative": "RUFBULRRULFFDDDDURLLFBBB",
+          "algorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-021",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFUUBURRUFLL",
+          "representative": "FUBURRRRUFFFDDDDLLLLBUBB",
+          "algorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-022",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFUUFRLLRBUU",
+          "representative": "UUBFLFRRUUFFDDDDBLLLRRBB",
+          "algorithm": "R U R' U R U2 R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-023",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFUULRFBRLUU",
+          "representative": "ULURUURRFBFFDDDDRLLLBFBB",
+          "algorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R' U' R U R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-024",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BFUURUBFURLL",
+          "representative": "FUBUBFRRURFFDDDDLLLLRUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-025",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BLLFUFBRRUUU",
+          "representative": "BLLFUFRRBRFFDDDDRULLUUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-026",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BLLFUUURRFBU",
+          "representative": "LFBLURRRRFFFDDDDBULLUUBB",
+          "algorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-027",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BLRUFUFLRUBU",
+          "representative": "BLUFLURRRUFFDDDDRFLLBUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-028",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BLRURFUFUBUL",
+          "representative": "RBFUFLRRULFFDDDDURLLUBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-029",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BLUULFRBRFUU",
+          "representative": "UURFLBRRUUFFDDDDRBLLLFBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-030",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BLUURFLFRBUU",
+          "representative": "UURFLFRRUUFFDDDDLBLLRBBB",
+          "algorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-031",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BRLUFUBLRUFU",
+          "representative": "RFULBURRBUFFDDDDFRLLLUBB",
+          "algorithm": "R U R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-032",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BRLURBUFUFUL",
+          "representative": "FURBULRRULFFDDDDUBLLFRBB",
+          "algorithm": "R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-033",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BRUUBUFRULFL",
+          "representative": "RFUURURRLFFFDDDDUBLLLBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U R' U R U2 R' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-034",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BRUUFUBLURFL",
+          "representative": "RFUULURRRBFFDDDDUFLLLBBB",
+          "algorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-035",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BUUBRFFUULRL",
+          "representative": "RUURFLRRLUFFDDDDUBLLFBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' U R U R' U R U2 R'"
+        },
+        {
+          "id": "cll-cubers-036",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BUUBRLRUUFFL",
+          "representative": "UFFULURRUBFFDDDDBRLLLRBB",
+          "algorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U' R' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-037",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BUUFLFBUURRL",
+          "representative": "FUUBURRRRLFFDDDDLFLLBUBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-038",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BUUFLRRUUFBL",
+          "representative": "UFBURURRUFFFDDDDBLLLLRBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-039",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BUULUBRFRFLU",
+          "representative": "UFRURURRUFFFDDDDLBLLLBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-040",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "BUULUFLFRBRU",
+          "representative": "UFRULURRUBFFDDDDRBLLLFBB",
+          "algorithm": "R U R' U R U2 R' U2 R U2 R' U' R U' R'"
+        },
+        {
+          "id": "cll-cubers-041",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "UUUUBBFRRLLF",
+          "representative": "UUUUBFRRFRFFDDDDLLLLRBBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R'"
+        },
+        {
+          "id": "cll-cubers-042",
+          "family": "CLL",
+          "puzzle": "2x2",
+          "pattern": "UUUUBFLRFBRL",
+          "representative": "UUUUFBRRRLFFDDDDBFLLLRBB",
+          "algorithm": "F R U' R' U R U R2 F' R U R U' R' U2 F R U' R' U R U R2 F' R U R U' R'"
+        }
+      ]
+    }
+  ]
+}

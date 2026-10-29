@@ -1,0 +1,10 @@
+cubing.js 0.66.1 - The js.cubing.net team and contributors
+Used unmodified as a server-side dependency under its MPL-2.0 option.
+Source: https://github.com/cubing/cubing.js/tree/8544249ff1e662557df912065a26b5f90f4df574
+Package: https://registry.npmjs.org/cubing/-/cubing-0.66.1.tgz
+Package SHA-256: b3303fa3ae3eddb59e99f9bd4ae17acb30ba7e713132fe08e8da836291961a0a
+License: cubing-MPL-2.0.txt in this directory.
+The upstream project includes vendored components under additional licenses.
+Preserve the unmodified dependency package and upstream source notices.
+Cubers' separate minimum-distance filter is not an upstream library modification.
+No WCA endorsement or official-competition approval is claimed.

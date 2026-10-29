@@ -1,0 +1,1 @@
+ALTER TABLE "RecoveryBinding" ADD COLUMN "journalFloor" INTEGER NOT NULL DEFAULT 0, ADD COLUMN "journalCount" INTEGER NOT NULL DEFAULT 0, ADD COLUMN "journalDigest" TEXT;

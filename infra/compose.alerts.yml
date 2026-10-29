@@ -1,0 +1,19 @@
+# OPTIONAL: operator-commissioned, same-region HTTPS alert receiver only.
+# No outbound delivery occurs without this overlay and private configuration.
+services:
+  monitor:
+    environment:
+      OPERATIONS_ALERT_FILE: /run/secrets/cubers-operational-alerts.json
+      OPERATIONS_ALERT_OUTBOX_DIRECTORY: /var/lib/cubers/alert-outbox
+      OPERATIONS_ALERT_ALLOWED_HOSTS: ${CUBERS_ALERT_ALLOWED_HOSTS:?Set the exact approved regional alert hosts}
+    volumes:
+      - type: bind
+        source: ${CUBERS_ALERT_KEY_HOST_DIRECTORY:?Set the private regional alert key directory}/operational-alerts.json
+        target: /run/secrets/cubers-operational-alerts.json
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_ALERT_OUTBOX_HOST_DIRECTORY:?Set a private persistent regional alert outbox}
+        target: /var/lib/cubers/alert-outbox
+        bind: { create_host_path: false }
+    networks: [private, edge]

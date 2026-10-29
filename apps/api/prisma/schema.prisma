@@ -1,0 +1,818 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  email String @unique
+  passwordHash String
+  displayName String
+  birthDate String
+  region String
+  emailVerified Boolean @default(false)
+  identityVerified Boolean @default(false)
+  adultVerified Boolean @default(false)
+  role String @default("USER")
+  mfaSecret String?
+  mfaGeneration Int @default(0)
+  mfaLastStep Int @default(-1)
+  staffRecoveryHash String?
+  bio String @default("")
+  privateProfile Boolean @default(true)
+  connectionSettings Json @default("{}")
+  notificationSettings Json @default("{}")
+  notificationRevision Int @default(1)
+  profileSettings Json @default("{}")
+  profileRevision Int @default(1)
+  profileStatus String @default("DRAFT")
+  profileReason String?
+  profileBioReviewed Boolean @default(false)
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+  appAttestationKeys AppAttestationKey[]
+  appAttestationChallenges AppAttestationChallenge[]
+  appAttestationGrants AppAttestationGrant[]
+  sessions Session[]
+  posts Post[]
+  comments Comment[]
+  progress Progress[]
+  attempts Attempt[]
+  notifications Notification[]
+  goals PracticeGoal[]
+  lessonSessions LessonSession[]
+  assessments LearningAssessment[]
+  guidedSolves GuidedSolve[]
+  replayShares ReplayShare[] @relation("ReplayShareOwner")
+  replayApprovals ReplayShare[] @relation("ReplayShareGuardian")
+  achievementCards AchievementCard[] @relation("CardOwner")
+  cardApprovals AchievementCard[] @relation("CardGuardian")
+  competitions Competition[]
+  competitionEntries CompetitionEntry[]
+  competitionApprovals CompetitionPublication[]
+  requestedConnections Connection[] @relation("ConnectionRequester")
+  receivedConnections Connection[] @relation("ConnectionRecipient")
+  deviceTestContributions DeviceTestContributor[]
+  deviceTestReviews DeviceTestReport[] @relation("DeviceTestReviewer")
+  @@index([profileStatus, id])
+}
+enum AchievementCardStatus {
+  PENDING_GUARDIAN
+  PENDING_REVIEW
+  READY
+  REJECTED
+  CANCELLED
+}
+model AchievementCard {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation("CardOwner", fields: [userId], references: [id], onDelete: Cascade)
+  guardianId String? @db.Uuid
+  guardian User? @relation("CardGuardian", fields: [guardianId], references: [id], onDelete: SetNull)
+  achievementId String
+  locale String
+  namedLabel String?
+  namedRevision Int?
+  templateVersion Int @default(1)
+  imageDigest String
+  status AchievementCardStatus
+  revision Int @default(1)
+  reason String?
+  reviewerId String? @db.Uuid
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  @@index([userId,createdAt(sort: Desc),id(sort: Desc)])
+  @@index([guardianId,status,createdAt(sort: Desc),id(sort: Desc)])
+  @@index([status,createdAt(sort: Desc),id(sort: Desc)])
+  @@index([createdAt])
+}
+enum ConnectionKind {
+  FRIEND
+  MENTORSHIP
+}
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  ENDED
+  EXPIRED
+}
+model Connection {
+  id String @id @default(uuid()) @db.Uuid
+  pairKey String @unique
+  kind ConnectionKind
+  requesterId String @db.Uuid
+  requester User @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipientId String @db.Uuid
+  recipient User @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  clubId String? @db.Uuid
+  clubRequired Boolean @default(false)
+  status ConnectionStatus @default(PENDING)
+  version Int @default(0)
+  recipientAccepted Boolean @default(false)
+  guardianApprovals Json @default("{}")
+  clubApproval Json?
+  expiresAt DateTime
+  retryAfter DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([requesterId, status, createdAt])
+  @@index([recipientId, status, createdAt])
+  @@index([clubId, status])
+}
+model LessonSession {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId String
+  puzzle String
+  input String
+  algorithm String
+  guideId String?
+  guideAlgorithm String?
+  smart Json?
+  smartSeenAt DateTime?
+  courseVersion Int
+  moves String[] @default([])
+  status String @default("PREPARING")
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+  @@index([userId,createdAt])
+  @@index([userId,input,status])
+}
+model LearningAssessment {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puzzle String
+  definitionVersion String
+  tasks Json
+  answers Json @default("[]")
+  status String @default("ACTIVE")
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  finishedAt DateTime?
+  @@index([userId, puzzle, createdAt])
+  @@index([status, expiresAt])
+}
+model GuidedSolve {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  input String
+  puzzle String @default("3x3")
+  courseId String @default("3-first-solve")
+  courseVersion Int
+  initialFaces Json
+  scrambleSource Json?
+  smart Json?
+  smartSeenAt DateTime?
+  currentFaces Json
+  checkpointFaces Json
+  plan Json
+  stage Int @default(0)
+  stageMoves String[] @default([])
+  moves String[] @default([])
+  checkpoints Json @default("[]")
+  status String @default("ACTIVE")
+  version Int @default(0)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  finishedAt DateTime?
+  @@index([userId, createdAt])
+  @@index([userId, puzzle, createdAt])
+  @@index([status, expiresAt])
+  @@index([userId,input,status])
+}
+model PracticeGoal {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  puzzle String
+  input String
+  kind String
+  target Int
+  createdAt DateTime @default(now())
+  @@index([userId,createdAt])
+}
+model Session {
+  appAttestationChallenges AppAttestationChallenge[]
+  appAttestationGrants AppAttestationGrant[]
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  mfaVerified Boolean @default(false)
+  scope String @default("FULL")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+model AuthToken {
+  id String @id @default(uuid()) @db.Uuid
+  tokenHash String @unique
+  userId String @db.Uuid
+  purpose String
+  expiresAt DateTime
+}
+model Consent {
+  id String @id @default(uuid()) @db.Uuid
+  childId String @unique @db.Uuid
+  guardianId String @db.Uuid
+  status String @default("PENDING")
+  documentId String @db.Uuid
+  publicPosting Boolean @default(false)
+  recording Boolean @default(false)
+  reviewerId String? @db.Uuid
+  reviewedAt DateTime?
+  reason String?
+  createdAt DateTime @default(now())
+  @@index([guardianId])
+}
+// Independent of user/media foreign keys so a late signed PUT can be removed
+// after the account and its Media row have already been deleted.
+model ObjectRemoval {
+  id String @id @db.Uuid
+  keys String[]
+  retryAt DateTime @default(now())
+  expiresAt DateTime
+  @@index([retryAt])
+}
+// This binding travels with a database backup; journal files and key do not.
+model RecoveryBinding {
+  id String @id @default("installation")
+  region String
+  installationId String @unique @db.Uuid
+  journalKeyId String
+  state String @default("ACTIVE")
+  restoredSnapshotId String? @db.Uuid
+  restoredSource String?
+  journalFloor Int @default(0)
+  journalCount Int @default(0)
+  journalDigest String?
+  createdAt DateTime @default(now())
+}
+// Durable ownership of isolated restore writes, independent of live media rows.
+model MediaRestoreBatch {
+  id String @id @db.Uuid
+  bundleId String @db.Uuid
+  snapshotId String @db.Uuid
+  indexDigest String
+  bucket String @unique
+  storage String
+  status String @default("INCOMPLETE")
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  files MediaRestoreFile[]
+}
+model MediaRestoreFile {
+  batchId String @db.Uuid
+  // Restore identities are immutable; match the deployed NO ACTION update rule.
+  batch MediaRestoreBatch @relation(fields:[batchId],references:[id],onDelete:Cascade,onUpdate:NoAction)
+  objectId String @db.Uuid
+  mediaId String @db.Uuid
+  userId String @db.Uuid
+  key String
+  sha256 String
+  type String
+  size Int
+  status String @default("PENDING")
+  expiresAt DateTime
+  @@id([batchId,objectId])
+  @@index([expiresAt])
+}
+model DeletionReceipt {
+  id String @id @db.Uuid
+  digest String
+  appliedAt DateTime @default(now())
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+// Independent of User rows so restored/orphaned uploads can still be erased.
+model AccountRemoval {
+  id String @id @db.Uuid
+  requestedAt DateTime
+  retryAt DateTime @default(now())
+  expiresAt DateTime
+  @@index([retryAt])
+}
+// Recovery metadata has no Media/User FK: an older restore may lack those rows.
+model MediaRecoveryState {
+  id String @id @db.Uuid
+  userId String @db.Uuid
+  sequence Int
+  erasedAt DateTime?
+  deadline DateTime?
+  attemptId String? @db.Uuid
+  @@index([userId])
+}
+model ConsentWithdrawalRecovery {
+  id String @id @db.Uuid
+  cutoff DateTime
+  sequence Int
+}
+model Post {
+  id String @id @default(uuid()) @db.Uuid
+  authorId String @db.Uuid
+  author User @relation(fields:[authorId],references:[id],onDelete:Cascade)
+  body String
+  kind String @default("DISCUSSION")
+  tags String[]
+  mediaIds String[]
+  clubId String? @db.Uuid
+  aiGenerated Boolean @default(false)
+  aiSourceLabel String?
+  status String @default("PENDING")
+  guardianApproved Boolean @default(false)
+  moderatorApproved Boolean @default(false)
+  reason String?
+  revision Int @default(1)
+  createdAt DateTime @default(now())
+  comments Comment[]
+  @@index([status,createdAt])
+  @@index([clubId,kind,status,createdAt,id])
+}
+model Comment {
+  id String @id @default(uuid()) @db.Uuid
+  postId String @db.Uuid
+  post Post @relation(fields:[postId],references:[id],onDelete:Cascade)
+  authorId String @db.Uuid
+  author User @relation(fields:[authorId],references:[id],onDelete:Cascade)
+  parentId String? @db.Uuid
+  body String
+  status String @default("PENDING")
+  createdAt DateTime @default(now())
+  @@index([postId,status,createdAt,id])
+}
+model Social {
+  id String @id @default(uuid()) @db.Uuid
+  actorId String @db.Uuid
+  targetId String
+  kind String
+  createdAt DateTime @default(now())
+  @@unique([actorId,targetId,kind])
+}
+model Club {
+  id String @id @default(uuid()) @db.Uuid
+  ownerId String @db.Uuid
+  inviteCode String @unique @default(uuid())
+  name String
+  description String
+  private Boolean @default(false)
+  status String @default("PENDING")
+  reason String?
+  revision Int @default(1)
+  createdAt DateTime @default(now())
+}
+model Membership {
+  id String @id @default(uuid()) @db.Uuid
+  clubId String @db.Uuid
+  userId String @db.Uuid
+  status String @default("PENDING")
+  @@unique([clubId,userId])
+}
+model Course {
+  id String @id
+  puzzle String
+  level String
+  content Json
+  published Boolean @default(false)
+  version Int @default(1)
+  revisions CourseRevision[]
+}
+model CourseRevision {
+  courseId String
+  // Historical course identity must not be renamed through a parent-key update.
+  course Course @relation(fields:[courseId],references:[id],onDelete:Cascade,onUpdate:NoAction)
+  version Int
+  content Json
+  published Boolean
+  digest String
+  createdAt DateTime @default(now())
+  @@id([courseId, version])
+}
+model Progress {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  lessonId String
+  courseVersion Int?
+  completed Boolean @default(false)
+  moves String[]
+  lastPracticedAt DateTime @default(now())
+  reviewAt DateTime @default(now())
+  repetitions Int @default(0)
+  @@unique([userId,lessonId])
+}
+model Room {
+  mixed Boolean @default(false)
+  mixedScramble Json?
+  mixedScrambleSource Json?
+  mixedChallengeDate String?
+  id String @id @default(uuid()) @db.Uuid
+  code String @unique
+  ownerId String @db.Uuid
+  puzzle String
+  input String
+  mode String
+  ranked Boolean
+  private Boolean
+  status String @default("OPEN")
+  round Int @default(0)
+  roster String[] @default([])
+  target String[] @default([])
+  createdAt DateTime @default(now())
+  attempts Attempt[]
+  competitionAttempt Boolean @default(false)
+  competitionEntryId String? @db.Uuid
+  competitionEntry CompetitionEntry? @relation(fields:[competitionEntryId],references:[id],onDelete:SetNull)
+  competitionRoundId String? @db.Uuid
+  competitionRound CompetitionRound? @relation(fields:[competitionRoundId],references:[id],onDelete:SetNull)
+  competitionIndex Int?
+  @@unique([competitionEntryId,competitionRoundId,competitionIndex])
+}
+model RoomMember {
+  input String?
+  id String @id @default(uuid()) @db.Uuid
+  roomId String @db.Uuid
+  userId String @db.Uuid
+  @@unique([roomId,userId])
+}
+model Attempt {
+  appAttestationChallenges AppAttestationChallenge[]
+  appAttestationGrants AppAttestationGrant[]
+  shares ReplayShare[]
+  input String?
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  roomId String @db.Uuid
+  room Room @relation(fields:[roomId],references:[id],onDelete:Cascade)
+  nonce String @unique
+  scramble String[]
+  scrambleSource Json?
+  status String @default("CREATED")
+  moves Json @default("[]")
+  smart Json?
+  smartSeenAt DateTime?
+  version Int @default(0)
+  recordingAt DateTime?
+  scrambleVerifiedAt DateTime?
+  finalScanVerifiedAt DateTime?
+  inspectionAt DateTime?
+  startedAt DateTime?
+  finishedAt DateTime?
+  durationMs Int?
+  penaltyMs Int @default(0)
+  evidenceId String? @unique @db.Uuid
+  reviewerId String? @db.Uuid
+  reason String?
+  appealed Boolean @default(false)
+  finalizedAt DateTime?
+  evidenceDeleteAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId,status,createdAt(sort: Desc),id(sort: Desc)])
+  @@index([status,createdAt])
+  @@unique([roomId,userId])
+}
+model Competition {
+  id String @id @default(uuid()) @db.Uuid
+  creatorId String? @db.Uuid
+  creator User? @relation(fields:[creatorId],references:[id],onDelete:SetNull)
+  title Json
+  description Json
+  puzzle String
+  input String
+  ranked Boolean
+  capacity Int
+  nextNumber Int @default(1)
+  status String @default("DRAFT")
+  version Int @default(1)
+  registrationOpensAt DateTime
+  registrationClosesAt DateTime
+  startsAt DateTime
+  endsAt DateTime
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  rounds CompetitionRound[]
+  entries CompetitionEntry[]
+  @@index([status,startsAt,id])
+  @@index([expiresAt])
+}
+model CompetitionRound {
+  id String @id @default(uuid()) @db.Uuid
+  competitionId String @db.Uuid
+  competition Competition @relation(fields:[competitionId],references:[id],onDelete:Cascade)
+  ordinal Int
+  title Json
+  format String
+  opensAt DateTime
+  closesAt DateTime
+  scrambles Json
+  scrambleSource Json?
+  rooms Room[]
+  @@unique([competitionId,ordinal])
+}
+model CompetitionEntry {
+  id String @id @default(uuid()) @db.Uuid
+  competitionId String @db.Uuid
+  competition Competition @relation(fields:[competitionId],references:[id],onDelete:Cascade)
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  number Int
+  status String @default("REGISTERED")
+  createdAt DateTime @default(now())
+  rooms Room[]
+  publications CompetitionPublication[]
+  @@unique([competitionId,userId])
+  @@unique([competitionId,number])
+  @@index([userId,createdAt])
+}
+model CompetitionPublication {
+  id String @id @default(uuid()) @db.Uuid
+  entryId String @db.Uuid
+  entry CompetitionEntry @relation(fields:[entryId],references:[id],onDelete:Cascade)
+  scope String
+  guardianId String? @db.Uuid
+  guardian User? @relation(fields:[guardianId],references:[id],onDelete:SetNull)
+  consentDigest String?
+  status String
+  revision Int @default(1)
+  snapshot Json
+  resultDigest String
+  reason String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([entryId,scope])
+  @@index([guardianId,status,createdAt,id])
+  @@index([status,createdAt,id])
+}
+model Media {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  key String @unique
+  type String
+  purpose String
+  size Int
+  sha256 String?
+  aiLabel String?
+  aiMetadata Json?
+  aiDeclared Boolean @default(false)
+  evidenceFingerprint String? @unique
+  attemptId String? @db.Uuid
+  durationMs Int?
+  status String @default("PENDING")
+  createdAt DateTime @default(now())
+  @@index([attemptId])
+  @@index([sha256])
+}
+model Report {
+  id String @id @default(uuid()) @db.Uuid
+  reporterId String @db.Uuid
+  targetId String
+  reason String
+  status String @default("OPEN")
+  createdAt DateTime @default(now())
+}
+enum NotificationCategory {
+  SYSTEM
+  REVIEW
+  CONNECTION
+  CLUB
+}
+model Notification {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  title String
+  body String
+  category NotificationCategory @default(SYSTEM)
+  read Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([userId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([userId, read, createdAt])
+}
+model Audit {
+  id String @id @default(uuid()) @db.Uuid
+  actorId String
+  action String
+  targetId String
+  detail Json
+  createdAt DateTime @default(now())
+}
+model Setting {
+  key String @id
+  value Json
+}
+model Campaign {
+  id String @id @default(uuid()) @db.Uuid
+  title String
+  destination String
+  enabled Boolean @default(false)
+  reviewed Boolean @default(false)
+  startsAt DateTime
+  endsAt DateTime
+  content Json?
+  version Int @default(1)
+  reviewedAt DateTime?
+  archiveReference String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  revisions CampaignRevision[]
+}
+model CampaignRevision {
+  id String @id @default(uuid()) @db.Uuid
+  campaignId String @db.Uuid
+  campaign Campaign @relation(fields:[campaignId],references:[id],onDelete:Cascade)
+  version Int
+  snapshot Json
+  reason String
+  retainUntil DateTime
+  createdAt DateTime @default(now())
+  @@unique([campaignId,version])
+  @@index([retainUntil,id])
+}
+model Announcement {
+  id String @id @default(uuid()) @db.Uuid
+  kind String
+  content Json
+  version Int @default(1)
+  published Boolean @default(false)
+  reviewedAt DateTime?
+  courseId String?
+  courseVersion Int?
+  startsAt DateTime
+  endsAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  revisions AnnouncementRevision[]
+  @@index([published,startsAt,id])
+  @@index([endsAt,id])
+}
+model AnnouncementRevision {
+  id String @id @default(uuid()) @db.Uuid
+  announcementId String @db.Uuid
+  announcement Announcement @relation(fields:[announcementId],references:[id],onDelete:Cascade)
+  version Int
+  snapshot Json
+  reason String
+  createdAt DateTime @default(now())
+  @@unique([announcementId,version])
+}
+model DeviceTestReport {
+  id String @id @default(uuid()) @db.Uuid
+  model String
+  content Json
+  version Int @default(1)
+  status String @default("DRAFT")
+  reviewerId String? @db.Uuid
+  reviewer User? @relation("DeviceTestReviewer", fields:[reviewerId], references:[id], onDelete:SetNull)
+  reviewedAt DateTime?
+  reviewedVersion Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  expiresAt DateTime
+  contributors DeviceTestContributor[]
+  revisions DeviceTestRevision[]
+  @@index([model,status,id])
+  @@index([expiresAt,id])
+}
+model DeviceTestContributor {
+  id String @id @default(uuid()) @db.Uuid
+  reportId String @db.Uuid
+  report DeviceTestReport @relation(fields:[reportId],references:[id],onDelete:Cascade)
+  userId String? @db.Uuid
+  user User? @relation(fields:[userId],references:[id],onDelete:SetNull)
+  @@unique([reportId,userId])
+  @@index([userId])
+}
+model DeviceTestRevision {
+  id String @id @default(uuid()) @db.Uuid
+  reportId String @db.Uuid
+  report DeviceTestReport @relation(fields:[reportId],references:[id],onDelete:Cascade)
+  version Int
+  snapshot Json
+  reason String
+  createdAt DateTime @default(now())
+  @@unique([reportId,version])
+}
+
+model ReplayShare {
+ id String @id @default(uuid()) @db.Uuid
+ userId String @db.Uuid
+ user User @relation("ReplayShareOwner",fields:[userId],references:[id],onDelete:Cascade)
+ attemptId String @db.Uuid
+ attempt Attempt @relation(fields:[attemptId],references:[id],onDelete:Cascade)
+ guardianId String? @db.Uuid
+ guardian User? @relation("ReplayShareGuardian",fields:[guardianId],references:[id],onDelete:SetNull)
+ guardianRequired Boolean
+ reviewRequired Boolean
+ packet Json
+ packetDigest String
+ sourceDigest String
+ status String
+ revision Int @default(1)
+ tokenHash String? @unique
+ guardianApprovedAt DateTime?
+ reviewerId String? @db.Uuid
+ reason String?
+ createdAt DateTime @default(now())
+ expiresAt DateTime
+ @@index([userId,createdAt(sort:Desc),id(sort:Desc)])
+ @@index([guardianId,status,createdAt(sort:Desc),id(sort:Desc)])
+ @@index([status,createdAt(sort:Desc),id(sort:Desc)])
+ @@index([expiresAt])
+}
+
+model AppAttestationKey {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  provider String
+  keyIdHash String @unique
+  publicKeyHash String @unique
+  publicKeyPem String?
+  appId String
+  distribution String
+  enrolledBundleVersion String
+  bundleVersion String
+  policyDigest String
+  counter BigInt @default(0)
+  version Int @default(0)
+  status String @default("ACTIVE")
+  receiptCiphertext String?
+  receiptExpiresAt DateTime
+  receiptAutoRefresh Boolean @default(false)
+  receiptRefreshAt DateTime?
+  receiptRefreshLease String? @db.Uuid
+  receiptRefreshLeaseUntil DateTime?
+  receiptRefreshFailures Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastVerifiedAt DateTime
+  challenges AppAttestationChallenge[]
+  grants AppAttestationGrant[]
+  @@index([userId,createdAt,id])
+  @@index([status,receiptExpiresAt])
+  @@index([receiptAutoRefresh,status,receiptRefreshAt,id], map:"AppAttestationKey_receiptAutoRefresh_status_receiptRefreshAt_id")
+}
+model AppAttestationChallenge {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  sessionId String @db.Uuid
+  session Session @relation(fields:[sessionId],references:[id],onDelete:Cascade)
+  keyId String? @db.Uuid
+  key AppAttestationKey? @relation(fields:[keyId],references:[id],onDelete:Cascade)
+  attemptId String? @db.Uuid
+  attempt Attempt? @relation(fields:[attemptId],references:[id],onDelete:Cascade)
+  provider String
+  region String
+  purpose String
+  operation String?
+  keyIdHash String?
+  policyDigest String
+  contextDigest String
+  payloadDigest String?
+  attemptVersion Int?
+  attemptDigest String?
+  challengeHash String @unique
+  status String @default("PENDING")
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  claimedAt DateTime?
+  finishedAt DateTime?
+  grant AppAttestationGrant?
+  @@index([userId,status,expiresAt])
+  @@index([createdAt])
+}
+model AppAttestationGrant {
+  provider String @default("apple-app-attest")
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id],onDelete:Cascade)
+  sessionId String @db.Uuid
+  session Session @relation(fields:[sessionId],references:[id],onDelete:Cascade)
+  keyId String? @db.Uuid
+  key AppAttestationKey? @relation(fields:[keyId],references:[id],onDelete:Cascade)
+  challengeId String @unique @db.Uuid
+  challenge AppAttestationChallenge @relation(fields:[challengeId],references:[id],onDelete:Cascade)
+  attemptId String @db.Uuid
+  attempt Attempt @relation(fields:[attemptId],references:[id],onDelete:Cascade)
+  policyDigest String
+  operation String
+  payloadDigest String
+  attemptDigest String
+  attemptVersion Int
+  keyVersion Int?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  consumedAt DateTime?
+  @@index([userId,expiresAt])
+  @@index([expiresAt])
+}

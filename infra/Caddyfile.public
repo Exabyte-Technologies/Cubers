@@ -1,0 +1,18 @@
+# Shared by production and isolated local TLS verification.
+(public_pages) {
+  encode zstd gzip
+  header {
+    Strict-Transport-Security "max-age=31536000"
+    Referrer-Policy "no-referrer"
+  }
+  request_body {
+    max_size 131072
+  }
+  @api path /v1/* /socket.io /socket.io/*
+  handle @api {
+    reverse_proxy api:3000
+  }
+  handle {
+    reverse_proxy web:8080
+  }
+}

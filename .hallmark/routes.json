@@ -1,0 +1,192 @@
+[
+  {
+    "file": "apps/mobile/app/index.tsx",
+    "route": "index",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/competition-reviews.tsx",
+    "route": "competition-reviews",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/clubs.tsx",
+    "route": "clubs",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/guardian-cards.tsx",
+    "route": "guardian-cards",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/case-recognition.tsx",
+    "route": "case-recognition",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/replay-shares.tsx",
+    "route": "replay-shares",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/app-verification.tsx",
+    "route": "app-verification",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/guardian.tsx",
+    "route": "guardian",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/devices.tsx",
+    "route": "devices",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/connections.tsx",
+    "route": "connections",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/downloads.tsx",
+    "route": "downloads",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/notifications.tsx",
+    "route": "notifications",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/statistics.tsx",
+    "route": "statistics",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/assessment.tsx",
+    "route": "assessment",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/rankings.tsx",
+    "route": "rankings",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/reset-password.tsx",
+    "route": "reset-password",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/_layout.tsx",
+    "route": "_layout",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/first-solve.tsx",
+    "route": "first-solve",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/invitation.tsx",
+    "route": "invitation",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/verify.tsx",
+    "route": "verify",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/achievement-cards.tsx",
+    "route": "achievement-cards",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/announcements.tsx",
+    "route": "announcements",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/delete-account.tsx",
+    "route": "delete-account",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/club/[id].tsx",
+    "route": "club/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/room/[id].tsx",
+    "route": "room/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/discover/[id].tsx",
+    "route": "discover/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/post/[id].tsx",
+    "route": "post/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/(tabs)/index.tsx",
+    "route": "(tabs)/index",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/(tabs)/learn.tsx",
+    "route": "(tabs)/learn",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/(tabs)/profile.tsx",
+    "route": "(tabs)/profile",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/(tabs)/_layout.tsx",
+    "route": "(tabs)/_layout",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/(tabs)/play.tsx",
+    "route": "(tabs)/play",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/profile/[id].tsx",
+    "route": "profile/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/profile/edit.tsx",
+    "route": "profile/edit",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/replay/[id].tsx",
+    "route": "replay/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/competition/[id].tsx",
+    "route": "competition/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/lesson/[id].tsx",
+    "route": "lesson/[id]",
+    "type": "app screen"
+  },
+  {
+    "file": "apps/mobile/app/legal/[slug].tsx",
+    "route": "legal/[slug]",
+    "type": "app screen"
+  }
+]

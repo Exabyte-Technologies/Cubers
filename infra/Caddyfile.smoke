@@ -1,0 +1,29 @@
+{
+  skip_install_trust
+  servers {
+    max_header_size 16KB
+    timeouts {
+      read_header 10s
+      read_body 30s
+      idle 2m
+    }
+  }
+}
+import /etc/caddy/public-pages.caddy
+https://app.localhost {
+  tls internal
+  import public_pages
+}
+https://localhost {
+  tls internal
+  request_body {
+    max_size 131072
+  }
+  @api path /v1/* /socket.io /socket.io/*
+  handle @api {
+    reverse_proxy api:3000
+  }
+  handle {
+    reverse_proxy admin:8080
+  }
+}

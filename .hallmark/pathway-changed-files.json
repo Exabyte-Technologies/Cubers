@@ -1,0 +1,8 @@
+[
+  "apps/mobile/app/(tabs)/index.tsx",
+  "apps/mobile/app/(tabs)/learn.tsx",
+  "apps/mobile/app/(tabs)/play.tsx",
+  "apps/mobile/app/(tabs)/profile.tsx",
+  "apps/mobile/app/lesson/[id].tsx",
+  "apps/mobile/src/ui.tsx"
+]

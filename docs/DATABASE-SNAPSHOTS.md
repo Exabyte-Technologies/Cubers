@@ -1,0 +1,83 @@
+# Encrypted database snapshots and sealed restores
+
+Standalone snapshot expiry (2026-10-24): an optional network-disabled worker now removes authenticated managed database-only archives at their fixed 30-day deadline. It preserves live archives/shared keys, verifies exact signed region/installation/source and ciphertext length/hash, resumes interrupted deletion, refuses unsafe/incomplete files and exposes private health checks. **359 source / 314 backend** checks, types/builds and formatting pass. Docker **6656422d** passes **63 INTL / 59 CN** groups on **46 unchanged migrations**, including the actual protected CLI and clock-override refusal. Exact-image encrypted restore **4921976d** passes **29 groups per region**, including expiry of a real PostgreSQL dump at a library-only test deadline; both restore targets stay sealed. A separate read-only, network-disabled container verifies daemon expiry, health and graceful stop. Packaged hashes match 58 API, 56 migration-image, 48 recovery files and three admin assets. Disposable resources and six inherited restore volumes are removed. All thirteen saved preview history snapshots remain unchanged and tutoring stays simulated. No real retention period was waited out, production service was commissioned, browser/native acceptance was performed or regulatory approval established. Independent vault control/target-inventory expiry, provider copies and custody still need work. See [SNAPSHOT-EXPIRY.md](SNAPSHOT-EXPIRY.md).
+
+Earlier current-source drill (2026-10-19): **c06d9a2d**, recovery image `75140f610b58` / migrations image `1d2d743b42ef`, passed **17 INTL / 17 CN** groups with **34 migrations**, real encrypted dump/restore and sealed targets. Current sources were recompiled using matching cached Linux dependency bases after registry refresh failed; OS/runtime/dependencies were not refreshed. Independent cleanup found zero owned containers/networks/volumes and dangling volumes. Source checks pass 206 unit / 199 integration cases. See [DOCKER-VERIFICATION.md](DOCKER-VERIFICATION.md) and [COMMUNITY-AUTHORITY.md](COMMUNITY-AUTHORITY.md).
+
+Earlier full-base stage (2026-10-19): rebuilt recovery image `2431cc52ed91` and drill `fff0dbe3` passed **17 INTL / 17 CN** groups on all **34 migrations**. Image/video source claims and forced pending post labels survived real encrypted PostgreSQL dump/restore without publishing or unsealing either target. Independent cleanup found zero owned containers/networks/volumes and zero dangling volumes; six inherited anonymous volumes were removed. Source checks pass 206 unit / 189 integration cases. See [VIDEO-AI-PROVENANCE.md](VIDEO-AI-PROVENANCE.md).
+
+Implemented 2026-10-18. This is a **database-only stage** of the complete recovery system. This command does not capture S3 media, reopen services, restore public permissions or commission staff. The separate [media vault](MEDIA-VAULT.md) now captures ready media and a database dump from the same exported snapshot, verifies copies and explicitly prunes expired keys/ciphertext. [Isolated media restoration](MEDIA-RESTORE.md) is now connected, and [recurring managed-vault/target cleanup](MEDIA-MAINTENANCE.md) is connected; actual provider/alert acceptance and service commissioning remain unfinished. All restored databases remain `SEALED`; no unseal command is provided while media retention, withdrawal reconciliation and fresh credential/consent acceptance remain unfinished. Keep public release approval false.
+
+## Capture and integrity
+
+The offline operator uses PostgreSQL 17 `pg_dump` custom format. PostgreSQL provides a consistent database snapshot; this does not establish consistency with external storage. See the official [pg_dump documentation](https://www.postgresql.org/docs/17/app-pgdump.html). The database must have a current regional `RecoveryBinding`, and all user rows must belong to that region. It excludes the binding and recovery-only receipt/state/restore-batch data; current events rebuild retained recovery state. Version-2 manifests authenticate the database's applied checkpoint as well as the current journal prefix. A restore cannot recover an active installation flag or rely on retired history. See [JOURNAL-RETENTION.md](JOURNAL-RETENTION.md).
+
+Dump stdout streams through AES-256-GCM before any persistent file write. There is a fresh nonce per capture and a separate 32-byte snapshot key, bound to the current region, installation and deletion-journal key identity. Keys remain private, outside both the snapshot directory and journal directory. No key or credential is passed in command arguments or printed by the CLI. PostgreSQL connection fields use a dedicated child environment; AI keys and SMTP settings are not forwarded. The provided image includes matching PostgreSQL 17 clients and Node, and has no public listener.
+
+Each random snapshot directory contains `database.enc` and an authenticated `manifest.json`. The manifest binds the ciphertext size/digest/tag, snapshot/installation/key identities, source database fingerprint, capture start/end, 30-day restore expiry and the accepted deletion-inventory prefix. A manifest is published only after the dump stream succeeds, the producer exits without warnings and the encrypted file is synchronized. A failed capture removes its own incomplete encrypted output and manifest only after confirming the newly created directory identity and the exact private regular output files. It does not recursively remove directories. A stream error, producer warning/failure, empty dump or unavailable deletion inventory cannot publish an accepted snapshot; completed older snapshots and independent keys are preserved. Unexpected files, symlink/hardlink outputs or a replacement directory stop cleanup and surface an explicit incomplete-cleanup failure for protected operator review. A process kill or host crash can still leave an incomplete directory; abandoned-capture recovery and automated physical expiry remain unfinished. Ciphertext and plaintext streams are limited to 1 GiB; oversized work fails closed.
+
+Verification authenticates every ciphertext byte and checks current deletion-inventory completeness, installation/region/key, manifest fields and expiry. Newer deletions may extend the inventory; overwriting the current journal with an old snapshot's copy is forbidden. An expired snapshot cannot be restored through this tool. This is **not yet automatic physical destruction after 30 days**; retention/pruning and monitored off-host custody remain required.
+
+## Explicit private operator requests
+
+Use a regular mode-0600 JSON file in an owned mode-0700 real directory. The request always names the current `REGION`, exact database hostname and database name; credentials remain in the operator's protected environment file.
+
+```json
+{
+  "operation": "initialize-key",
+  "region": "INTL",
+  "databaseHost": "postgres",
+  "databaseName": "cubers",
+  "directory": "/var/lib/cubers/snapshots",
+  "keyFile": "/var/lib/cubers/recovery-key/database-snapshots.json",
+  "confirmation": "INITIALIZE SNAPSHOT KEY"
+}
+```
+
+The destination key file must not exist. Initialization refuses overwrites and never changes the deletion-journal key. Prepare the key directory and empty snapshot directory first, owned by UID/GID 1000 and mode 0700. Do not reuse these paths across regions or installations.
+
+For capture, use `operation: "capture"`, `confirmation: "CAPTURE DATABASE ONLY"` and the same directory. For verification, use `operation: "verify"`, `confirmation: "VERIFY DATABASE SNAPSHOT"` and set `directory` to the returned snapshot directory including its UUID. Successful output contains status, region, snapshot UUID and safe size/expiry metadata only.
+
+```sh
+node apps/api/dist/snapshot-cli.js /private-operator/request.json
+```
+
+The command forces a non-serving operator configuration with AI disabled. It sends no email and does not alter production release gates. It requires file-based deletion journaling. PostgreSQL SSL defaults to `verify-full`; explicitly select the operator-reviewed mode in the protected database URL. The Docker fixture alone uses `sslmode=disable` on an isolated private network.
+
+The optional `infra/compose.snapshot.yml` is combined with production and recovery overlays, under the `operations` profile. Set `CUBERS_SNAPSHOT_HOST_DIRECTORY` to a separate owned private regional directory. The operator mounts the journal read-only, the separate key/snapshot directories writable, the request read-only, and private Linux tmpfs staging. The image inherits an unused PostgreSQL data-volume declaration; the overlay covers that path with tmpfs so it does not create persistent anonymous data volumes. Build `recovery-tools` or use the overlay's build target. No application or proxy needs to start for this stage.
+
+```sh
+docker compose --env-file .env.production -f infra/compose.production.yml -f infra/compose.recovery.yml -f infra/compose.snapshot.yml --profile operations config --quiet
+docker compose --env-file .env.production -f infra/compose.production.yml -f infra/compose.recovery.yml -f infra/compose.snapshot.yml --profile operations build snapshot-operator
+docker compose --env-file .env.production -f infra/compose.production.yml -f infra/compose.recovery.yml -f infra/compose.snapshot.yml --profile operations run --rm snapshot-operator
+```
+
+## Restore remains isolated and sealed
+
+Create a separate **empty** database with no public/API/worker access. Set the protected operator environment to that target, never the source or an existing application database. Do not run normal migration/seed initialization against the target before restoring. Keep the current independent journal and keys; do not replace them from the backup.
+
+A restore request uses `operation: "restore-sealed"`, `confirmation: "RESTORE SEALED ISOLATED DATABASE"`, `isolatedTarget: true`, `temporaryDirectory: "/recovery-tmp"`, the target's hostname/name, and the UUID snapshot directory. The tool rejects the original source fingerprint and any target with existing application relations. The supplied overlay connects only to its regional private network; a different isolated target requires an explicitly configured operator environment/network, not a public database port.
+
+The encrypted archive is fully authenticated into an immediately unlinked, private **Linux tmpfs** file before archived SQL reaches PostgreSQL. Ordinary disk staging is rejected. The overlay defaults to 128 MiB tmpfs and 512 MiB memory; captures larger than that staging allowance require a deliberately sized isolated operator environment. No plaintext dump persists in snapshot storage. The caller retains descriptor ownership across decryption and restoration, and closes it on both success and failure.
+
+`pg_restore` produces SQL; one explicit transaction restores the schema/data, writes the new `SEALED` binding with the exact snapshot UUID/source fingerprint and deletes restored sessions/recovery tokens before committing. SQL after the archive explicitly names the `public` schema because PostgreSQL's dump resets `search_path`. Failed archive processing or SQL prevents the commit and rolls back a partial restore. This path never uses `--clean`, drops an existing database or overwrites an existing schema. Only trusted application/operator source databases belong here: PostgreSQL documents that restoring a dump executes archived SQL. See [pg_restore](https://www.postgresql.org/docs/17/app-pgrestore.html).
+
+After the transaction, current independent account/file erasure, evidence deadlines and guardian-withdrawal decisions are replayed even if they were accepted after capture; see [MEDIA-RECOVERY.md](MEDIA-RECOVERY.md). They disable the restored accounts, revoke restored sessions, hide posts, cancel sharing and queue database/object-prefix erasure. A replay failure leaves the database sealed. `restored-sealed` does not mean physical cleanup is complete. API/worker startup refuses a sealed binding, even if someone selects development journaling off. A failed or sealed database must never be manually toggled active to bypass the unfinished recovery acceptance work.
+
+## Acceptance and unfinished scope
+
+`npm run test:recovery` uses prebuilt `cubers-recovery:development` and `cubers-recovery-migrations:development` images, disposable PostgreSQL containers, no published ports, private networks, synthetic accounts and separate journal/key/snapshot named volumes. It captures a real database, accepts a newer deletion, recreates the operator container, verifies the files, exercises refusal/rollback cases and performs a real restore. The runner tracks inherited anonymous volumes from container metadata, removes them with the exact container and verifies their absence; it never prunes unrelated Docker resources. Source tests separately cover expiry, forgery, unsafe files and incomplete producers. The latest measured run is recorded in STATUS; local Docker volumes do not prove regional off-host durability or legal compliance.
+
+Remaining: actual managed-vault/target cleanup latency, alert routing and provider acceptance; safe standalone 30-day snapshot and vault control/target-inventory pruning; complete-history rollback detection through independent custody; fresh credentials, staff provisioning, guardian/owner consent and moderation acceptance; physical object/version/replica erasure; full commissioning, monitoring and RPO/RTO objectives. There is intentionally no public restore activation path until those requirements are implemented and accepted.
+
+Campaign milestone: real drill `d9f39bd0` (2026-10-18) passed twelve groups per region on migration 30. In addition to the existing privacy-floor and sealed-restore checks, bilingual campaign content and retained review references survived encrypted real PostgreSQL dump/restore while regional sponsor switches remained off. This preserves app metadata, not the operator's external advertiser documents or custody. See [SPONSORS.md](SPONSORS.md) and [Docker evidence](DOCKER-VERIFICATION.md).
+
+Announcement milestone: real drill `75c76a50` (2026-10-19) passed thirteen groups per region on migration 31. Bilingual service drafts and their retained revisions survived encrypted PostgreSQL dump/restore. Both targets remained sealed; no announcement was published by restoration. The existing campaign, privacy-floor, erasure/withdrawal and restore-refusal checks also passed. All owned resources and six inherited anonymous volumes were removed and independently checked. See [ANNOUNCEMENTS.md](ANNOUNCEMENTS.md) and [Docker evidence](DOCKER-VERIFICATION.md).
+
+Failed-capture cleanup milestone: final rebuilt recovery image `48d7311476c4` and drill `c7558d1a` (2026-10-19) passed fourteen groups per region on migration 31. The compiled tool removed failed producer/stream captures while preserving the preceding real encrypted archive and independent keys, then retained all existing restore/refusal/privacy checks. Both targets stayed sealed. Independent cleanup checks found no owned resources or dangling volumes, including six tracked inherited anonymous volumes. Source checks passed 185 unit / 178 integration cases, with seven focused snapshot checks and current API/workspace types. This does not implement crash-recovery cleanup or recurring expiry.
+
+Device-evidence milestone: final drill `069f6bae` (2026-10-19) passed fifteen groups per region on all 33 migrations using recovery image `94c348a78b8f`. Synthetic scoped drafts, bilingual observations, revision data and live contributor foreign keys survived encrypted real PostgreSQL dump/restore. Both restored targets remained sealed and no hardware activation occurred. All owned resources and six inherited anonymous volumes were removed and independently checked. Actual evidence files remain in the operator's protected register; this result preserves the app's references and metadata, not external custody or physical compatibility. See [DEVICE-TEST-EVIDENCE.md](DEVICE-TEST-EVIDENCE.md).
+
+## Managed expiry worker
+
+[Standalone snapshot expiry](SNAPSHOT-EXPIRY.md) now removes authenticated encrypted archives and manifests at their fixed 30-day deadline. It supports protected one-shot/daemon commands, crash-resumable exact-file cleanup and private health checks with no network or database connection. The shared snapshot key stays available for live archives. Off-host copies, replicas, filesystem snapshots and copied keys remain provider/operator responsibilities. The optional `snapshot-expiry` service in the existing overlay is separately enabled under the maintenance profile.

@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "appName": "Cubers",
+  "packageId": "app.cubers.mobile",
+  "approvedForSubmission": false,
+  "localizations": {
+    "en-US": {
+      "appleLocale": "en-US",
+      "googleLocale": "en-US",
+      "subtitle": "Learn, practice, connect",
+      "promotionalText": "Explore four puzzles, build a practice habit and share your progress in a community with profile privacy controls.",
+      "keywords": "cube,puzzle,cubing,algorithm,practice,tutorial",
+      "shortDescription": "Learn cubing, practice patterns and connect with other puzzlers.",
+      "description": "Build your next solve with Cubers.\n\nLearn 2×2, 3×3, 4×4 and Pyraminx through interactive puzzles, guided practice and checkpoints. Start with notation and a first solve, then explore methods, algorithms and efficiency drills. Turn a virtual puzzle, replay a sequence and work through each step at your own pace.\n\nKeep a practice routine with placement activities, review queues and downloadable lessons. Track your solve history, personal bests, learning milestones and goals in your private profile. Choose which parts of your profile to share.\n\nFind other cubers through posts, discussions and clubs. Share text, photos and short videos, follow topics and use reporting, blocking and muting controls. Younger children use guardian-managed access with reviewed consent and additional approval for public posts.\n\nTry virtual races, daily challenges, Pattern Chase, Algorithm Sprint and Cooperative Relay with compatible puzzles and input methods. Results stay separate by puzzle and input category. Feature availability depends on your community and supported input method.\n\nAn account is required for learning, community and play. Mainland China and international accounts belong to separate communities. Cubers supports English and Simplified Chinese."
+    },
+    "zh-Hans": {
+      "appleLocale": "zh-Hans",
+      "googleLocale": "zh-CN",
+      "subtitle": "从第一步到更多解法",
+      "promotionalText": "从入门课程到公式练习，用虚拟魔方动手学习，记录自己的进步，与同好交流。",
+      "keywords": "二阶魔方,三阶魔方,四阶魔方,金字塔魔方,魔方公式,魔方教程",
+      "shortDescription": "学魔方、练公式，与同好分享练习和还原的乐趣。",
+      "description": "和 Cubers 一起，练好下一步。\n\n学习二阶、三阶、四阶魔方和金字塔魔方。从记号与首次还原开始，通过虚拟魔方、分步练习和检查点理解每一步，再逐渐接触不同解法、公式与效率训练。可以转动虚拟魔方、回看动作，按照自己的节奏练习。\n\n用水平评估、复习队列和可下载课程安排练习。在个人页查看私密还原记录、个人最佳成绩、学习里程碑和目标，并选择哪些个人信息可以公开。\n\n通过帖子、讨论与社团认识同好，分享文字、照片和短视频，关注感兴趣的话题。可以举报、屏蔽或静音账号。低龄儿童通过经过审核的监护人同意流程使用账号，公开帖子还需额外审批。\n\n尝试虚拟竞速、每日挑战、图案追逐、公式冲刺和合作接力。各玩法支持的魔方与输入方式有所不同，成绩按魔方种类及输入类别分别记录。功能开放情况取决于所在社区及支持的输入方式。\n\n学习、社区和游戏功能需要登录账号。中国大陆与国际社区使用相互独立的账号。Cubers 支持简体中文和英语。"
+    }
+  },
+  "releaseDecisions": {
+    "storeCategories": null,
+    "targetAgeGroups": null,
+    "ageRatings": null,
+    "launchTerritories": null,
+    "chinaAndroidChannels": null,
+    "privacyUrlByRegion": {
+      "CN": null,
+      "INTL": null
+    },
+    "supportUrlByRegion": {
+      "CN": null,
+      "INTL": null
+    },
+    "accountDeletionUrlByRegion": {
+      "CN": null,
+      "INTL": null
+    },
+    "reviewerAccessProvisioned": false,
+    "nativeScreenshotsAccepted": false,
+    "signedBuildAccepted": false,
+    "rightsAndNameAccepted": false,
+    "legalAndRegionalAccepted": false,
+    "developerAccountsEnrolled": false,
+    "reviewContactName": null,
+    "reviewContactPhone": null
+  }
+}

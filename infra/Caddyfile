@@ -1,0 +1,40 @@
+{
+  email {$TLS_EMAIL}
+  skip_install_trust
+  servers {
+    max_header_size 16KB
+    timeouts {
+      read_header 10s
+      read_body 30s
+      idle 2m
+    }
+  }
+}
+import /etc/caddy/public-pages.caddy
+{$APP_ORIGIN} {
+  import public_pages
+}
+{$API_DOMAIN} {
+  request_body {
+    max_size 131072
+  }
+  encode zstd gzip
+  header {
+    Strict-Transport-Security "max-age=31536000"
+    Referrer-Policy "no-referrer"
+  }
+  reverse_proxy api:3000
+}
+{$ADMIN_DOMAIN} {
+  encode zstd gzip
+  header Strict-Transport-Security "max-age=31536000"
+  handle /v1/* {
+    request_body {
+      max_size 131072
+    }
+    reverse_proxy api:3000
+  }
+  handle {
+    reverse_proxy admin:8080
+  }
+}

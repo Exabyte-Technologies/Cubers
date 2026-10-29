@@ -1,0 +1,8 @@
+# Local verification only: patch the Node executable while preserving exact
+# cached application dependencies and distribution packages. This is not an OS
+# refresh. The normal production Dockerfiles use the patched Node base directly.
+ARG PATCHED_NODE
+ARG CACHED_IMAGE
+FROM ${PATCHED_NODE} AS patched-node
+FROM ${CACHED_IMAGE}
+COPY --from=patched-node /usr/local/bin/node /usr/local/bin/node

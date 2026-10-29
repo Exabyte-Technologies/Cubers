@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "status": "Operator worksheet, not submitted store answers",
+  "operatorApproved": false,
+  "trackingAssessment": "No behavioral advertising or analytics SDK is configured in the app dependency manifest; verify all SDKs and the final signed build before declaring no tracking.",
+  "flows": [
+    {
+      "id": "account",
+      "data": "Email, password-derived credential, declared birth date, account/session identifiers",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Account access, security and age protections. Native session tokens use OS secure storage; browser tabs use session storage. Failed reads do not clear stored credentials or grant account access. Recovery email remains available using the server-detected community.",
+      "source": "apps/api/src/auth.controller.ts",
+      "additionalSources": [
+        "apps/mobile/src/state.tsx",
+        "apps/mobile/src/stored-session.ts"
+      ]
+    },
+    {
+      "id": "profile",
+      "data": "Chosen nickname, avatar, biography, interests, privacy choices and account relationships",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Profile and community functions",
+      "source": "apps/api/src/profile.controller.ts"
+    },
+    {
+      "id": "posts",
+      "data": "Posts, comments, clubs, reports, blocks and moderation decisions",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Community content, safety and review",
+      "source": "apps/api/src/community.controller.ts"
+    },
+    {
+      "id": "attachments",
+      "data": "Selected photos/videos, immutable AI declarations and recognized source-label metadata",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Requested sharing and media validation",
+      "source": "apps/api/src/media.controller.ts"
+    },
+    {
+      "id": "learning",
+      "data": "Color-only puzzle positions, validated turns, lesson/stage choices, checkpoint history, practice progress, goals and solve records",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Teaching, progress and game verification",
+      "source": "apps/api/src/learning.controller.ts",
+      "additionalSources": [
+        "apps/api/src/first-solve.controller.ts",
+        "apps/api/src/smart-first-solve.controller.ts",
+        "packages/core/src/lesson-stage.ts",
+        "apps/api/src/learning-authority.ts"
+      ]
+    },
+    {
+      "id": "evidence",
+      "data": "Optional ranked physical-attempt video and its review/appeal records; no required face or audio",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Competition integrity; only if the feature is commissioned",
+      "source": "apps/api/src/play.controller.ts"
+    },
+    {
+      "id": "guardian",
+      "data": "Guardian/child relationship, signed consent document and separate permission decisions",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Guardian-managed access and independent review; review sensitive information categories in supplied documents",
+      "source": "apps/api/src/consent-document.ts"
+    },
+    {
+      "id": "routing",
+      "data": "Server-observed public connection IP sent from the backend to FreeIPAPI in production; a validated country code is returned. No device GPS is requested.",
+      "leavesDevice": true,
+      "linkedToAccount": "Review logs and infrastructure; country detection is not stored in the account",
+      "purpose": "Enforce the connection’s mainland China or international community on API and realtime access. Development/test use the configured server region without lookup. Provider processing, ingress logs, contracts and ephemeral-processing classifications require operator review.",
+      "source": "apps/api/src/community-region.ts",
+      "additionalSources": [
+        "apps/api/src/freeip-country.ts",
+        "apps/api/src/security.ts",
+        "apps/api/src/socket-adapter.ts"
+      ]
+    },
+    {
+      "id": "scan-frames",
+      "data": "Raw camera scan frames used for on-device color recognition",
+      "leavesDevice": false,
+      "linkedToAccount": false,
+      "purpose": "On-device color reading and manual color entry. Only validated face colors, not camera images, are sent to private learning guidance; separately enabled ranked recordings are covered by evidence.",
+      "source": "apps/mobile/src/scan.ts",
+      "additionalSources": [
+        "apps/mobile/src/Scanner.tsx",
+        "apps/mobile/src/Scanner.web.tsx",
+        "apps/mobile/src/PyraminxScanner.tsx"
+      ]
+    },
+    {
+      "id": "bluetooth",
+      "data": "Bluetooth address, raw vendor packets, transport keys and available battery readings",
+      "leavesDevice": false,
+      "linkedToAccount": false,
+      "purpose": "In-memory native device connection; minimized practice/game telemetry is covered separately",
+      "source": "apps/mobile/src/smart/radio.ts"
+    },
+    {
+      "id": "notifications",
+      "data": "Account notification preferences and a private in-app status inbox",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Account, review and selected community updates; this does not configure remote push",
+      "source": "apps/api/src/notifications.controller.ts"
+    },
+    {
+      "id": "local-reminders",
+      "data": "Optional practice reminder schedule",
+      "leavesDevice": false,
+      "linkedToAccount": false,
+      "purpose": "Device-local notifications; verify final native permissions",
+      "source": "docs/OFFLINE-LEARNING.md"
+    },
+    {
+      "id": "verification",
+      "data": "Optional hashed native key identifier, public verification key, counters, app/build information and encrypted Apple receipt with its public signing-certificate chain",
+      "leavesDevice": "Only when separately commissioned",
+      "linkedToAccount": true,
+      "purpose": "Platform app verification; private device keys remain in hardware; provider and risk-service flows require separate review",
+      "source": "apps/api/src/app-attestation.ts"
+    },
+    {
+      "id": "ai",
+      "data": "Approved lesson context, learning intent and a candidate explanation",
+      "leavesDevice": "Adult provider requests only after activation; current tests use a mock",
+      "linkedToAccount": "The server authorizes the request; account identifiers and raw questions are excluded from provider payloads",
+      "purpose": "Optional teaching and safety screening; provider retention and service-provider classification need actual contracts",
+      "source": "apps/api/src/ai.ts"
+    },
+    {
+      "id": "replay-sharing",
+      "data": "Chosen puzzle replay snapshot, owner association and guardian/moderator approval records",
+      "leavesDevice": true,
+      "linkedToAccount": true,
+      "purpose": "Requested expiring public replay link after required approvals; distinguish the anonymous recipient packet from private ownership/review records",
+      "source": "apps/api/src/replay-shares.ts"
+    },
+    {
+      "id": "sponsors",
+      "data": "Current adult account/session eligibility and chosen contextual sponsor card",
+      "leavesDevice": "Only if separately enabled; currently off",
+      "linkedToAccount": "Eligibility is checked on the server; reconcile actual request logs and destination behavior",
+      "purpose": "First-party contextual sponsorship without an advertising SDK; opening an external destination introduces its own provider processing",
+      "source": "apps/api/src/campaigns.ts"
+    },
+    {
+      "id": "operations",
+      "data": "Operational heartbeats and fixed aggregate security/health outcomes",
+      "leavesDevice": "Server-side; optional aggregate delivery to a configured receiver",
+      "linkedToAccount": false,
+      "purpose": "Service operation; review actual ingress/provider/error logs separately",
+      "source": "apps/api/src/operational-telemetry.ts"
+    },
+    {
+      "id": "certificate-status",
+      "data": "Public Apple vendor certificate identifiers and server connection IP; excludes account IDs, device identifiers, receipts, proofs and credentials",
+      "leavesDevice": "Server-to-vendor public certificate lookup only when Apple verification is commissioned",
+      "linkedToAccount": false,
+      "purpose": "Check receipt signing-certificate status; signed public responses are cached briefly in server memory; regional egress and provider review remain required",
+      "source": "apps/api/src/attestation/apple-certificate-status.ts"
+    }
+  ],
+  "mustResolveBeforeSubmission": [
+    "FreeIPAPI production IP disclosure, regional egress, vendor processing/retention and account-recovery exceptions against the commissioned deployment",
+    "Actual regional processors, countries, retention, incident/access logs and contract terms",
+    "Apple and Google categories for every collected field, including identifiers and guardian-document contents",
+    "Optional collection and Google sharing/service-provider exceptions against actual deployed behavior",
+    "All native SDK privacy manifests, required-reason APIs, permissions and signed binary contents",
+    "In-transit protection for every actual service endpoint, deletion paths and backup/custody expiry",
+    "Final audience, age-rating, Families/COPPA and regional child-consent/classification decisions",
+    "A real support response process and stable public privacy/account-deletion URLs",
+    "No data-is-not-collected or no-data-shared blanket claim based on local tests alone"
+  ],
+  "policySources": [
+    "https://developer.apple.com/app-store/app-privacy-details/",
+    "https://support.google.com/googleplay/android-developer/answer/10787469"
+  ]
+}

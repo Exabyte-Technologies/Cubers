@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-*/
+.expo/
+web-build/
+.env*
+!.env.example
+!.env.production.example
+*.log
+coverage/
+.data/
+apps/mobile/ios/
+apps/mobile/android/
+artifacts/
+.DS_Store

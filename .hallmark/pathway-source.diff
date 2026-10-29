@@ -1,0 +1,3490 @@
+--- before/apps/mobile/app/(tabs)/index.tsx
++++ after/apps/mobile/app/(tabs)/index.tsx
+@@ -12,7 +12,6 @@
+ import {
+   Screen,
+   Heading,
+-  Card,
+   Txt,
+   Button,
+   Row,
+@@ -21,8 +20,6 @@
+   Busy,
+   Empty,
+   Notice,
+-  Logo,
+-  useTheme,
+ } from "../../src/ui";
+ export default function Discover() {
+   const { token, region, user } = useApp();
+@@ -40,7 +37,7 @@
+ function DiscoverView() {
+   const params = useLocalSearchParams<{ tag?: string }>();
+   const { t, api, user } = useApp(),
+-    c = useTheme(),
++    [section, setSection] = useState("community"),
+     [kind, setKind] = useState("explore"),
+     [posts, setPosts] = useState<CommunityPost[]>([]),
+     [cursor, setCursor] = useState<string | null>(null),
+@@ -93,158 +90,153 @@
+   );
+   return (
+     <Screen>
+-      <Heading eyebrow={t("A shared fascination", "热爱，让我们相遇")}>
+-        {t("Good things start with a twist.", "从一次转动，发现更多可能。")}
+-      </Heading>
+-      <Card style={{ backgroundColor: c.yellow, padding: 26, gap: 22 }}>
+-        <Row
+-          style={{ justifyContent: "space-between", alignItems: "flex-start" }}
+-        >
+-          <View style={{ flex: 1, minWidth: 180, gap: 10 }}>
+-            <Txt
+-              style={{
+-                fontSize: 26,
+-                lineHeight: 33,
+-                fontWeight: "600",
+-                color: c.onAccent,
+-              }}
+-            >
+-              {t("Six faces. Endless possibilities.", "六个面，无限可能。")}
+-            </Txt>
+-            <Txt small style={{ color: c.onAccent }}>
+-              {t("Your next small adventure", "今天的小小探索")}
+-            </Txt>
+-            <Txt small style={{ maxWidth: 430, color: c.onAccent }}>
+-              {t(
+-                "Meet the puzzle, find a rhythm, and enjoy the moment it clicks.",
+-                "认识魔方，找到节奏，享受豁然开朗的那一刻。",
+-              )}
+-            </Txt>
+-          </View>
+-          <Logo size={68} />
+-        </Row>
+-        <Button
+-          label={t("Find your first lesson", "寻找第一课")}
+-          onPress={() => router.push("/(tabs)/learn")}
+-        />
+-      </Card>
+-      <DiscoveryStories />
+-      <AnnouncementCards />
+-      <Row style={{ justifyContent: "space-between" }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Around the community", "看看社区新鲜事")}
+-        </Txt>
++      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
++        <Heading>{t("Discover", "发现")}</Heading>
+         <Button
+           small
+           kind="secondary"
+-          label={t("Share a moment", "分享此刻")}
+-          onPress={() => setCompose(!compose)}
++          label={t("Keep learning", "继续学习")}
++          onPress={() => router.push("/(tabs)/learn")}
+         />
+       </Row>
+-      <Row>
++      <Row style={{ gap: 10 }}>
+         {[
+-          ["explore", "Explore", "探索"],
+-          ["following", "Following", "关注"],
+-          ["clubs", "Clubs", "社团"],
+-          ["saved", "Saved", "收藏"],
++          ["community", "Community", "社区"],
++          ["ideas", "Explore cubing", "探索魔方"],
++          ["updates", "Updates", "公告"],
+         ].map(([id, en, zh]) => (
+           <Chip
+             key={id}
+             label={t(en, zh)}
+-            selected={kind === id}
+-            onPress={() => setKind(id)}
++            selected={section === id}
++            onPress={() => setSection(id)}
+           />
+         ))}
+       </Row>
+-      <Row style={{ alignItems: "flex-end" }}>
+-        <View style={{ flex: 1, minWidth: 180 }}>
+-          <Field
+-            label={t("Search conversations", "搜索讨论")}
+-            maxLength={100}
+-            value={q}
+-            onChangeText={setQ}
+-            onSubmitEditing={() => void load()}
+-            placeholder={t(
+-              "An idea, a puzzle, a little inspiration…",
+-              "一种想法，一款魔方，一点灵感……",
+-            )}
+-          />
+-        </View>
+-        <Button
+-          small
+-          kind="secondary"
+-          label={t("Search", "搜索")}
+-          onPress={() => void load()}
+-        />
+-      </Row>
+-      {!!tag && (
+-        <Row>
+-          <Chip selected label={`#${tag}`} onPress={() => setTag("")} />
+-          <Button
+-            small
+-            kind="secondary"
+-            label={t("Clear tag", "清除标签")}
+-            onPress={() => setTag("")}
+-          />
+-        </Row>
++      {section === "ideas" && <DiscoveryStories />}
++      {section === "updates" && <AnnouncementCards />}
++      {section === "community" && (
++        <>
++          <Row style={{ justifyContent: "space-between", paddingTop: 8 }}>
++            <Txt
++              accessibilityRole="header"
++              style={{ fontSize: 22, lineHeight: 29, fontWeight: "600" }}
++            >
++              {t("Around the community", "看看社区新鲜事")}
++            </Txt>
++            <Button
++              small
++              label={
++                compose
++                  ? t("Close composer", "关闭编辑")
++                  : t("Share a moment", "分享此刻")
++              }
++              onPress={() => setCompose(!compose)}
++            />
++          </Row>
++          <Row>
++            {[
++              ["explore", "Explore", "探索"],
++              ["following", "Following", "关注"],
++              ["clubs", "Clubs", "社团"],
++              ["saved", "Saved", "收藏"],
++            ].map(([id, en, zh]) => (
++              <Chip
++                key={id}
++                label={t(en, zh)}
++                selected={kind === id}
++                onPress={() => setKind(id)}
++              />
++            ))}
++          </Row>
++          <Row style={{ alignItems: "flex-end" }}>
++            <View style={{ flex: 1, minWidth: 180 }}>
++              <Field
++                label={t("Search conversations", "搜索讨论")}
++                maxLength={100}
++                value={q}
++                onChangeText={setQ}
++                onSubmitEditing={() => void load()}
++                placeholder={t(
++                  "An idea, a puzzle, a little inspiration…",
++                  "一种想法，一款魔方，一点灵感……",
++                )}
++              />
++            </View>
++            <Button
++              small
++              kind="secondary"
++              label={t("Search", "搜索")}
++              onPress={() => void load()}
++            />
++          </Row>
++          {!!tag && (
++            <Row>
++              <Chip selected label={`#${tag}`} onPress={() => setTag("")} />
++              <Button
++                small
++                kind="secondary"
++                label={t("Clear tag", "清除标签")}
++                onPress={() => setTag("")}
++              />
++            </Row>
++          )}
++          {compose && (
++            <PostComposer
++              onCancel={() => setCompose(false)}
++              onSubmitted={() => {
++                setCompose(false);
++                setMessage(
++                  t(
++                    "Your post is in the review queue. Check its status in Profile.",
++                    "帖子已进入审核队列，请在个人页查看状态。",
++                  ),
++                );
++                void load();
++              }}
++            />
++          )}
++          {kind === "clubs" && <ClubDirectory />}
++          {!!message && <Notice text={message} />}
++          {!!error && <Notice text={error} error />}
++          {busy && posts.length === 0 ? (
++            <Busy />
++          ) : posts.length === 0 ? (
++            <Empty
++              title={t("There’s room for your story.", "这里期待你的故事。")}
++              body={t(
++                "No published posts here yet. Conversations appear after community review.",
++                "暂时还没有已发布的帖子，审核通过的讨论会显示在这里。",
++              )}
++            />
++          ) : (
++            posts.map((post) => (
++              <PostCard
++                key={post.id}
++                post={post}
++                onChanged={() => void load()}
++                onTag={(tag) => {
++                  setKind("explore");
++                  setTag(tag);
++                }}
++              />
++            ))
++          )}
++          {cursor && (
++            <Button
++              kind="secondary"
++              label={
++                busy
++                  ? t("Loading…", "加载中……")
++                  : t("More conversations", "更多讨论")
++              }
++              disabled={busy}
++              onPress={() => void load(true)}
++            />
++          )}
++          <SponsorCards />
++        </>
+       )}
+-      {compose && (
+-        <PostComposer
+-          onCancel={() => setCompose(false)}
+-          onSubmitted={() => {
+-            setCompose(false);
+-            setMessage(
+-              t(
+-                "Your post is in the review queue. Check its status in Profile.",
+-                "帖子已进入审核队列，请在个人页查看状态。",
+-              ),
+-            );
+-            void load();
+-          }}
+-        />
+-      )}
+-      {kind === "clubs" && <ClubDirectory />}
+-      {!!message && <Notice text={message} />}
+-      {!!error && <Notice text={error} error />}
+-      {busy && posts.length === 0 ? (
+-        <Busy />
+-      ) : posts.length === 0 ? (
+-        <Empty
+-          title={t("There’s room for your story.", "这里期待你的故事。")}
+-          body={t(
+-            "No published posts here yet. Conversations appear after community review.",
+-            "暂时还没有已发布的帖子，审核通过的讨论会显示在这里。",
+-          )}
+-        />
+-      ) : (
+-        posts.map((post) => (
+-          <PostCard
+-            key={post.id}
+-            post={post}
+-            onChanged={() => void load()}
+-            onTag={(tag) => {
+-              setKind("explore");
+-              setTag(tag);
+-            }}
+-          />
+-        ))
+-      )}
+-      {cursor && (
+-        <Button
+-          kind="secondary"
+-          label={
+-            busy
+-              ? t("Loading…", "加载中……")
+-              : t("More conversations", "更多讨论")
+-          }
+-          disabled={busy}
+-          onPress={() => void load(true)}
+-        />
+-      )}
+-      <SponsorCards />
+     </Screen>
+   );
+ }
+--- before/apps/mobile/app/(tabs)/learn.tsx
++++ after/apps/mobile/app/(tabs)/learn.tsx
+@@ -1,13 +1,23 @@
+-import React, { useCallback, useState } from "react";
+-import { View } from "react-native";
++import React, { useCallback, useMemo, useRef, useState } from "react";
++import {
++  Modal,
++  Pressable,
++  ScrollView,
++  View,
++  useWindowDimensions,
++} from "react-native";
+ import { router, useFocusEffect } from "expo-router";
+-import type { Lesson, LearningPlan } from "@cubers/core";
++import Svg, { Path } from "react-native-svg";
++import type { LearningPlan } from "@cubers/core";
+ import { useApp } from "../../src/state";
++import {
++  buildLearningPathways,
++  type PathCourse,
++  type PathLesson,
++} from "../../src/learning-paths";
+ import { DownloadButton } from "../../src/offline/DownloadButton";
+ import {
+   Screen,
+-  Heading,
+-  Card,
+   Txt,
+   Button,
+   Row,
+@@ -15,363 +25,679 @@
+   Notice,
+   Busy,
+   useTheme,
++  LocaleButton,
++  Logo,
+ } from "../../src/ui";
++
+ export default function Learn() {
+-  const { t, api, locale } = useApp(),
+-    c = useTheme(),
+-    [courses, setCourses] = useState<{ id: string; content: Lesson }[]>([]),
+-    [progress, setProgress] = useState<any[]>([]),
+-    [plan, setPlan] = useState<LearningPlan>(),
+-    [puzzle, setPuzzle] = useState("3x3"),
+-    [level, setLevel] = useState("all"),
+-    [collection, setCollection] = useState("path"),
++  const { t, api, locale, token, region } = useApp(),
++    c = useTheme();
++  const { width, height } = useWindowDimensions();
++  const owner = JSON.stringify([token, region]);
++  const ownerRef = useRef(owner);
++  ownerRef.current = owner;
++  const generation = useRef(0);
++  const [snapshot, setSnapshot] = useState<{
++    owner: string;
++    courses: PathCourse[];
++    progress: any[];
++  }>();
++  const [pathId, setPathId] = useState("beginner-3x3"),
++    [unitId, setUnitId] = useState<string>();
++  const [picker, setPicker] = useState<"units" | "pathways" | null>(null),
++    [selected, setSelected] = useState<PathLesson>();
++  const [tools, setTools] = useState(false),
+     [error, setError] = useState(""),
+     [busy, setBusy] = useState(true);
++  const [retry, setRetry] = useState(0);
++  const [storedPlan, setPlan] = useState<{
++    owner: string;
++    data: LearningPlan;
++  }>();
++  const current = snapshot?.owner === owner;
++  const courses = current ? snapshot.courses : [],
++    progress = current ? snapshot.progress : [];
++  const pathways = useMemo(() => buildLearningPathways(courses), [courses]);
++  const pathway = pathways.find((p) => p.id === pathId) || pathways[0];
++  const puzzle = pathway?.puzzle || "3x3";
++  const complete = (id: string) =>
++    progress.some((p) => p.lessonId === id && p.currentCompleted);
++  const unit =
++    pathway?.units.find((u) => u.id === unitId) ||
++    pathway?.units.find((u) => !complete(u.id)) ||
++    pathway?.units[0];
++  const unitIndex = unit ? pathway.units.indexOf(unit) : 0;
++  const nextUnit = pathway?.units[unitIndex + 1];
++  const plan =
++    storedPlan?.owner === owner && storedPlan.data.puzzle === puzzle
++      ? storedPlan.data
++      : undefined;
++  const completedUnits =
++    pathway?.units.filter((u) => complete(u.id)).length || 0;
++  const cardWidth = Math.min(520, Math.max(240, width - 48));
++  useFocusEffect(
++    useCallback(() => {
++      const epoch = ++generation.current;
++      setBusy(true);
++      setError("");
++      Promise.all([api<PathCourse[]>("courses"), api<any[]>("progress")])
++        .then(([courses, progress]) => {
++          if (epoch === generation.current && ownerRef.current === owner)
++            setSnapshot({ owner, courses, progress });
++        })
++        .catch((e) => {
++          if (epoch === generation.current && ownerRef.current === owner)
++            setError(e.message);
++        })
++        .finally(() => {
++          if (epoch === generation.current && ownerRef.current === owner)
++            setBusy(false);
++        });
++      return () => {
++        generation.current++;
++        setSelected(undefined);
++        setPicker(null);
++      };
++    }, [api, owner, retry]),
++  );
+   useFocusEffect(
+     useCallback(() => {
+       let active = true;
+-      setBusy(true);
+-      setError("");
+-      Promise.all([
+-        api("courses"),
+-        api("progress"),
+-        api<LearningPlan>(`learning-plan?puzzle=${puzzle}`),
+-      ])
+-        .then(([courses, progress, plan]) => {
+-          if (!active) return;
+-          setCourses(courses);
+-          setProgress(progress);
+-          setPlan(plan);
++      api<LearningPlan>(`learning-plan?puzzle=${puzzle}`)
++        .then((data) => {
++          if (active && ownerRef.current === owner) setPlan({ owner, data });
+         })
+-        .catch((e) => {
+-          if (active) setError(e.message);
+-        })
+-        .finally(() => {
+-          if (active) setBusy(false);
+-        });
++        .catch(() => {});
+       return () => {
+         active = false;
+       };
+-    }, [api, puzzle]),
++    }, [api, puzzle, owner]),
+   );
+-  const completed = progress.filter((p) => p.currentCompleted).length,
+-    review = progress.filter((p) => new Date(p.reviewAt) <= new Date()),
+-    queue = plan?.puzzle === puzzle ? plan.queue : [],
+-    next = courses.find((c) => c.id === queue[0]?.lessonId);
++  const changePath = (id: string) => {
++    setPathId(id);
++    setUnitId(undefined);
++    setSelected(undefined);
++    setPicker("units");
++  };
++  const openLesson = (lesson: PathLesson) => {
++    setSelected(undefined);
++    router.push({
++      pathname: "/lesson/[id]",
++      params: { id: lesson.courseId, step: String(lesson.stepIndex) },
++    });
++  };
++  const done = unit ? complete(unit.id) : false;
++  const detail = selected
++    ? selected.instruction[locale].startsWith(selected.title[locale])
++      ? selected.instruction[locale].slice(selected.title[locale].length).trim()
++      : selected.instruction[locale]
++    : "";
++  const offsets = [0, -68, 0, 68];
++  const nodeX = (index: number) =>
++    offsets[index % offsets.length] * Math.min(1, cardWidth / 340);
++  const nodeY = (index: number) => 54 + index * 128;
++  const mapWidth = Math.min(cardWidth, 360),
++    mapHeight = (unit?.lessons.length || 1) * 128 + 28;
++  const route = unit?.lessons
++    .map((_, i) => {
++      const x = mapWidth / 2 + nodeX(i),
++        y = nodeY(i);
++      if (!i) return `M${x} ${y}`;
++      const previousX = mapWidth / 2 + nodeX(i - 1),
++        previousY = nodeY(i - 1);
++      return `C${previousX} ${previousY + 64} ${x} ${y - 64} ${x} ${y}`;
++    })
++    .join(" ");
++  function sheet(content: React.ReactNode, close: () => void) {
++    return (
++      <Modal visible transparent animationType="none" onRequestClose={close}>
++        <View
++          style={{
++            flex: 1,
++            justifyContent: "center",
++            alignItems: "center",
++            padding: 16,
++          }}
++        >
++          <Pressable
++            accessibilityRole="button"
++            accessibilityLabel={t("Close dialog", "关闭窗口")}
++            onPress={close}
++            style={{
++              position: "absolute",
++              inset: 0,
++              backgroundColor: c.shadow,
++              opacity: 0.55,
++            }}
++          />
++          <View
++            accessibilityViewIsModal
++            style={{
++              width: "100%",
++              maxWidth: 560,
++              maxHeight: Math.max(260, height - 64),
++              backgroundColor: c.paper,
++              borderRadius: 24,
++              borderWidth: 1,
++              borderBottomWidth: 5,
++              borderColor: c.edge,
++              padding: 22,
++              gap: 16,
++            }}
++          >
++            {content}
++          </View>
++        </View>
++      </Modal>
++    );
++  }
+   return (
+-    <Screen>
+-      <Heading
+-        eyebrow={t("Curiosity, one turn at a time", "带着好奇，慢慢转动")}
+-      >
+-        {t("Make it click.", "让每一步，都想得明白。")}
+-      </Heading>
+-      <Card style={{ backgroundColor: c.yellow, padding: 26, gap: 20 }}>
+-        <Row
+-          style={{ justifyContent: "space-between", alignItems: "flex-start" }}
++    <Screen
++      stickyHeader={
++        <View
++          style={{ width: "100%", maxWidth: 560, alignSelf: "center", gap: 12 }}
+         >
+-          <View style={{ flex: 1, minWidth: 190, gap: 8 }}>
+-            <Txt
++          <Row
++            style={{
++              justifyContent: "space-between",
++              flexWrap: "nowrap",
++              gap: 12,
++            }}
++          >
++            <Pressable
++              testID="pathway-picker"
++              accessibilityRole="button"
++              accessibilityLabel={t("Switch learning pathway", "切换学习路线")}
++              onPress={() => setPicker("pathways")}
++              style={{ flex: 1, minHeight: 44, justifyContent: "center" }}
++            >
++              <Row style={{ flexWrap: "nowrap", gap: 10 }}>
++                <Logo size={30} />
++                <View style={{ flex: 1 }}>
++                  <Txt
++                    style={{ fontWeight: "600", fontSize: 17 }}
++                    numberOfLines={1}
++                  >
++                    {pathway?.title[locale] || t("Learning paths", "学习路线")}
++                  </Txt>
++                  <Txt small>
++                    {current
++                      ? t(
++                          `${completedUnits} ${completedUnits === 1 ? "unit" : "units"} complete`,
++                          `已完成 ${completedUnits} 个单元`,
++                        )
++                      : t("Loading your progress…", "正在加载进度……")}
++                  </Txt>
++                </View>
++                <Txt style={{ color: c.blue, fontSize: 23 }}>⌄</Txt>
++              </Row>
++            </Pressable>
++            <LocaleButton />
++          </Row>
++          {unit && (
++            <Pressable
++              testID="unit-picker"
++              accessibilityRole="button"
++              accessibilityLabel={t(
++                `Choose a unit. Current unit: ${unit.course.content.title.en}`,
++                `选择学习单元。当前单元：${unit.course.content.title.zh}`,
++              )}
++              onPress={() => setPicker("units")}
++              style={({ pressed }) => ({
++                backgroundColor: c.accent,
++                borderColor: c.buttonEdge,
++                borderWidth: 1,
++                borderBottomWidth: pressed ? 2 : 5,
++                borderRadius: 20,
++                paddingHorizontal: 20,
++                paddingVertical: 15,
++                gap: 5,
++              })}
++            >
++              <Row
++                style={{ justifyContent: "space-between", flexWrap: "nowrap" }}
++              >
++                <Txt
++                  accessibilityRole="header"
++                  style={{
++                    color: c.onAccent,
++                    fontWeight: "600",
++                    fontSize: 22,
++                    lineHeight: 29,
++                    flex: 1,
++                  }}
++                >
++                  {unit.course.content.title[locale]}
++                </Txt>
++                <Svg width={24} height={24} viewBox="0 0 24 24" aria-hidden>
++                  <Path
++                    d="M5 6h14M5 12h14M5 18h14"
++                    stroke={c.onAccent}
++                    strokeWidth={2}
++                    strokeLinecap="round"
++                  />
++                </Svg>
++              </Row>
++              <Txt small style={{ color: c.onAccent }}>
++                {t(
++                  `Unit ${unitIndex + 1} of ${pathway.units.length}`,
++                  `第 ${unitIndex + 1} / ${pathway.units.length} 单元`,
++                )}{" "}
++                /{" "}
++                {done
++                  ? t("Completed", "已完成")
++                  : t(
++                      `${unit.lessons.length} ${unit.lessons.length === 1 ? "lesson" : "lessons"}`,
++                      `${unit.lessons.length} 节小课`,
++                    )}
++              </Txt>
++            </Pressable>
++          )}
++        </View>
++      }
++    >
++      {!!error && (
++        <>
++          <Notice text={error} error />
++          <Button
++            kind="secondary"
++            label={t("Try again", "重试")}
++            onPress={() => setRetry((v) => v + 1)}
++          />
++        </>
++      )}
++      {busy && <Busy />}
++      {!busy && !unit && (
++        <Notice
++          text={t(
++            "No published lessons in this pathway yet. Choose another pathway.",
++            "这条路线暂时没有已发布课程，请选择其他路线。 ",
++          )}
++        />
++      )}
++      {unit && (
++        <View
++          testID="lesson-path"
++          style={{
++            width: "100%",
++            maxWidth: 560,
++            alignSelf: "center",
++            alignItems: "center",
++            gap: 12,
++          }}
++        >
++          <View
++            style={{ width: mapWidth, height: mapHeight, position: "relative" }}
++          >
++            <Svg
++              pointerEvents="none"
++              aria-hidden
++              width={mapWidth}
++              height={mapHeight}
++              style={{ position: "absolute", top: 0, left: 0 }}
++            >
++              <Path
++                d={route || ""}
++                stroke={c.line}
++                strokeWidth={3}
++                strokeDasharray="5 10"
++                fill="none"
++              />
++            </Svg>
++            {unit.lessons.map((lesson, index) => (
++              <View
++                key={lesson.id}
++                style={{
++                  position: "absolute",
++                  top: nodeY(index) - 36,
++                  left: mapWidth / 2 + nodeX(index) - 88,
++                  width: 176,
++                  alignItems: "center",
++                  gap: 10,
++                }}
++              >
++                <Pressable
++                  testID={`lesson-node-${lesson.id}`}
++                  accessibilityRole="button"
++                  accessibilityLabel={`${t("Lesson", "小课")} ${index + 1}: ${lesson.title[locale]}${done ? t(", unit completed", "，单元已完成") : ""}`}
++                  onPress={() => setSelected(lesson)}
++                  style={({ pressed }) => ({
++                    width: 74,
++                    height: 74,
++                    borderRadius: 999,
++                    borderWidth: 2,
++                    borderBottomWidth: pressed ? 2 : 7,
++                    borderColor: done
++                      ? c.mintDeep
++                      : index === 0
++                        ? c.buttonEdge
++                        : c.edge,
++                    backgroundColor: done
++                      ? c.mint
++                      : index === 0
++                        ? c.accent
++                        : c.paper,
++                    justifyContent: "center",
++                    alignItems: "center",
++                    transform: [{ translateY: pressed ? 4 : 0 }],
++                  })}
++                >
++                  {done ? (
++                    <Svg width={29} height={29} viewBox="0 0 24 24" aria-hidden>
++                      <Path
++                        d="m5 12 4 4L19 6"
++                        fill="none"
++                        stroke={c.ink}
++                        strokeWidth={3}
++                        strokeLinecap="round"
++                        strokeLinejoin="round"
++                      />
++                    </Svg>
++                  ) : (
++                    <Txt
++                      style={{
++                        fontSize: 27,
++                        lineHeight: 33,
++                        fontWeight: "600",
++                        color: index === 0 ? c.onAccent : c.muted,
++                      }}
++                    >
++                      {index + 1}
++                    </Txt>
++                  )}
++                </Pressable>
++                <Txt
++                  small
++                  numberOfLines={1}
++                  style={{
++                    textAlign: "center",
++                    maxWidth: 176,
++                    fontWeight: index === 0 ? "600" : "500",
++                  }}
++                >
++                  {t(`Lesson ${index + 1}`, `第 ${index + 1} 小课`)}
++                </Txt>
++              </View>
++            ))}
++          </View>
++          <Txt small style={{ textAlign: "center", color: c.muted }}>
++            {t(
++              "Finish this unit’s practice checkpoint to complete its lessons.",
++              "完成这个单元的练习检查点，即可完成其中的小课。",
++            )}
++          </Txt>
++          {unit.course.content.caseFamily && (
++            <Notice
++              text={t(
++                "Complete case coverage through original composite drills. Cubers IDs are separate from standard case numbers; these combinations favor familiar triggers and are not optimized speed algorithms.",
++                "使用原创组合练习覆盖全部情况。Cubers 编号与通行情况编号分开；这些组合侧重常见转动，并非经过速拧优化的公式。",
++              )}
++            />
++          )}
++          {puzzle === "pyraminx" && (
++            <Notice
++              text={t(
++                "Pyraminx uses 120° turns and four triangular faces. These focused drills cover tips, edge placement and one last-layer case.",
++                "金字塔采用 120° 转动与四个三角面。这组专项练习涵盖尖角、棱块插入和一种最后一层情况。",
++              )}
++            />
++          )}
++          {nextUnit && (
++            <View
+               style={{
+-                fontSize: 23,
+-                lineHeight: 30,
+-                fontWeight: "600",
+-                color: c.onAccent,
++                width: "100%",
++                borderTopWidth: 2,
++                borderColor: c.line,
++                paddingTop: 24,
++                marginTop: 12,
++                gap: 12,
+               }}
+             >
+-              {t("Your own kind of progress", "按照自己的节奏进步")}
+-            </Txt>
+-            {next && (
+-              <Txt style={{ fontSize: 19, lineHeight: 28, color: c.onAccent }}>
+-                {next.content.title[locale]}
+-              </Txt>
+-            )}
+-          </View>
+-          <Row style={{ gap: 24, alignItems: "flex-start" }}>
+-            <View style={{ gap: 2 }}>
+               <Txt
+                 style={{
+-                  fontSize: 36,
+-                  lineHeight: 43,
++                  fontSize: 23,
++                  lineHeight: 30,
+                   fontWeight: "600",
+-                  color: c.onAccent,
++                  textAlign: "center",
+                 }}
+               >
+-                {completed}
++                {nextUnit.course.content.title[locale]}
+               </Txt>
+-              <Txt small style={{ color: c.onAccent }}>
+-                {t("Lessons completed", "课已完成")}
++              <Txt small style={{ textAlign: "center", color: c.muted }}>
++                {t(
++                  `Next: unit ${unitIndex + 2}`,
++                  `下一站：第 ${unitIndex + 2} 单元`,
++                )}
++              </Txt>
++              <Button
++                kind="secondary"
++                label={t("Explore this unit", "探索这个单元")}
++                onPress={() => {
++                  setUnitId(nextUnit.id);
++                  setSelected(undefined);
++                }}
++              />
++            </View>
++          )}
++          {!nextUnit && (
++            <Button
++              kind="secondary"
++              label={t("Explore another pathway", "探索其他路线")}
++              onPress={() => setPicker("pathways")}
++            />
++          )}
++          <Button
++            small
++            kind="secondary"
++            label={
++              tools
++                ? t("Hide practice tools", "收起练习工具")
++                : t("Practice & downloads", "练习与下载")
++            }
++            onPress={() => setTools((v) => !v)}
++          />
++          {tools && (
++            <View
++              style={{
++                width: "100%",
++                gap: 16,
++                borderTopWidth: 1,
++                borderColor: c.line,
++                paddingTop: 20,
++              }}
++            >
++              <Txt style={{ fontWeight: "600", fontSize: 21 }}>
++                {t("Your practice queue", "适合你的练习")}
++              </Txt>
++              {plan?.queue.map((item) => {
++                const course = courses.find((c) => c.id === item.lessonId);
++                return course ? (
++                  <Button
++                    key={item.lessonId}
++                    kind="secondary"
++                    small
++                    label={course.content.title[locale]}
++                    onPress={() => router.push(`/lesson/${item.lessonId}`)}
++                  />
++                ) : null;
++              })}
++              {!plan?.queue.length && (
++                <Txt small>
++                  {t(
++                    "Choose any lesson on your pathway to practice.",
++                    "可以选择路线中的任意一课开始练习。",
++                  )}
++                </Txt>
++              )}
++              <Button
++                kind="secondary"
++                label={t("Find my starting point", "找到我的学习起点")}
++                onPress={() =>
++                  router.push({ pathname: "/assessment", params: { puzzle } })
++                }
++              />
++              <Button
++                kind="secondary"
++                label={t("Downloaded lessons", "已下载课程")}
++                onPress={() => router.push("/downloads")}
++              />
++              {puzzle === "3x3" || puzzle === "2x2" ? (
++                <>
++                  <Txt small>
++                    {t("Physical last-layer recognition", "实物最后一层识别")}
++                  </Txt>
++                  <Row>
++                    {(puzzle === "3x3" ? ["OLL", "PLL"] : ["CLL"]).map(
++                      (family) => (
++                        <Button
++                          key={family}
++                          small
++                          kind="secondary"
++                          label={family}
++                          onPress={() =>
++                            router.push({
++                              pathname: "/case-recognition",
++                              params: { family },
++                            })
++                          }
++                        />
++                      ),
++                    )}
++                  </Row>
++                </>
++              ) : null}
++              {unit && <DownloadButton id={unit.id} />}
++              <Txt small>
++                {t(
++                  "Completion uses the current published unit revision. Earlier practice stays in your private history.",
++                  "完成标记使用当前发布的单元版本，早期练习仍保留在你的私密历史中。",
++                )}
+               </Txt>
+             </View>
+-            <View style={{ gap: 2 }}>
++          )}
++        </View>
++      )}
++      {picker &&
++        sheet(
++          <>
++            <Row style={{ justifyContent: "space-between" }}>
+               <Txt
+-                style={{
+-                  fontSize: 36,
+-                  lineHeight: 43,
+-                  fontWeight: "600",
+-                  color: c.onAccent,
+-                }}
++                accessibilityRole="header"
++                style={{ fontSize: 26, lineHeight: 33, fontWeight: "600" }}
+               >
+-                {review.length}
+-              </Txt>
+-              <Txt small style={{ color: c.onAccent }}>
+-                {t("Ready to review", "课待复习")}
+-              </Txt>
+-            </View>
+-          </Row>
+-        </Row>
+-        {next && (
+-          <Button
+-            label={t("Continue learning", "继续学习")}
+-            onPress={() => router.push(`/lesson/${next.id}`)}
+-          />
+-        )}
+-      </Card>
+-      <Txt small style={{ color: c.muted }}>
+-        {t(
+-          "Completion marks refer to the current published revision. Earlier practice stays in your private history and milestones.",
+-          "完成标记对应当前已发布版本，早期练习仍保留在私密历史与里程碑中。",
+-        )}
+-      </Txt>
+-      <Button
+-        kind="secondary"
+-        label={t("Downloaded lessons", "已下载课程")}
+-        onPress={() => router.push("/downloads")}
+-      />
+-      <Row>
+-        {["2x2", "3x3", "4x4", "pyraminx"].map((p) => (
+-          <Chip
+-            key={p}
+-            label={
+-              p === "pyraminx" ? t("Pyraminx", "金字塔") : p.replace("x", "×")
+-            }
+-            selected={puzzle === p}
+-            onPress={() => {
+-              setPuzzle(p);
+-              setCollection("path");
+-            }}
+-          />
+-        ))}
+-      </Row>
+-      <View style={{ gap: 16, paddingVertical: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontWeight: "600", fontSize: 24 }}
+-        >
+-          {t("Your practice queue", "适合你的练习")}
+-        </Txt>
+-        <Txt small>
+-          {t(
+-            "Due reviews, placement topics, and your next unfinished lessons. Everything stays optional.",
+-            "根据复习日期、小测结果和未完成课程安排，你也可以自由选择其他内容。",
+-          )}
+-        </Txt>
+-        {queue.map((item) => {
+-          const lesson = courses.find((c) => c.id === item.lessonId)?.content;
+-          return lesson ? (
+-            <View
+-              key={item.lessonId}
+-              style={{
+-                gap: 8,
+-                paddingVertical: 14,
+-                borderTopWidth: 1,
+-                borderColor: c.line,
+-              }}
+-            >
+-              <Txt small style={{ color: c.muted }}>
+-                {item.reason === "review"
+-                  ? t("Ready to review", "到了复习时间")
+-                  : item.reason === "placement"
+-                    ? t("From your placement check", "根据起点小测推荐")
+-                    : t("Next in your path", "接着学这一课")}
++                {picker === "pathways"
++                  ? t("Your pathways", "你的学习路线")
++                  : t("Your units", "你的学习单元")}
+               </Txt>
+               <Button
+                 small
+                 kind="secondary"
+-                label={lesson.title[locale]}
+-                onPress={() => router.push(`/lesson/${item.lessonId}`)}
++                label={t("Close", "关闭")}
++                onPress={() => setPicker(null)}
+               />
+-            </View>
+-          ) : null;
+-        })}
+-        {!busy && !queue.length && (
+-          <Txt small>
+-            {t(
+-              "No suggested practice right now. Explore any lesson below.",
+-              "暂时没有待推荐的练习，可以自由探索下方课程。",
+-            )}
+-          </Txt>
++            </Row>
++            <Row>
++              <Chip
++                label={t("Units", "单元")}
++                selected={picker === "units"}
++                onPress={() => setPicker("units")}
++              />
++              <Chip
++                label={t("Switch pathway", "切换路线")}
++                selected={picker === "pathways"}
++                onPress={() => setPicker("pathways")}
++              />
++            </Row>
++            <ScrollView
++              keyboardShouldPersistTaps="handled"
++              contentContainerStyle={{ gap: 12, paddingBottom: 8 }}
++            >
++              {picker === "pathways"
++                ? pathways.map((path) => (
++                    <Pressable
++                      key={path.id}
++                      accessibilityRole="button"
++                      accessibilityState={{ selected: path.id === pathway.id }}
++                      onPress={() => changePath(path.id)}
++                      style={{
++                        padding: 18,
++                        borderRadius: 18,
++                        borderWidth: 2,
++                        borderColor: path.id === pathway.id ? c.blue : c.line,
++                        backgroundColor:
++                          path.id === pathway.id ? c.lavender : c.paper,
++                        gap: 5,
++                      }}
++                    >
++                      <Txt style={{ fontWeight: "600", fontSize: 20 }}>
++                        {path.title[locale]}
++                      </Txt>
++                      <Txt small>
++                        {t(
++                          `${path.units.length} ${path.units.length === 1 ? "unit" : "units"}`,
++                          `${path.units.length} 个单元`,
++                        )}
++                      </Txt>
++                    </Pressable>
++                  ))
++                : pathway.units.map((u, index) => (
++                    <Pressable
++                      key={u.id}
++                      accessibilityRole="button"
++                      accessibilityState={{ selected: unit?.id === u.id }}
++                      onPress={() => {
++                        setUnitId(u.id);
++                        setPicker(null);
++                      }}
++                      style={{
++                        padding: 16,
++                        borderRadius: 18,
++                        borderWidth: 1,
++                        borderColor: unit?.id === u.id ? c.blue : c.line,
++                        backgroundColor: complete(u.id) ? c.mint : c.paper,
++                        gap: 5,
++                      }}
++                    >
++                      <Txt style={{ fontWeight: "600", fontSize: 19 }}>
++                        {u.course.content.title[locale]}
++                      </Txt>
++                      <Txt small>
++                        {t(`Unit ${index + 1}`, `第 ${index + 1} 单元`)} /{" "}
++                        {complete(u.id)
++                          ? t("Completed", "已完成")
++                          : t(
++                              `${u.lessons.length} ${u.lessons.length === 1 ? "lesson" : "lessons"}`,
++                              `${u.lessons.length} 节小课`,
++                            )}
++                      </Txt>
++                    </Pressable>
++                  ))}
++            </ScrollView>
++          </>,
++          () => setPicker(null),
+         )}
+-        <Button
+-          small
+-          label={t("Find my starting point", "找到我的学习起点")}
+-          onPress={() =>
+-            router.push({ pathname: "/assessment", params: { puzzle } })
+-          }
+-        />
+-      </View>
+-      <Row>
+-        <Chip
+-          label={t("Learning path", "学习路线")}
+-          selected={collection === "path"}
+-          onPress={() => setCollection("path")}
+-        />
+-        {(puzzle === "3x3"
+-          ? ["OLL", "PLL"]
+-          : puzzle === "2x2"
+-            ? ["CLL"]
+-            : []
+-        ).map((family) => (
+-          <Chip
+-            key={family}
+-            label={`${family} (${family === "OLL" ? 57 : family === "PLL" ? 21 : 42})`}
+-            selected={collection === family}
+-            onPress={() => {
+-              setCollection(family);
+-              setLevel("all");
+-            }}
+-          />
+-        ))}
+-      </Row>
+-      {collection !== "path" && (
+-        <>
+-          <Notice
+-            text={t(
+-              "Complete case coverage through original composite drills. Cubers IDs are separate from standard case numbers; these combinations favor familiar triggers and are not optimized speed algorithms.",
+-              "使用原创组合练习覆盖全部情况。Cubers 编号与通行情况编号分开；这些组合侧重常见转动，并非经过速拧优化的公式。",
+-            )}
+-          />
+-          <Button
+-            kind="secondary"
+-            label={t("Identify my physical last layer", "识别我的实物最后一层")}
+-            onPress={() =>
+-              router.push({
+-                pathname: "/case-recognition",
+-                params: { family: collection },
+-              })
+-            }
+-          />
+-        </>
+-      )}
+-      <Row>
+-        {[
+-          ["all", "All levels", "全部"],
+-          ["beginner", "First steps", "入门"],
+-          ["intermediate", "Build confidence", "进阶"],
+-          ["advanced", "Go deeper", "深入"],
+-        ].map(([id, en, zh]) => (
+-          <Chip
+-            key={id}
+-            label={t(en, zh)}
+-            selected={level === id}
+-            onPress={() => setLevel(id)}
+-          />
+-        ))}
+-      </Row>
+-      {!!error && <Notice text={error} error />}
+-      {busy && <Busy />}
+-      {puzzle === "pyraminx" && (
+-        <Notice
+-          text={t(
+-            "Pyraminx uses 120° turns and four triangular faces. These focused drills cover tips, edge placement and one last-layer case.",
+-            "金字塔采用 120° 转动与四个三角面。这组专项练习涵盖尖角、棱块插入和一种最后一层情况。",
+-          )}
+-        />
+-      )}
+-      {courses
+-        .filter(
+-          ({ content: l }) =>
+-            l.puzzle === puzzle &&
+-            (level === "all" || l.level === level) &&
+-            (collection === "path"
+-              ? !l.caseFamily
+-              : l.caseFamily === collection),
+-        )
+-        .map(({ id, content: l }, index) => {
+-          const done = progress.some(
+-            (p) => p.lessonId === id && p.currentCompleted,
+-          );
+-          const isNext = next?.id === id;
+-          return (
+-            <View
+-              key={id}
+-              style={{
+-                flexDirection: "row",
+-                gap: 18,
+-                alignItems: "stretch",
+-              }}
++      {selected &&
++        sheet(
++          <>
++            <Txt
++              accessibilityRole="header"
++              style={{ fontWeight: "600", fontSize: 25, lineHeight: 32 }}
+             >
+-              <View style={{ width: 48, alignItems: "center" }}>
+-                <View
+-                  style={{
+-                    width: 48,
+-                    height: 48,
+-                    borderRadius: 18,
+-                    backgroundColor: done
+-                      ? c.mint
+-                      : isNext
+-                        ? c.yellow
+-                        : c.paper,
+-                    borderWidth: 2,
+-                    borderColor: done ? c.mintDeep : isNext ? c.edge : c.line,
+-                    alignItems: "center",
+-                    justifyContent: "center",
+-                  }}
+-                >
+-                  <Txt style={{ fontWeight: "600", fontSize: 19 }}>
+-                    {done ? "✓" : String(index + 1).padStart(2, "0")}
+-                  </Txt>
+-                </View>
+-                <View
+-                  style={{
+-                    width: 2,
+-                    flex: 1,
+-                    minHeight: 20,
+-                    backgroundColor: c.line,
+-                    marginTop: 8,
+-                  }}
+-                />
+-              </View>
+-              <View
+-                style={{ flex: 1, minWidth: 0, gap: 10, paddingBottom: 24 }}
+-              >
+-                <Txt
+-                  style={{ fontWeight: "600", fontSize: 22, lineHeight: 29 }}
+-                >
+-                  {l.title[locale]}
+-                </Txt>
+-                <Row style={{ gap: 12 }}>
+-                  <Txt small style={{ color: c.muted }}>
+-                    {l.level === "beginner"
+-                      ? t("First steps", "入门")
+-                      : l.level === "intermediate"
+-                        ? t("Build confidence", "进阶")
+-                        : t("Go deeper", "深入")}
+-                  </Txt>
+-                  <Txt small style={{ color: c.muted }}>
+-                    {l.minutes} {t("min", "分钟")}
+-                  </Txt>
+-                  {done && (
+-                    <Txt small style={{ color: c.mintDeep }}>
+-                      {t("Completed", "已完成")}
+-                    </Txt>
+-                  )}
+-                </Row>
+-                <Txt small style={{ color: c.muted }}>
+-                  {l.summary[locale]}
+-                </Txt>
+-                <Row>
+-                  <Button
+-                    small
+-                    kind={isNext ? "primary" : "secondary"}
+-                    label={t("Open lesson", "开始学习")}
+-                    onPress={() => router.push(`/lesson/${id}`)}
+-                  />
+-                  <DownloadButton id={id} />
+-                </Row>
+-              </View>
+-            </View>
+-          );
+-        })}
++              {selected.title[locale]}
++            </Txt>
++            {!!detail && <Txt>{detail}</Txt>}
++            <Button
++              label={t("Start lesson", "开始小课")}
++              onPress={() => openLesson(selected)}
++            />
++            <Button
++              kind="secondary"
++              label={t("Back to path", "返回学习路线")}
++              onPress={() => setSelected(undefined)}
++            />
++          </>,
++          () => setSelected(undefined),
++        )}
+     </Screen>
+   );
+ }
+--- before/apps/mobile/app/(tabs)/play.tsx
++++ after/apps/mobile/app/(tabs)/play.tsx
+@@ -1,6 +1,7 @@
+ import { CompetitionList } from "../../src/CompetitionList";
+ import React, { useEffect, useState } from "react";
+-import { View, Switch } from "react-native";
++import { View, Switch, Pressable } from "react-native";
++import Svg, { Path, Rect, Circle, Line } from "react-native-svg";
+ import { router } from "expo-router";
+ import { useApp } from "../../src/state";
+ import {
+@@ -56,6 +57,9 @@
+ export default function Play() {
+   const { t, api } = useApp(),
+     c = useTheme(),
++    [mode, setMode] = useState("race"),
++    [optionsOpen, setOptionsOpen] = useState(false),
++    [section, setSection] = useState("join"),
+     [puzzle, setPuzzle] = useState("3x3"),
+     [input, setInput] = useState("virtual"),
+     [mixed, setMixed] = useState(false),
+@@ -89,233 +93,428 @@
+       setBusy(false);
+     }
+   }
++  const selectedMode = modes.find((item) => item.id === mode)!;
+   return (
+     <Screen>
+-      <Heading eyebrow={t("Better, together", "一起，更有乐趣")}>
+-        {t("A good kind of challenge.", "来一场，刚刚好的挑战。")}
+-      </Heading>
+-      <Txt style={{ color: c.muted }}>
+-        {t(
+-          "Play for the moment it clicks. Compete fairly. Cheer each other on.",
+-          "享受想通的瞬间，公平比拼，也为彼此加油。",
+-        )}
+-      </Txt>
+-      <Card style={{ gap: 20 }}>
+-        <Row
+-          style={{ justifyContent: "space-between", alignItems: "flex-start" }}
++      <Row style={{ justifyContent: "space-between", alignItems: "center" }}>
++        <Heading>{t("Play", "挑战")}</Heading>
++        <Button
++          small
++          kind="secondary"
++          label={t("Room options", "房间设置")}
++          onPress={() => setOptionsOpen(!optionsOpen)}
++        />
++      </Row>
++      <Row style={{ gap: 10 }}>
++        <Chip
++          label={
++            puzzle === "pyraminx"
++              ? t("Pyraminx", "金字塔")
++              : puzzle.replace("x", "×")
++          }
++          onPress={() => setOptionsOpen(true)}
++        />
++        <Chip
++          label={
++            input === "scan"
++              ? t("Physical", "实物")
++              : input === "smart"
++                ? t("Smart", "智能")
++                : t("Virtual", "虚拟")
++          }
++          onPress={() => setOptionsOpen(true)}
++        />
++        <Txt small style={{ color: c.muted }}>
++          {privateRoom
++            ? t("Private friend room", "好友私密房间")
++            : t("Public room", "公开房间")}
++        </Txt>
++      </Row>
++      {optionsOpen && (
++        <Card style={{ gap: 16 }}>
++          <Txt
++            accessibilityRole="header"
++            style={{ fontSize: 21, fontWeight: "600" }}
++          >
++            {t("Choose how to play", "选择挑战方式")}
++          </Txt>
++          <Row>
++            {["2x2", "3x3", "4x4", "pyraminx"].map((p) => (
++              <Chip
++                key={p}
++                label={
++                  p === "pyraminx"
++                    ? t("Pyraminx", "金字塔")
++                    : p.replace("x", "×")
++                }
++                selected={puzzle === p}
++                onPress={() => setPuzzle(p)}
++              />
++            ))}
++          </Row>
++          <Row>
++            {[
++              ["virtual", "Virtual", "虚拟"],
++              ["scan", "Physical", "实物"],
++              ["smart", "Smart", "智能"],
++            ].map(([id, en, zh]) => (
++              <Chip
++                key={id}
++                label={t(en, zh)}
++                selected={input === id}
++                onPress={() => setInput(id)}
++              />
++            ))}
++          </Row>
++          <Row style={{ justifyContent: "space-between" }}>
++            <Txt>{t("Private friend room", "好友私密房间")}</Txt>
++            <Switch
++              accessibilityLabel={t("Private friend room", "好友私密房间")}
++              value={privateRoom}
++              onValueChange={setPrivateRoom}
++            />
++          </Row>
++          <Row style={{ justifyContent: "space-between" }}>
++            <Txt>{t("Mixed inputs, casual", "混合输入，休闲")}</Txt>
++            <Switch
++              accessibilityLabel={t("Mixed inputs", "混合输入")}
++              value={mixed}
++              onValueChange={(value) => {
++                setMixed(value);
++                if (value) setRanked(false);
++              }}
++            />
++          </Row>
++          <Row style={{ justifyContent: "space-between" }}>
++            <Txt>{t("Ranked race", "排名竞速")}</Txt>
++            <Switch
++              accessibilityLabel={t("Ranked race", "排名竞速")}
++              value={ranked}
++              disabled={mixed}
++              onValueChange={setRanked}
++            />
++          </Row>
++          <Button
++            small
++            kind="secondary"
++            label={t("Done", "完成")}
++            onPress={() => setOptionsOpen(false)}
++          />
++        </Card>
++      )}
++      {mixed && (
++        <Notice
++          text={t(
++            "Each player chooses an input before the room starts. Results stay outside rankings. Scans support races and daily challenges; smart cubes require a verified 3×3 model. Scans do not continuously track turns.",
++            "每位玩家在开始前选择输入方式，成绩不计入排名。图像扫描适用于竞速和每日挑战。智能魔方仅限通过验证的三阶型号。扫描不连续追踪转动。",
++          )}
++        />
++      )}
++      {ranked && (
++        <Notice
++          text={t(
++            "Ranked play shares an eligible adult’s anonymous verified score in its puzzle/input category. Children and teens can request approved score sharing through scheduled competitions. Physical results need uninterrupted recording and review. Production ranking awaits app attestation.",
++            "排名竞速会在对应魔方与输入类别中分享符合资格成年人的匿名核准成绩。儿童与青少年可通过定时比赛申请经审核的成绩分享。实物成绩须连续录像和人工审核；正式排名仍待接入应用真实性验证。",
++          )}
++        />
++      )}
++      <View
++        style={{
++          flexDirection: "row",
++          flexWrap: "wrap",
++          justifyContent: "center",
++          alignSelf: "center",
++          maxWidth: 620,
++          gap: 14,
++          paddingTop: 8,
++          paddingBottom: 8,
++        }}
++      >
++        {modes.map((item) => {
++          const selected = mode === item.id;
++          return (
++            <View
++              key={item.id}
++              style={{ alignItems: "center", width: 94, gap: 10 }}
++            >
++              <Pressable
++                accessibilityRole="button"
++                accessibilityLabel={t(item.en, item.zh)}
++                accessibilityState={{ selected, disabled: busy }}
++                disabled={busy}
++                onPress={() => setMode(item.id)}
++                style={({ pressed }) => ({
++                  width: 76,
++                  height: 76,
++                  borderRadius: 38,
++                  alignItems: "center",
++                  justifyContent: "center",
++                  borderWidth: 2,
++                  borderBottomWidth: 6,
++                  borderColor: selected ? c.buttonEdge : c.edge,
++                  backgroundColor: selected ? c.accent : c.paper,
++                  transform: [{ translateY: pressed ? 3 : 0 }],
++                  opacity: busy ? 0.55 : 1,
++                })}
++              >
++                <ModeGlyph
++                  mode={item.id}
++                  color={selected ? c.onAccent : c.ink}
++                />
++              </Pressable>
++              <Txt
++                small
++                style={{
++                  fontWeight: selected ? "600" : "500",
++                  textAlign: "center",
++                  color: selected ? c.ink : c.muted,
++                }}
++              >
++                {item.id === "race"
++                  ? t("Race", "竞速")
++                  : item.id === "pattern"
++                    ? t("Pattern", "图案")
++                    : item.id === "relay"
++                      ? t("Relay", "接力")
++                      : item.id === "sprint"
++                        ? t("Sprint", "冲刺")
++                        : t("Daily", "每日挑战")}
++              </Txt>
++            </View>
++          );
++        })}
++      </View>
++      <Card style={{ backgroundColor: c.yellow, gap: 12 }}>
++        <Txt
++          accessibilityRole="header"
++          style={{
++            fontSize: 25,
++            lineHeight: 32,
++            fontWeight: "600",
++            color: c.onAccent,
++          }}
+         >
++          {t(selectedMode.en, selectedMode.zh)}
++        </Txt>
++        <Txt small style={{ color: c.onAccent }}>
++          {t(selectedMode.description, selectedMode.descriptionZh)}
++        </Txt>
++        <Button
++          label={
++            busy ? t("Creating…", "正在创建……") : t("Create a room", "创建房间")
++          }
++          onPress={() => void create(selectedMode.id)}
++          disabled={busy}
++        />
++      </Card>
++      {!!error && <Notice text={error} error />}
++      <Row style={{ paddingTop: 12 }}>
++        {[
++          ["join", "Join a friend", "加入好友"],
++          ["rooms", "Open rooms", "公开房间"],
++          ["events", "Competitions", "比赛"],
++          ["rankings", "Rankings", "成绩榜"],
++        ].map(([id, en, zh]) => (
++          <Chip
++            key={id}
++            label={t(en, zh)}
++            selected={section === id}
++            onPress={() => setSection(id)}
++          />
++        ))}
++      </Row>
++      {section === "join" && (
++        <Card>
++          <Txt
++            accessibilityRole="header"
++            style={{ fontSize: 21, fontWeight: "600" }}
++          >
++            {t("Join a friend", "加入好友房间")}
++          </Txt>
++          <Field
++            label={t("Room code", "房间邀请码")}
++            value={code}
++            onChangeText={setCode}
++            autoCapitalize="none"
++          />
++          <Button
++            label={t("Join a friend", "加入好友房间")}
++            onPress={() => {
++              api("rooms/join", { code })
++                .then((r) => router.push(`/room/${r.id}`))
++                .catch((e) => setError(e.message));
++            }}
++            disabled={code.length < 6}
++          />
++        </Card>
++      )}
++      {section === "rankings" && (
++        <Card>
+           <Txt
+             accessibilityRole="header"
+             style={{ fontSize: 23, lineHeight: 30, fontWeight: "600" }}
+           >
++            {t("Category rankings", "分类成绩榜")}
++          </Txt>
++          <Txt small>
+             {t(
+-              "A shared room. Your own rhythm.",
+-              "在同一个房间，各自找到节奏。",
++              "Anonymous verified adult attempts, with separate puzzle and input categories.",
++              "匿名核准的成年人单次成绩，按魔方与输入方式分榜。",
+             )}
+           </Txt>
+-        </Row>
+-        <Row>
+-          {["2x2", "3x3", "4x4", "pyraminx"].map((p) => (
+-            <Chip
+-              key={p}
+-              label={
+-                p === "pyraminx" ? t("Pyraminx", "金字塔") : p.replace("x", "×")
+-              }
+-              selected={puzzle === p}
+-              onPress={() => setPuzzle(p)}
++          <Button
++            label={t("View rankings", "查看榜单")}
++            onPress={() => router.push("/rankings")}
++          />
++        </Card>
++      )}
++      {section === "events" && <CompetitionList />}
++      {section === "rooms" && (
++        <>
++          <Txt
++            accessibilityRole="header"
++            style={{ fontSize: 23, lineHeight: 30, fontWeight: "600" }}
++          >
++            {t("Open rooms", "公开房间")}
++          </Txt>
++          {rooms.length ? (
++            rooms.map((room) => (
++              <Card key={room.id}>
++                <Row style={{ justifyContent: "space-between" }}>
++                  <Txt
++                    style={{ fontSize: 22, lineHeight: 29, fontWeight: "600" }}
++                  >
++                    {room.puzzle.replace("x", "×")}
++                  </Txt>
++                  <Txt small>{room.mode}</Txt>
++                  <Txt small>
++                    {room.mixed ? t("Mixed inputs", "混合输入") : room.input}
++                  </Txt>
++                </Row>
++                <Button
++                  small
++                  label={t("Join room", "加入房间")}
++                  onPress={() => {
++                    api("rooms/join", {
++                      id: room.id,
++                      ...(room.mixed ? { input } : {}),
++                    })
++                      .then(() => router.push(`/room/${room.id}`))
++                      .catch((e) => setError(e.message));
++                  }}
++                />
++              </Card>
++            ))
++          ) : (
++            <Empty
++              title={t("Make the first move.", "迈出第一步。")}
++              body={t(
++                "No open rooms yet. Invite a friend or begin a personal challenge.",
++                "还没有公开房间，邀请好友，或先开始个人挑战。",
++              )}
+             />
+-          ))}
+-        </Row>
+-        <Row>
+-          {[
+-            ["virtual", "Virtual", "虚拟"],
+-            ["scan", "Physical", "实物"],
+-            ["smart", "Smart", "智能"],
+-          ].map(([id, en, zh]) => (
+-            <Chip
+-              key={id}
+-              label={t(en, zh)}
+-              selected={input === id}
+-              onPress={() => setInput(id)}
+-            />
+-          ))}
+-        </Row>
+-        <Row style={{ justifyContent: "space-between" }}>
+-          <Txt>{t("Private friend room", "好友私密房间")}</Txt>
+-          <Switch
+-            accessibilityLabel={t("Private friend room", "好友私密房间")}
+-            value={privateRoom}
+-            onValueChange={setPrivateRoom}
+-          />
+-        </Row>
+-        <Row style={{ justifyContent: "space-between" }}>
+-          <Txt>{t("Mixed inputs, casual", "混合输入，休闲")}</Txt>
+-          <Switch
+-            accessibilityLabel={t("Mixed inputs", "混合输入")}
+-            value={mixed}
+-            onValueChange={(value) => {
+-              setMixed(value);
+-              if (value) setRanked(false);
+-            }}
+-          />
+-        </Row>
+-        {mixed && (
+-          <Notice
+-            text={t(
+-              "Each player chooses an input before the room starts. Results stay outside rankings. Scans support races and daily challenges; smart cubes require a verified 3×3 model. Scans do not continuously track turns.",
+-              "每位玩家在开始前选择输入方式，成绩不计入排名。图像扫描适用于竞速和每日挑战。智能魔方仅限通过验证的三阶型号。扫描不连续追踪转动。",
+-            )}
+-          />
+-        )}
+-        <Row style={{ justifyContent: "space-between" }}>
+-          <Txt>{t("Ranked race", "排名竞速")}</Txt>
+-          <Switch
+-            accessibilityLabel={t("Ranked race", "排名竞速")}
+-            value={ranked}
+-            disabled={mixed}
+-            onValueChange={setRanked}
+-          />
+-        </Row>
+-        {ranked && (
+-          <Notice
+-            text={t(
+-              "Ranked play shares an eligible adult’s anonymous verified score in its puzzle/input category. Children and teens can request approved score sharing through scheduled competitions. Physical results need uninterrupted recording and review. Production ranking awaits app attestation.",
+-              "排名竞速会在对应魔方与输入类别中分享符合资格成年人的匿名核准成绩。儿童与青少年可通过定时比赛申请经审核的成绩分享。实物成绩须连续录像和人工审核；正式排名仍待接入应用真实性验证。",
+-            )}
+-          />
+-        )}
+-      </Card>
+-      {!!error && <Notice text={error} error />}
+-      <View style={{ gap: 16 }}>
+-        {modes.map((mode, index) => (
+-          <View
+-            key={mode.id}
+-            style={{
+-              backgroundColor: index === 0 ? c.yellow : c.paper,
+-              borderColor: index === 0 ? c.edge : c.line,
+-              borderWidth: 1,
+-              borderBottomWidth: index === 0 ? 5 : 1,
+-              borderRadius: 24,
+-              padding: 24,
+-              gap: 18,
+-            }}
+-          >
+-            <Row
+-              style={{
+-                alignItems: "flex-start",
+-                justifyContent: "space-between",
+-                gap: 20,
+-              }}
+-            >
+-              <View style={{ flex: 1, minWidth: 180, gap: 6 }}>
+-                <Txt
+-                  style={{
+-                    fontSize: 25,
+-                    lineHeight: 32,
+-                    fontWeight: "600",
+-                    color: index === 0 ? c.onAccent : c.ink,
+-                  }}
+-                >
+-                  {t(mode.en, mode.zh)}
+-                </Txt>
+-                <Txt
+-                  small
+-                  style={{ color: index === 0 ? c.onAccent : c.muted }}
+-                >
+-                  {t(mode.description, mode.descriptionZh)}
+-                </Txt>
+-              </View>
+-              <Button
+-                small
+-                kind={index === 0 ? "primary" : "secondary"}
+-                label={t("Create a room", "创建房间")}
+-                onPress={() => void create(mode.id)}
+-                disabled={busy}
+-              />
+-            </Row>
+-          </View>
+-        ))}
+-      </View>
+-      <Card>
+-        <Txt style={{ fontWeight: "600", fontSize: 21 }}>
+-          {t("Got an invitation?", "收到邀请了吗？")}
+-        </Txt>
+-        <Field
+-          label={t("Room code", "房间邀请码")}
+-          value={code}
+-          onChangeText={setCode}
+-          autoCapitalize="none"
+-        />
+-        <Button
+-          label={t("Join a friend", "加入好友房间")}
+-          onPress={() => {
+-            api("rooms/join", { code })
+-              .then((r) => router.push(`/room/${r.id}`))
+-              .catch((e) => setError(e.message));
+-          }}
+-          disabled={code.length < 6}
+-        />
+-      </Card>
+-      <Card>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 24, lineHeight: 31, fontWeight: "600" }}
+-        >
+-          {t("Category rankings", "分类成绩榜")}
+-        </Txt>
+-        <Txt small>
+-          {t(
+-            "Anonymous verified adult attempts, with separate puzzle and input categories.",
+-            "匿名核准的成年人单次成绩，按魔方与输入方式分榜。",
+           )}
+-        </Txt>
+-        <Button
+-          label={t("View rankings", "查看榜单")}
+-          onPress={() => router.push("/rankings")}
+-        />
+-      </Card>
+-      <CompetitionList />
+-      <Txt
+-        accessibilityRole="header"
+-        style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-      >
+-        {t("Open rooms", "公开房间")}
+-      </Txt>
+-      {rooms.length ? (
+-        rooms.map((room) => (
+-          <Card key={room.id}>
+-            <Row style={{ justifyContent: "space-between" }}>
+-              <Txt style={{ fontSize: 22, lineHeight: 29, fontWeight: "600" }}>
+-                {room.puzzle.replace("x", "×")}
+-              </Txt>
+-              <Txt small>{room.mode}</Txt>
+-              <Txt small>
+-                {room.mixed ? t("Mixed inputs", "混合输入") : room.input}
+-              </Txt>
+-            </Row>
+-            <Button
+-              small
+-              label={t("Join room", "加入房间")}
+-              onPress={() => {
+-                api("rooms/join", {
+-                  id: room.id,
+-                  ...(room.mixed ? { input } : {}),
+-                })
+-                  .then(() => router.push(`/room/${room.id}`))
+-                  .catch((e) => setError(e.message));
+-              }}
+-            />
+-          </Card>
+-        ))
+-      ) : (
+-        <Empty
+-          title={t("Make the first move.", "迈出第一步。")}
+-          body={t(
+-            "No open rooms yet. Invite a friend or begin a personal challenge.",
+-            "还没有公开房间，邀请好友，或先开始个人挑战。",
+-          )}
+-        />
++        </>
+       )}
+     </Screen>
+   );
+ }
++function ModeGlyph({ mode, color }: { mode: string; color: string }) {
++  return (
++    <Svg width={32} height={32} viewBox="0 0 32 32" aria-hidden={true}>
++      {mode === "race" ? (
++        <>
++          <Path
++            d="M8 27V5h16l-4 5 4 5H8"
++            fill="none"
++            stroke={color}
++            strokeWidth={2.4}
++            strokeLinejoin="round"
++          />
++          <Line
++            x1={5}
++            y1={27}
++            x2={12}
++            y2={27}
++            stroke={color}
++            strokeWidth={2.4}
++          />
++        </>
++      ) : mode === "pattern" ? (
++        <>
++          {[5, 18].flatMap((x) =>
++            [5, 18].map((y) => (
++              <Rect
++                key={`${x}:${y}`}
++                x={x}
++                y={y}
++                width={9}
++                height={9}
++                rx={2}
++                fill="none"
++                stroke={color}
++                strokeWidth={2.2}
++              />
++            )),
++          )}
++        </>
++      ) : mode === "relay" ? (
++        <>
++          <Circle
++            cx={9}
++            cy={10}
++            r={4}
++            fill="none"
++            stroke={color}
++            strokeWidth={2.2}
++          />
++          <Circle
++            cx={23}
++            cy={22}
++            r={4}
++            fill="none"
++            stroke={color}
++            strokeWidth={2.2}
++          />
++          <Path
++            d="M15 8h10v7M17 24H7v-7"
++            fill="none"
++            stroke={color}
++            strokeWidth={2.2}
++            strokeLinecap="round"
++            strokeLinejoin="round"
++          />
++        </>
++      ) : mode === "sprint" ? (
++        <Path
++          d="m18 3-11 15h8l-1 11 11-16h-8z"
++          fill="none"
++          stroke={color}
++          strokeWidth={2.2}
++          strokeLinejoin="round"
++        />
++      ) : (
++        <>
++          <Rect
++            x={5}
++            y={7}
++            width={22}
++            height={21}
++            rx={4}
++            fill="none"
++            stroke={color}
++            strokeWidth={2.2}
++          />
++          <Path
++            d="M5 13h22M11 4v6M21 4v6m-10 11 3 3 7-7"
++            fill="none"
++            stroke={color}
++            strokeWidth={2.2}
++            strokeLinecap="round"
++            strokeLinejoin="round"
++          />
++        </>
++      )}
++    </Svg>
++  );
++}
+--- before/apps/mobile/app/(tabs)/profile.tsx
++++ after/apps/mobile/app/(tabs)/profile.tsx
+@@ -1,198 +1,197 @@
+-import React, { useState, useCallback, useRef } from "react";
+-import { View, Share } from "react-native";
++import React, { useCallback, useRef, useState } from "react";
++import { View } from "react-native";
+ import { router, useFocusEffect } from "expo-router";
++import { StatisticsQuery, type ActivityCalendar } from "@cubers/core";
+ import { useApp } from "../../src/state";
+-import { lessons } from "@cubers/core";
+ import { ProfileAvatar } from "../../src/ProfileAvatar";
+-import { appVerification } from "../../src/verification/native";
+-import {
+-  Screen,
+-  Heading,
+-  Card,
+-  Txt,
+-  Button,
+-  Row,
+-  Field,
+-  Chip,
+-  Notice,
+-  useTheme,
+-} from "../../src/ui";
++import { ProfileGear } from "../../src/ProfileGear";
++import { ProfileActivity } from "../../src/ProfileActivity";
++import { ProfileDetails } from "../../src/ProfileDetails";
++import { ProfileSectionTabs } from "../../src/ProfileSectionTabs";
++import { Screen, Txt, Button, Row, Notice, Busy, useTheme } from "../../src/ui";
++
++type Summary = {
++  owner: string;
++  progress: any[];
++  statistics: any;
++  profile: any;
++  goals: any[];
++  activity?: ActivityCalendar;
++  activityError?: string;
++};
+ export default function Profile() {
+-  const { t, user, token, api, reload, signout, region, locale } = useApp(),
+-    c = useTheme(),
+-    [storedProgress, setProgress] = useState<any[]>([]),
+-    [storedPosts, setPosts] = useState<any[]>([]),
+-    [storedProfile, setOwnProfile] = useState<any>(),
+-    [confirmation, setConfirmation] = useState(""),
+-    [message, setMessage] = useState(""),
+-    [storedStatistics, setStatistics] = useState<any>(),
+-    [storedHistory, setHistory] = useState<any[]>([]),
+-    [storedLessons, setLessonHistory] = useState<any[]>([]),
+-    [storedCursor, setHistoryCursor] = useState<string | null>(null),
+-    [storedGoals, setGoals] = useState<any[]>([]),
+-    [puzzle, setPuzzle] = useState("3x3"),
+-    [input, setInput] = useState("virtual"),
+-    [goalKind, setGoalKind] = useState("solves"),
+-    [target, setTarget] = useState("10"),
+-    [busy, setBusy] = useState(false);
+-  const identity = JSON.stringify([token, user?.id, region, puzzle, input]);
+-  const account = JSON.stringify([token, region]);
+-  const accountRef = useRef(account);
+-  accountRef.current = account;
+-  const identityRef = useRef(identity);
+-  identityRef.current = identity;
+-  const generation = useRef(0),
+-    morePending = useRef(false);
+-  const [loadedFor, setLoadedFor] = useState<string>(),
+-    [pagingHistory, setPagingHistory] = useState(false);
+-  const current = loadedFor === identity;
+-  const progress = current ? storedProgress : [],
+-    posts = current ? storedPosts : [],
+-    ownProfile = current ? storedProfile : undefined;
+-  const statistics = current ? storedStatistics : undefined,
+-    history = current ? storedHistory : [],
+-    lessonHistory = current ? storedLessons : [];
+-  const historyCursor = current ? storedCursor : null,
+-    goals = current ? storedGoals : [];
++  const { api, user, token, region, t, reload } = useApp(),
++    c = useTheme();
++  const owner = JSON.stringify([token, user?.id, region]);
++  const ownerRef = useRef(owner);
++  ownerRef.current = owner;
++  const generation = useRef(0);
++  const [stored, setStored] = useState<Summary>();
++  const [section, setSection] = useState<
++    "overview" | "history" | "goals" | "posts"
++  >("overview");
++  const [error, setError] = useState("");
++  const [loading, setLoading] = useState(true);
++  const [zone] = useState(() => {
++    try {
++      return StatisticsQuery.parse({
++        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
++      }).timeZone;
++    } catch {
++      return "UTC";
++    }
++  });
++  const data = stored?.owner === owner ? stored : undefined;
+   const load = useCallback(() => {
+-    if (identityRef.current !== identity) return Promise.resolve();
+     const epoch = ++generation.current;
+-    setLoadedFor(undefined);
+-    morePending.current = false;
+-    setPagingHistory(false);
++    setLoading(true);
++    setError("");
+     return Promise.all([
+       api("progress"),
+-      api("posts/mine"),
+       api("me/statistics"),
+-      api(`me/history?puzzle=${puzzle}&input=${input}`),
++      api("me/profile"),
+       api("me/goals"),
+-      api("lesson-sessions"),
+-      api("me/profile"),
++      api<ActivityCalendar>(`me/activity?timeZone=${encodeURIComponent(zone)}`)
++        .then((activity) => ({
++          activity,
++          activityError: undefined as string | undefined,
++        }))
++        .catch((e: Error) => ({
++          activity: undefined,
++          activityError: e.message,
++        })),
+     ])
+-      .then(([p, posts, stats, history, goals, lessons, profile]) => {
+-        if (epoch !== generation.current || identityRef.current !== identity)
+-          return;
+-        setLoadedFor(identity);
+-        setOwnProfile(profile);
+-        setProgress(p);
+-        setPosts(posts);
+-        setStatistics(stats);
+-        setHistory(history.items);
+-        setHistoryCursor(history.nextCursor);
+-        setGoals(goals);
+-        setLessonHistory(lessons);
++      .then(([progress, statistics, profile, goals, activity]) => {
++        if (generation.current !== epoch || ownerRef.current !== owner) return;
++        setStored({ owner, progress, statistics, profile, goals, ...activity });
+       })
+-      .catch((e) => {
+-        if (epoch === generation.current && identityRef.current === identity)
+-          setMessage(e.message);
++      .catch((e: Error) => {
++        if (generation.current === epoch && ownerRef.current === owner)
++          setError(e.message);
++      })
++      .finally(() => {
++        if (generation.current === epoch && ownerRef.current === owner)
++          setLoading(false);
+       });
+-  }, [api, puzzle, input, identity]);
++  }, [api, owner, zone]);
+   useFocusEffect(
+     useCallback(() => {
+       void load();
+       void reload();
+       return () => {
+         generation.current++;
+-        morePending.current = false;
+-        setLoadedFor(undefined);
+-        setMessage("");
+-        setConfirmation("");
++        setStored(undefined);
++        setError("");
+       };
+     }, [load, reload]),
+   );
++  const completed =
++    data?.progress.filter((item) => item.currentCompleted).length ?? 0;
++  const approvedSolves =
++    data?.statistics.categories.reduce(
++      (sum: number, category: any) => sum + category.solves,
++      0,
++    ) ?? 0;
++  const overview = [
++    [data?.activity?.currentStreak, t("Day streak", "连续练习天数"), c.orange],
++    [
++      data ? completed : undefined,
++      t("Lessons learned", "已学课程"),
++      c.lavender,
++    ],
++    [
++      data ? approvedSolves : undefined,
++      t("Approved solves", "已核准还原"),
++      c.mint,
++    ],
++    [
++      data?.activity?.totals.activeDays,
++      t("Active days this year", "一年内活跃天数"),
++      c.field,
++    ],
++  ] as const;
+   const privateProfile = user?.privateProfile ?? true;
+   const sharingProfile =
+     !privateProfile &&
+-    ownProfile?.sharingEligible &&
+-    ownProfile?.review.status === "APPROVED" &&
+-    Object.values(ownProfile.settings.visibility).some(
++    data?.profile.sharingEligible &&
++    data.profile.review.status === "APPROVED" &&
++    Object.values(data.profile.settings.visibility).some(
+       (value) => value !== "PRIVATE",
+     );
+-  async function addGoal() {
+-    setBusy(true);
+-    try {
+-      await api("me/goals", {
+-        puzzle,
+-        input,
+-        kind: goalKind,
+-        target:
+-          goalKind === "time"
+-            ? Math.round(Number(target) * 1000)
+-            : Number(target),
+-      });
+-      await load();
+-      setMessage(
+-        t(
+-          "Personal goal saved. Progress comes from your verified records.",
+-          "个人目标已保存，进度将按经过验证的记录计算。",
+-        ),
+-      );
+-    } catch (error) {
+-      setMessage((error as Error).message);
+-    } finally {
+-      setBusy(false);
+-    }
+-  }
+-  async function exportData() {
+-    try {
+-      const data = await api("me/export");
+-      if (accountRef.current !== account) return;
+-      await Share.share({
+-        message: JSON.stringify(data, null, 2),
+-        title: "Cubers account export",
+-      });
+-    } catch (e) {
+-      setMessage((e as Error).message);
+-    }
+-  }
+-  async function remove() {
+-    try {
+-      await api("me", { confirmation }, "DELETE");
+-      if (user) await appVerification.eraseLocal(user.id, region);
+-      if (accountRef.current !== account) return;
+-      await signout();
+-    } catch (e) {
+-      setMessage((e as Error).message);
+-    }
+-  }
+   return (
+     <Screen>
+-      <Heading eyebrow={t("Every little win belongs here", "记录每一次小进步")}>
+-        {t("Your cubing story.", "你的魔方故事。")}
+-      </Heading>
+-      <Card style={{ backgroundColor: c.yellow, padding: 26, gap: 20 }}>
+-        <Row style={{ gap: 18, alignItems: "flex-start" }}>
+-          <ProfileAvatar avatar={ownProfile?.settings.avatar} />
+-          <View style={{ flex: 1 }}>
+-            <Txt
+-              style={{
+-                fontSize: 30,
+-                lineHeight: 37,
+-                fontWeight: "600",
+-                color: c.onAccent,
+-              }}
+-            >
+-              {user?.displayName}
+-            </Txt>
+-            <Txt small style={{ color: c.onAccent }}>
+-              {region === "CN"
+-                ? t("Mainland China community", "中国大陆社区")
+-                : t("International community", "国际社区")}
+-            </Txt>
+-            <Txt small style={{ color: c.onAccent }}>
+-              {sharingProfile
+-                ? t("Sharing selected sections", "分享所选部分")
+-                : t("Private", "私密")}
+-            </Txt>
++      <View
++        style={{
++          borderBottomWidth: 1,
++          borderColor: c.line,
++          paddingBottom: 24,
++          gap: 18,
++        }}
++      >
++        <View
++          style={{
++            minHeight: 190,
++            borderRadius: 26,
++            backgroundColor: c.lavender,
++            padding: 22,
++            alignItems: "center",
++            justifyContent: "center",
++          }}
++        >
++          <View style={{ alignSelf: "flex-end", marginBottom: 4 }}>
++            <ProfileGear onPress={() => router.push("/settings")} />
+           </View>
++          <View style={{ marginTop: -12, marginBottom: 12 }}>
++            <ProfileAvatar avatar={data?.profile.settings.avatar} size={116} />
++          </View>
++        </View>
++        <View style={{ gap: 6 }}>
++          <Txt
++            accessibilityRole="header"
++            style={{ fontSize: 31, lineHeight: 39, fontWeight: "600" }}
++          >
++            {user?.displayName}
++          </Txt>
++          <Txt small style={{ color: c.muted }}>
++            {region === "CN"
++              ? t("Mainland China community", "中国大陆社区")
++              : t("International community", "国际社区")}
++          </Txt>
++          <Txt small style={{ color: c.muted }}>
++            {sharingProfile
++              ? t("Sharing selected sections", "分享所选部分")
++              : t("Private profile", "私密个人页")}
++          </Txt>
++          {!!user?.bio && <Txt>{user.bio}</Txt>}
++        </View>
++        <Row style={{ gap: 12 }}>
++          <View style={{ flex: 1, minWidth: 180 }}>
++            <Button
++              kind="secondary"
++              label={t("Friends & mentorship", "好友与指导")}
++              onPress={() => router.push("/connections")}
++            />
++          </View>
++          <Button
++            kind="secondary"
++            label={t("My clubs", "我的社团")}
++            onPress={() => router.push("/clubs")}
++          />
++          {sharingProfile && (
++            <Button
++              small
++              kind="secondary"
++              label={t("View shared profile", "查看分享的个人页")}
++              onPress={() =>
++                router.push({
++                  pathname: "/profile/[id]",
++                  params: { id: user!.id },
++                })
++              }
++            />
++          )}
+         </Row>
+-        {!!user?.bio && <Txt style={{ color: c.onAccent }}>{user.bio}</Txt>}
+-        <Button
+-          small
+-          label={t("Customize profile and sharing", "设置资料与分享范围")}
+-          onPress={() => router.push("/profile/edit")}
+-        />
+-        {ownProfile?.review.status === "PENDING" && (
++        {data?.profile.review.status === "PENDING" && (
+           <Notice
+             text={t(
+               "Your shared profile is awaiting content review.",
+@@ -200,732 +199,152 @@
+             )}
+           />
+         )}
+-        {sharingProfile && (
+-          <Button
+-            small
+-            kind="secondary"
+-            label={t("View shared profile", "查看分享的个人页")}
+-            onPress={() =>
+-              router.push({
+-                pathname: "/profile/[id]",
+-                params: { id: user!.id },
+-              })
+-            }
+-          />
+-        )}
+-      </Card>
+-      <Row
+-        style={{
+-          gap: 28,
+-          paddingVertical: 20,
+-          borderBottomWidth: 1,
+-          borderColor: c.line,
+-        }}
+-      >
+-        <View style={{ flex: 1, minWidth: 130, gap: 4 }}>
+-          <Txt style={{ fontSize: 38, lineHeight: 46, fontWeight: "600" }}>
+-            {progress.filter((p) => p.completed).length}
+-          </Txt>
+-          <Txt small>{t("Lessons completed", "课程已完成")}</Txt>
+-        </View>
+-        <View style={{ flex: 1, minWidth: 130, gap: 4 }}>
+-          <Txt style={{ fontSize: 38, lineHeight: 46, fontWeight: "600" }}>
+-            {progress.reduce((n, p) => n + p.repetitions, 0)}
+-          </Txt>
+-          <Txt small>{t("Practice checkpoints", "练习检查点")}</Txt>
+-        </View>
+-      </Row>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Your learning history", "你的学习历史")}
+-        </Txt>
+-        <Button
+-          small
+-          kind="secondary"
+-          label={t("Guided solve practice history", "查看完整还原练习记录")}
+-          onPress={() => router.push("/first-solve")}
+-        />
+-        <Txt small style={{ color: c.muted }}>
+-          {t(
+-            "Private · your latest 30 practices. Physical turns are learner-confirmed and checked by scans; they are separate from ranked results.",
+-            "私密 · 最近三十次练习。实物转动由本人确认，并通过扫描核对，与排名成绩分开记录。",
+-          )}
+-        </Txt>
+-        {lessonHistory.length ? (
+-          lessonHistory.slice(0, 8).map((practice) => (
+-            <View
+-              key={practice.id}
+-              style={{
+-                gap: 10,
+-                paddingVertical: 18,
+-                borderTopWidth: 1,
+-                borderColor: c.line,
+-              }}
+-            >
+-              <Txt style={{ fontWeight: "600" }}>
+-                {practice.puzzle === "pyraminx"
+-                  ? t("Pyraminx", "金字塔")
+-                  : practice.puzzle.replace("x", "×")}{" "}
+-                /{" "}
+-                {practice.input === "scan"
+-                  ? t("Physical practice", "实物练习")
+-                  : practice.input === "smart"
+-                    ? t("Smart-cube practice", "智能魔方练习")
+-                    : t("Virtual practice", "虚拟练习")}
+-              </Txt>
+-              <Txt small>
+-                {lessons.find((lesson) => lesson.id === practice.lessonId)
+-                  ?.title[locale] || t("Learning practice", "学习练习")}
+-              </Txt>
+-              <Txt small>
+-                {practice.status === "COMPLETED"
+-                  ? t("Checkpoint verified", "检查点已验证")
+-                  : practice.status === "CANCELLED"
+-                    ? t("Ended", "已结束")
+-                    : practice.status === "INTERRUPTED"
+-                      ? t(
+-                          "Interrupted, synchronize a new practice",
+-                          "已中断，请重新同步练习",
+-                        )
+-                      : t("In progress", "进行中")}{" "}
+-                / {new Date(practice.createdAt).toLocaleDateString()}
+-              </Txt>
+-              {practice.input === "smart" && (
+-                <Txt small>
+-                  {practice.smart?.continuity === "counter"
+-                    ? t(
+-                        "Received turns checked with the device counter; this is private learning, not a ranked result.",
+-                        "接收的转动经过设备计数核对；这是私密学习，不是排名成绩。",
+-                      )
+-                    : t(
+-                        "Device positions agree with the received turns. This model cannot prove that every turn was received; no turning-speed statistic is awarded.",
+-                        "设备状态与接收的转动一致。此型号无法证明所有转动都已接收，不计转速统计。",
+-                      )}
+-                </Txt>
+-              )}
+-              <Button
+-                small
+-                kind="secondary"
+-                label={
+-                  practice.status === "PREPARING" ||
+-                  practice.status === "PRACTICING"
+-                    ? t("Continue lesson", "继续学习")
+-                    : t("Open lesson", "打开课程")
+-                }
+-                onPress={() =>
+-                  router.push({
+-                    pathname: "/lesson/[id]",
+-                    params: { id: practice.lessonId, input: practice.input },
+-                  })
+-                }
+-              />
+-            </View>
+-          ))
+-        ) : (
+-          <Txt small>
+-            {t(
+-              "Finish a lesson drill to start your learning history.",
+-              "完成课程练习，开始记录学习历史。",
+-            )}
+-          </Txt>
+-        )}
+       </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Your solve statistics", "你的还原统计")}
+-        </Txt>
+-        <Button
+-          kind="secondary"
+-          label={t("Practice sessions and daily totals", "练习时段与每日汇总")}
+-          onPress={() => router.push("/statistics")}
+-        />
+-        <Txt small style={{ color: c.muted }}>
+-          {t(
+-            "Private · most recent 1,000 approved race and daily solves. Categories stay separate. Times include server timing; these are not official competition records.",
+-            "私密 · 最近一千次已核准的竞速与每日还原，按类别分别统计。时间含服务器计时，并非官方比赛记录。",
+-          )}
+-        </Txt>
+-        {statistics?.categories.length ? (
+-          statistics.categories.map((category: any) => (
+-            <View
+-              key={`${category.puzzle}:${category.input}`}
+-              style={{
+-                gap: 10,
+-                paddingVertical: 18,
+-                borderTopWidth: 1,
+-                borderColor: c.line,
+-              }}
+-            >
+-              <Txt style={{ fontWeight: "600" }}>
+-                {category.puzzle.replace("x", "×")} /{" "}
+-                {category.input === "scan"
+-                  ? t("Physical", "实物")
+-                  : category.input === "smart"
+-                    ? t("Smart", "智能")
+-                    : t("Virtual", "虚拟")}
+-              </Txt>
+-              <Row style={{ gap: 26, alignItems: "flex-start" }}>
+-                <View style={{ gap: 4 }}>
+-                  <Txt
+-                    style={{ fontSize: 27, lineHeight: 34, fontWeight: "600" }}
+-                  >
+-                    {category.solves}
+-                  </Txt>
+-                  <Txt small style={{ color: c.muted }}>
+-                    {t("Solves", "还原次数")}
+-                  </Txt>
+-                </View>
+-                <View style={{ gap: 4 }}>
+-                  <Txt
+-                    style={{ fontSize: 27, lineHeight: 34, fontWeight: "600" }}
+-                  >
+-                    {(category.bestMs / 1000).toFixed(2)}s
+-                  </Txt>
+-                  <Txt small style={{ color: c.muted }}>
+-                    {t("Best", "最快")}
+-                  </Txt>
+-                </View>
+-                <View style={{ gap: 4 }}>
+-                  <Txt
+-                    style={{ fontSize: 27, lineHeight: 34, fontWeight: "600" }}
+-                  >
+-                    {(category.meanMs / 1000).toFixed(2)}s
+-                  </Txt>
+-                  <Txt small style={{ color: c.muted }}>
+-                    {t("Mean", "均值")}
+-                  </Txt>
+-                </View>
+-              </Row>
+-              {category.latestFiveTrimmedMeanMs !== null && (
+-                <Txt small>
+-                  {t(
+-                    "Latest five, removing fastest and slowest",
+-                    "最近五次去掉最快和最慢",
+-                  )}
+-                  : {(category.latestFiveTrimmedMeanMs / 1000).toFixed(2)}s
+-                </Txt>
+-              )}
+-              {category.moveCount !== null && (
+-                <Txt small>
+-                  {t(
+-                    `${category.moveCount} tracked moves / ${category.turnsPerSecond} turns/s`,
+-                    `${category.moveCount} 次已追踪转动 / ${category.turnsPerSecond} 次/秒`,
+-                  )}
+-                </Txt>
+-              )}
+-            </View>
+-          ))
+-        ) : (
+-          <Txt small style={{ color: c.muted }}>
+-            {t(
+-              "Complete a race or daily solve to start your private statistics.",
+-              "完成一次竞速或每日还原，开始积累私密统计。",
+-            )}
+-          </Txt>
+-        )}
+-      </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Personal goals", "个人目标")}
+-        </Txt>
+-        <Row>
+-          {["2x2", "3x3", "4x4", "pyraminx"].map((value) => (
+-            <Chip
+-              key={value}
+-              label={
+-                value === "pyraminx"
+-                  ? t("Pyraminx", "金字塔")
+-                  : value.replace("x", "×")
+-              }
+-              selected={puzzle === value}
+-              onPress={() => setPuzzle(value)}
+-            />
+-          ))}
+-        </Row>
+-        <Row>
+-          {[
+-            ["virtual", "Virtual", "虚拟"],
+-            ["scan", "Physical", "实物"],
+-          ].map(([value, en, zh]) => (
+-            <Chip
+-              key={value}
+-              label={t(en, zh)}
+-              selected={input === value}
+-              onPress={() => setInput(value)}
+-            />
+-          ))}
+-        </Row>
+-        <Row>
+-          {[
+-            ["solves", "Solve count", "还原次数"],
+-            ["time", "Personal best", "个人最快"],
+-            ["lessons", "Lessons", "课程数"],
+-          ].map(([value, en, zh]) => (
+-            <Chip
+-              key={value}
+-              label={t(en, zh)}
+-              selected={goalKind === value}
+-              onPress={() => {
+-                setGoalKind(value);
+-                setTarget(
+-                  value === "time" ? "30" : value === "lessons" ? "3" : "10",
+-                );
+-              }}
+-            />
+-          ))}
+-        </Row>
+-        <Field
+-          label={
+-            goalKind === "time"
+-              ? t("Target time in seconds", "目标秒数")
+-              : t("Target count", "目标次数")
+-          }
+-          value={target}
+-          onChangeText={setTarget}
+-          keyboardType="decimal-pad"
+-        />
+-        <Button
+-          label={t("Save personal goal", "保存个人目标")}
+-          onPress={() => void addGoal()}
+-          disabled={
+-            busy || !Number.isFinite(Number(target)) || Number(target) <= 0
+-          }
+-        />
+-        {goals.map((goal) => (
+-          <View
+-            key={goal.id}
+-            style={{
+-              gap: 12,
+-              paddingVertical: 18,
+-              borderTopWidth: 1,
+-              borderColor: c.line,
+-            }}
++      <ProfileSectionTabs
++        label={t("Profile sections", "个人页栏目")}
++        value={section}
++        onChange={setSection}
++        items={[
++          { value: "overview", label: t("Overview", "概览") },
++          { value: "history", label: t("History", "历史") },
++          { value: "goals", label: t("Goals", "目标") },
++          { value: "posts", label: t("Posts", "分享") },
++        ]}
++      />
++      {!!error && <Notice text={error} error />}
++      {loading && <Busy />}
++      {section === "overview" && (
++        <>
++          <Txt
++            accessibilityRole="header"
++            style={{ fontSize: 24, lineHeight: 31, fontWeight: "600" }}
+           >
+-            <Txt style={{ fontWeight: "600" }}>
+-              {goal.achieved ? "✓ " : ""}
+-              {goal.puzzle.replace("x", "×")} /{" "}
+-              {goal.kind === "time"
+-                ? t(
+-                    `Personal best: ${(goal.target / 1000).toFixed(2)}s`,
+-                    `个人最快：${(goal.target / 1000).toFixed(2)} 秒`,
+-                  )
+-                : goal.kind === "lessons"
+-                  ? t(`${goal.target} lessons`, `${goal.target} 节课程`)
+-                  : t(
+-                      `${goal.target} new ${goal.input} solves`,
+-                      `${goal.target} 次新 ${goal.input === "scan" ? "实物" : goal.input === "smart" ? "智能" : "虚拟"}还原`,
+-                    )}
+-            </Txt>
+-            <Txt small>
+-              {goal.kind === "time"
+-                ? goal.current
+-                  ? `${(goal.current / 1000).toFixed(2)}s`
+-                  : t("No approved solve yet", "尚无核准还原")
+-                : `${goal.current} / ${goal.target}`}
+-            </Txt>
+-            {goal.kind !== "time" && (
++            {t("Your progress", "你的进步")}
++          </Txt>
++          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
++            {overview.map(([value, label, color]) => (
+               <View
+-                accessibilityRole="progressbar"
+-                accessibilityValue={{
+-                  min: 0,
+-                  max: goal.target,
+-                  now: goal.current,
+-                }}
+-                accessibilityLabel={t("Personal goal progress", "个人目标进度")}
++                key={label}
+                 style={{
+-                  height: 12,
+-                  borderRadius: 6,
+-                  backgroundColor: c.line,
+-                  overflow: "hidden",
++                  flexBasis: "46%",
++                  flexGrow: 1,
++                  minWidth: 125,
++                  borderWidth: 1,
++                  borderColor: c.line,
++                  borderRadius: 20,
++                  padding: 18,
++                  gap: 10,
+                 }}
+               >
+                 <View
+                   style={{
+-                    height: 12,
+-                    borderRadius: 6,
+-                    backgroundColor: c.mintDeep,
+-                    width: `${Math.max(0, Math.min(100, (goal.current / goal.target) * 100))}%`,
++                    alignSelf: "flex-start",
++                    backgroundColor: color,
++                    borderRadius: 12,
++                    paddingHorizontal: 12,
++                    paddingVertical: 4,
+                   }}
+-                />
++                >
++                  <Txt
++                    style={{ fontSize: 28, lineHeight: 36, fontWeight: "600" }}
++                  >
++                    {value ?? "—"}
++                  </Txt>
++                </View>
++                <Txt small style={{ color: c.muted }}>
++                  {label}
++                </Txt>
+               </View>
++            ))}
++          </View>
++          <Txt small style={{ color: c.muted }}>
++            {t(
++              "Streaks use completed practice in your time zone. Solve totals cover your most recent 1,000 approved race and daily results.",
++              "连续天数按所在时区内完成的练习计算，还原总数覆盖最近一千次已核准竞速与每日结果。",
+             )}
++          </Txt>
++          {data?.activity && <ProfileActivity data={data.activity} />}
++          {!!data?.activityError && <Notice text={data.activityError} error />}
++          {data?.activityError && (
+             <Button
+               small
+               kind="secondary"
+-              label={t("Remove goal", "移除目标")}
+-              onPress={() => {
+-                api(`me/goals/${goal.id}`, undefined, "DELETE")
+-                  .then(load)
+-                  .catch((error) => setMessage(error.message));
+-              }}
++              label={t("Retry activity", "重新加载活动")}
++              onPress={() => void load()}
+             />
+-          </View>
+-        ))}
+-      </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Private solve history", "私密还原记录")}
+-        </Txt>
+-        <Txt small style={{ color: c.muted }}>
+-          {puzzle.replace("x", "×")} /{" "}
+-          {input === "scan"
+-            ? t("Physical", "实物")
+-            : input === "smart"
+-              ? t("Smart", "智能")
+-              : t("Virtual", "虚拟")}
+-        </Txt>
+-        {history.length ? (
+-          history.map((attempt) => (
+-            <View
+-              key={attempt.id}
+-              style={{
+-                paddingVertical: 12,
+-                borderTopWidth: 1,
+-                borderColor: c.line,
+-                gap: 4,
+-              }}
+-            >
+-              <Txt>
+-                {attempt.durationMs
+-                  ? `${(attempt.durationMs / 1000).toFixed(2)}s / `
+-                  : ""}
+-                {attempt.status}
+-              </Txt>
+-              <Txt small style={{ color: c.muted }}>
+-                {new Date(attempt.createdAt).toLocaleString()} /{" "}
+-                {attempt.room.mixed
+-                  ? t("Mixed inputs, casual", "混合输入，休闲")
+-                  : attempt.room.ranked
+-                    ? t("Ranked", "排名")
+-                    : t("Casual", "休闲")}
+-                {attempt.moveCount !== null
+-                  ? ` / ${attempt.moveCount} ${t("moves", "次转动")}`
+-                  : ""}
+-              </Txt>
+-              {!!attempt.reason && <Txt small>{attempt.reason}</Txt>}
+-              {attempt.replayAvailable && user?.permissions.canPost && (
+-                <Button
+-                  kind="secondary"
+-                  label={t("Share anonymous replay", "分享匿名回放")}
+-                  onPress={() =>
+-                    router.push({
+-                      pathname: "/replay-shares",
+-                      params: { attemptId: attempt.id },
+-                    })
+-                  }
+-                />
+-              )}
+-              {attempt.replayAvailable && user?.permissions.canLearn && (
+-                <Button
+-                  kind="secondary"
+-                  label={
+-                    attempt.room.input === "smart"
+-                      ? t("Replay received turns", "回放收到的转动")
+-                      : t("Replay virtual solve", "回放虚拟还原")
+-                  }
+-                  onPress={() =>
+-                    router.push({
+-                      pathname: "/replay/[id]",
+-                      params: { id: attempt.id },
+-                    })
+-                  }
+-                />
+-              )}
+-            </View>
+-          ))
+-        ) : (
+-          <Txt small style={{ color: c.muted }}>
+-            {t("No solves in this category yet.", "此类别尚无还原记录。")}
+-          </Txt>
+-        )}
+-        {historyCursor && (
++          )}
++          <ProfileDetails key={owner + ":overview"} section="overview" />
++        </>
++      )}
++      {section === "history" && (
++        <ProfileDetails key={owner + ":history"} section="history" />
++      )}
++      {section === "posts" && (
++        <ProfileDetails key={owner + ":posts"} section="posts" />
++      )}
++      {section === "goals" && (
++        <View style={{ gap: 18 }}>
++          <Txt
++            accessibilityRole="header"
++            style={{ fontSize: 24, fontWeight: "600" }}
++          >
++            {t("Personal goals", "个人目标")}
++          </Txt>
+           <Button
+             kind="secondary"
+-            disabled={pagingHistory}
+-            label={t("Older solves", "较早的还原")}
+-            onPress={() => {
+-              if (morePending.current) return;
+-              const epoch = generation.current;
+-              morePending.current = true;
+-              setPagingHistory(true);
+-              api(
+-                `me/history?puzzle=${puzzle}&input=${input}&cursor=${historyCursor}`,
+-              )
+-                .then((result) => {
+-                  if (
+-                    epoch !== generation.current ||
+-                    identityRef.current !== identity
+-                  )
+-                    return;
+-                  setHistory((previous) => [...previous, ...result.items]);
+-                  setHistoryCursor(result.nextCursor);
+-                })
+-                .catch((error) => {
+-                  if (
+-                    epoch === generation.current &&
+-                    identityRef.current === identity
+-                  )
+-                    setMessage(error.message);
+-                })
+-                .finally(() => {
+-                  if (
+-                    epoch === generation.current &&
+-                    identityRef.current === identity
+-                  ) {
+-                    morePending.current = false;
+-                    setPagingHistory(false);
+-                  }
+-                });
+-            }}
++            label={t("Manage goals in settings", "前往设置管理目标")}
++            onPress={() =>
++              router.push({
++                pathname: "/settings",
++                params: { tab: "learning" },
++              })
++            }
+           />
+-        )}
+-      </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Small wins, well earned.", "小小进步，也值得记录。")}
+-        </Txt>
+-        {progress.filter((p) => p.completed).length > 0 ? (
+-          <>
+-            <Txt>
++          {data?.goals.length ? (
++            data.goals.map((goal) => (
++              <View
++                key={goal.id}
++                style={{
++                  borderWidth: 1,
++                  borderColor: c.line,
++                  borderRadius: 20,
++                  padding: 18,
++                  gap: 8,
++                }}
++              >
++                <Txt style={{ fontWeight: "600" }}>
++                  {goal.puzzle.replace("x", "×")} /{" "}
++                  {goal.kind === "time"
++                    ? t("Personal best", "个人最快")
++                    : goal.kind === "lessons"
++                      ? t("Lessons", "课程")
++                      : t("Solves", "还原次数")}
++                </Txt>
++                <Txt>
++                  {goal.kind === "time"
++                    ? `${goal.current ? (goal.current / 1000).toFixed(2) : "—"} / ${(goal.target / 1000).toFixed(2)}s`
++                    : `${goal.current} / ${goal.target}`}
++                </Txt>
++                <Txt
++                  small
++                  style={{ color: goal.achieved ? c.mintDeep : c.muted }}
++                >
++                  {goal.achieved
++                    ? t("Goal reached", "目标已达成")
++                    : t("Keep going at your pace", "按照你的节奏，继续练习")}
++                </Txt>
++              </View>
++            ))
++          ) : (
++            <Txt small>
+               {t(
+-                "First checkpoint: Completed a verified practice exercise.",
+-                "第一个检查点：完成了经过验证的练习。",
++                "Your saved personal goals will appear here.",
++                "保存的个人目标将显示在这里。",
+               )}
+             </Txt>
+-          </>
+-        ) : (
+-          <Txt small style={{ color: c.muted }}>
+-            {t(
+-              "Your first verified practice checkpoint will appear here.",
+-              "完成第一个经过验证的练习后，会显示在这里。",
+-            )}
+-          </Txt>
+-        )}
+-      </View>
+-      <Button
+-        kind="secondary"
+-        label={t("Replay sharing requests", "回放分享申请")}
+-        onPress={() => router.push("/replay-shares")}
+-      />
+-      {user?.guardianEligible && (
+-        <Button
+-          kind="secondary"
+-          label={t("Review child's replay sharing", "审核儿童回放分享")}
+-          onPress={() =>
+-            router.push({
+-              pathname: "/replay-shares",
+-              params: { role: "guardian" },
+-            })
+-          }
+-        />
++          )}
++        </View>
+       )}
+-      <Button
+-        kind="secondary"
+-        label={t("Achievement cards", "成就卡片")}
+-        onPress={() => router.push("/achievement-cards")}
+-      />
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Your contributions", "你的分享")}
+-        </Txt>
+-        <Button
+-          small
+-          kind="secondary"
+-          label={t("My clubs and invitations", "我的社团与邀请")}
+-          onPress={() => router.push("/clubs")}
+-        />
+-        <Button
+-          small
+-          kind="secondary"
+-          label={t("Friends and mentorship", "好友与指导")}
+-          onPress={() => router.push("/connections")}
+-        />
+-        {!!user?.notifications.length && (
+-          <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-            <Txt style={{ fontWeight: "600" }}>
+-              {t("Recent updates", "最近的消息")}
+-            </Txt>
+-            {user.notifications.slice(0, 5).map((notification) => (
+-              <View key={notification.id} style={{ gap: 4 }}>
+-                <Txt small style={{ fontWeight: "600" }}>
+-                  {notification.title}
+-                </Txt>
+-                <Txt small>{notification.body}</Txt>
+-              </View>
+-            ))}
+-          </View>
+-        )}
+-        <Button
+-          small
+-          kind="secondary"
+-          label={t("All updates & notification settings", "全部消息与消息设置")}
+-          onPress={() => router.push("/notifications")}
+-        />
+-        <Button
+-          small
+-          kind="secondary"
+-          label={t(
+-            "Cubers service & learning updates",
+-            "Cubers 服务与学习公告",
+-          )}
+-          onPress={() => router.push("/announcements")}
+-        />
+-        {posts.length ? (
+-          posts.map((p) => (
+-            <View
+-              key={p.id}
+-              style={{
+-                paddingVertical: 9,
+-                borderTopWidth: 1,
+-                borderColor: c.line,
+-                gap: 4,
+-              }}
+-            >
+-              <Txt numberOfLines={2}>{p.body}</Txt>
+-              <Txt small style={{ color: c.muted }}>
+-                {p.status === "PUBLISHED"
+-                  ? t("Published", "已发布")
+-                  : p.status === "REJECTED"
+-                    ? t("Not approved", "未通过审核")
+-                    : t("Awaiting review", "待审核")}
+-                {p.reason ? ` / ${p.reason}` : ""}
+-              </Txt>
+-              <Button
+-                small
+-                kind="secondary"
+-                label={t("Open / edit post", "查看／编辑帖子")}
+-                onPress={() => router.push(`/post/${p.id}`)}
+-              />
+-            </View>
+-          ))
+-        ) : (
+-          <Txt small style={{ color: c.muted }}>
+-            {t(
+-              "Stories you submit will appear here with their review status.",
+-              "提交的帖子会在这里显示审核进度。",
+-            )}
+-          </Txt>
+-        )}
+-      </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Connected devices", "已连接设备")}
+-        </Txt>
+-        <Txt small style={{ color: c.muted }}>
+-          {t(
+-            "No tested smart-cube models are enabled yet.",
+-            "目前尚未启用通过实机测试的智能魔方型号。",
+-          )}
+-        </Txt>
+-        <Button
+-          kind="secondary"
+-          label={t("Device options", "设备选项")}
+-          onPress={() => router.push("/devices")}
+-        />
+-        <Button
+-          kind="secondary"
+-          label={t("App verification", "应用验证")}
+-          onPress={() => router.push("/app-verification")}
+-        />
+-        <Button
+-          kind="secondary"
+-          label={t("Lesson downloads & reminders", "课程下载与提醒")}
+-          onPress={() => router.push("/downloads")}
+-        />
+-      </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Family & safety", "家庭与安全")}
+-        </Txt>
+-        <Button
+-          kind="secondary"
+-          label={t("Guardian dashboard", "监护人管理")}
+-          onPress={() => router.push("/guardian")}
+-        />
+-        <Button
+-          kind="secondary"
+-          label={t("Community standards", "社区规范")}
+-          onPress={() => router.push("/legal/community")}
+-        />
+-        <Button
+-          kind="secondary"
+-          label={t("Privacy & support", "隐私与支持")}
+-          onPress={() => router.push("/legal/privacy")}
+-        />
+-      </View>
+-      <View style={{ gap: 18, paddingTop: 20, paddingBottom: 12 }}>
+-        <Txt
+-          accessibilityRole="header"
+-          style={{ fontSize: 25, lineHeight: 32, fontWeight: "600" }}
+-        >
+-          {t("Your account, your choice", "你的账号，由你决定")}
+-        </Txt>
+-        <Button
+-          kind="secondary"
+-          label={t("Export my data", "导出我的数据")}
+-          onPress={() => void exportData()}
+-        />
+-        <Button
+-          kind="secondary"
+-          label={t("Revoke all sessions", "撤销所有会话")}
+-          onPress={() => {
+-            api("auth/sessions", undefined, "DELETE")
+-              .then(signout)
+-              .catch((e) => setMessage(e.message));
+-          }}
+-        />
+-        <Button
+-          kind="secondary"
+-          label={t("Sign out", "退出登录")}
+-          onPress={() => void signout()}
+-        />
+-        <Field
+-          label={t(
+-            "Type DELETE to delete your account",
+-            "输入 DELETE 以注销账号",
+-          )}
+-          value={confirmation}
+-          onChangeText={setConfirmation}
+-          autoCapitalize="characters"
+-        />
+-        <Txt small style={{ color: c.muted }}>
+-          {t(
+-            "This disables your account immediately and deletes linked child accounts, posts and media. Backups expire within 30 days.",
+-            "账号将立即停用，关联儿童账号、帖子及媒体将被删除，备份最长三十日到期。",
+-          )}
+-        </Txt>
+-        <Button
+-          kind="danger"
+-          label={t("Delete account", "注销账号")}
+-          onPress={() => void remove()}
+-          disabled={confirmation !== "DELETE"}
+-        />
+-      </View>
+-      {!!message && <Notice text={message} />}
+     </Screen>
+   );
+ }
+--- before/apps/mobile/app/lesson/[id].tsx
++++ after/apps/mobile/app/lesson/[id].tsx
+@@ -19,6 +19,7 @@
+   type PracticeState,
+ } from "@cubers/core";
+ import { useApp } from "../../src/state";
++import { lessonStep } from "../../src/learning-paths";
+ import { DownloadButton } from "../../src/offline/DownloadButton";
+ import { CubeView } from "../../src/CubeView";
+ import { PyraminxView } from "../../src/PyraminxView";
+@@ -41,7 +42,11 @@
+   useTheme,
+ } from "../../src/ui";
+ export default function LessonPage() {
+-  const { id, input } = useLocalSearchParams<{ id: string; input?: string }>(),
++  const { id, input, step } = useLocalSearchParams<{
++      id: string;
++      input?: string;
++      step?: string;
++    }>(),
+     { token, region, user } = useApp();
+   if (!token) return <Redirect href="/" />;
+   return (
+@@ -49,6 +54,7 @@
+       key={JSON.stringify([
+         id,
+         input,
++        step,
+         token,
+         region,
+         user?.permissions?.canLearn,
+@@ -56,15 +62,18 @@
+       ])}
+       id={id}
+       initialInput={input}
++      initialStep={step}
+     />
+   );
+ }
+ function LessonView({
+   id,
+   initialInput,
++  initialStep,
+ }: {
+   id: string;
+   initialInput?: string;
++  initialStep?: string;
+ }) {
+   const { t, api, locale, token, user } = useApp(),
+     c = useTheme(),
+@@ -114,7 +123,7 @@
+             setState(practiceSetup(l.puzzle, l.algorithm));
+             setMoves([]);
+             setLastMove(undefined);
+-            setStep(0);
++            setStep(lessonStep(initialStep, l.steps[locale].length));
+             setMessage("");
+           })
+           .catch((e) => {
+@@ -135,7 +144,7 @@
+         subscription.remove();
+         work.focus(false);
+       };
+-    }, [id, api, work]),
++    }, [id, api, work, initialStep, locale]),
+   );
+   if (!token) return <Redirect href="/" />;
+   if (
+@@ -261,14 +270,39 @@
+         label={t("Learning paths", "返回学习路线")}
+         onPress={() => router.back()}
+       />
+-      <View style={{ backgroundColor: c.lavender, padding: 24, borderRadius: 24, gap: 8 }}>
+-      <Heading
+-        eyebrow={`${lesson.puzzle.replace("x", "×")} / ${t("A little practice", "练习一点点")}`}
++      <View
++        style={{
++          backgroundColor: c.lavender,
++          padding: 24,
++          borderRadius: 24,
++          gap: 8,
++        }}
+       >
+-        {lesson.title[locale]}
+-      </Heading>
+-      <Txt style={{ color: c.muted }}>{lesson.summary[locale]}</Txt>
+-      <DownloadButton key={lesson.id} id={lesson.id} />
++        <Heading
++          eyebrow={`${lesson.puzzle.replace("x", "×")} / ${t("A little practice", "练习一点点")}`}
++        >
++          {lesson.title[locale]}
++        </Heading>
++        <Txt style={{ color: c.muted }}>{lesson.summary[locale]}</Txt>
++        {initialStep !== undefined && (
++          <View
++            style={{
++              borderTopWidth: 1,
++              borderColor: c.line,
++              paddingTop: 12,
++              gap: 8,
++            }}
++          >
++            <Txt small>
++              {t(
++                `Lesson ${teachingStep + 1} of ${teachingSteps.length}`,
++                `第 ${teachingStep + 1} / ${teachingSteps.length} 小课`,
++              )}
++            </Txt>
++            <Txt>{teachingSteps[teachingStep]}</Txt>
++          </View>
++        )}
++        <DownloadButton key={lesson.id} id={lesson.id} />
+       </View>
+       <LessonCaseCoach lesson={lesson} />
+       <LessonSequences
+@@ -330,7 +364,14 @@
+           ) : (
+             <CubeView state={state} lastMove={lastMove} onTurn={execute} />
+           )}
+-          <View style={{ gap: 16, borderTopWidth: 1, borderTopColor: c.line, paddingTop: 20 }}>
++          <View
++            style={{
++              gap: 16,
++              borderTopWidth: 1,
++              borderTopColor: c.line,
++              paddingTop: 20,
++            }}
++          >
+             <Txt small style={{ fontWeight: "600", color: c.green }}>
+               {t("Practice the moves", "跟着转一转")}
+             </Txt>
+--- before/apps/mobile/src/ui.tsx
++++ after/apps/mobile/src/ui.tsx
+@@ -433,7 +433,13 @@
+     </Pressable>
+   );
+ }
+-export function Screen({ children }: { children: React.ReactNode }) {
++export function Screen({
++  children,
++  stickyHeader,
++}: {
++  children: React.ReactNode;
++  stickyHeader?: React.ReactNode;
++}) {
+   const c = useTheme(),
+     insets = useSafeAreaInsets(),
+     { offline, t, token } = useApp();
+@@ -443,6 +449,23 @@
+       style={{ flex: 1, backgroundColor: c.bg }}
+     >
+       <Grain />
++      {stickyHeader && (
++        <View
++          style={{
++            width: "100%",
++            maxWidth: 1000,
++            alignSelf: "center",
++            paddingHorizontal: space.lg,
++            paddingTop: Math.max(space.md, insets.top),
++            paddingBottom: space.md,
++            backgroundColor: c.bg,
++            borderBottomWidth: 1,
++            borderColor: c.line,
++          }}
++        >
++          {stickyHeader}
++        </View>
++      )}
+       <ScrollView
+         style={{ flex: 1 }}
+         contentContainerStyle={{
+@@ -464,41 +487,43 @@
+             )}
+           />
+         )}
+-        <View
+-          {...web({ hum: "topbar" })}
+-          style={{
+-            flexDirection: "row",
+-            alignItems: "center",
+-            justifyContent: "space-between",
+-            paddingBottom: space.md,
+-            borderBottomWidth: 1,
+-            borderColor: c.line,
+-            marginBottom: space.xs,
+-          }}
+-        >
+-          <Link href={token ? "/(tabs)" : "/"} asChild>
+-            <Pressable
+-              {...web({ hum: "brand" })}
+-              accessibilityRole="link"
+-              accessibilityLabel={t("Cubers home", "Cubers 首页")}
+-            >
+-              <Row>
+-                <Logo size={40} />
+-                <Txt
+-                  style={{
+-                    fontSize: 27,
+-                    lineHeight: 34,
+-                    fontWeight: "600",
+-                    letterSpacing: -0.8,
+-                  }}
+-                >
+-                  cubers
+-                </Txt>
+-              </Row>
+-            </Pressable>
+-          </Link>
+-          <LocaleButton />
+-        </View>
++        {!stickyHeader && (
++          <View
++            {...web({ hum: "topbar" })}
++            style={{
++              flexDirection: "row",
++              alignItems: "center",
++              justifyContent: "space-between",
++              paddingBottom: space.md,
++              borderBottomWidth: 1,
++              borderColor: c.line,
++              marginBottom: space.xs,
++            }}
++          >
++            <Link href={token ? "/(tabs)" : "/"} asChild>
++              <Pressable
++                {...web({ hum: "brand" })}
++                accessibilityRole="link"
++                accessibilityLabel={t("Cubers home", "Cubers 首页")}
++              >
++                <Row>
++                  <Logo size={40} />
++                  <Txt
++                    style={{
++                      fontSize: 27,
++                      lineHeight: 34,
++                      fontWeight: "600",
++                      letterSpacing: -0.8,
++                    }}
++                  >
++                    cubers
++                  </Txt>
++                </Row>
++              </Pressable>
++            </Link>
++            <LocaleButton />
++          </View>
++        )}
+         {children}
+         <Link
+           href="https://db-ip.com"

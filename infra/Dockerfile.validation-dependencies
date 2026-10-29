@@ -1,0 +1,13 @@
+# Explicit dependency refresh for verification on a previously recorded Linux OS base.
+# This is not an OS/runtime refresh or a replacement for the production Dockerfile.
+ARG CACHED_BUILD
+FROM ${CACHED_BUILD}
+USER root
+WORKDIR /app
+COPY package.json package-lock.json tsconfig.base.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/admin/package.json apps/admin/package.json
+COPY apps/mobile/package.json apps/mobile/package.json
+COPY packages/core/package.json packages/core/package.json
+COPY scripts/prepare-dependencies.cjs scripts/prepare-dependencies.cjs
+RUN npm ci --no-audit --workspace @cubers/api --workspace @cubers/core --include-workspace-root

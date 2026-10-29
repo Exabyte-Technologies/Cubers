@@ -1,0 +1,20 @@
+FROM node:24.22.1-bookworm-slim AS build
+RUN apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 upgrade -y && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY package.json package-lock.json tsconfig.base.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/admin/package.json apps/admin/package.json
+COPY apps/mobile/package.json apps/mobile/package.json
+COPY packages/core/package.json packages/core/package.json
+COPY scripts/prepare-dependencies.cjs scripts/prepare-dependencies.cjs
+RUN npm ci --no-audit --workspace @cubers/admin --include-workspace-root
+COPY apps/admin apps/admin
+COPY packages/core packages/core
+RUN npm run build:core && npm run build -w @cubers/admin
+FROM nginxinc/nginx-unprivileged:stable-alpine
+USER root
+RUN apk --no-cache upgrade
+USER 101
+COPY infra/nginx.admin.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/apps/admin/dist /usr/share/nginx/html
+EXPOSE 8080

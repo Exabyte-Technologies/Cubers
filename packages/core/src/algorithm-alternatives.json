@@ -1,0 +1,470 @@
+{
+  "schemaVersion": 1,
+  "generator": "cubing.js",
+  "version": "0.66.1",
+  "method": "Offline complete-state 2x2 and two-phase 3x3 solving; exact Cubers facelet verification; strictly fewer outer face turns, not an optimality or speed claim.",
+  "entries": [
+    {
+      "lessonId": "oll-cubers-006",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F U R U' R' F' U R U2 R' U' R U' R' F U R U' R' F'",
+      "algorithm": "R U2 R2 U2 B2 R' B2 U2 L F2 R F' U' R U' R' F' L'"
+    },
+    {
+      "lessonId": "oll-cubers-033",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "R U R' U R U2 R' F U R U' R' F' U' F R U R' U' F'",
+      "algorithm": "F R B2 U2 B R' F' U2 F R2 B' R2 F R2 B' R2 F2 U2"
+    },
+    {
+      "lessonId": "oll-cubers-037",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U R' U' R U R' U' F' U' F U R U' R' F'",
+      "algorithm": "F' U' F2 R' D R' D' F2 U2 F R2 F' U2 F2 R2 F'"
+    },
+    {
+      "lessonId": "oll-cubers-039",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U R' U' F' R U2 R' U' R U' R' F U R U' R' F'",
+      "algorithm": "L F' L F2 R' F D2 R' D2 R F2 L' F2 R F2 L'"
+    },
+    {
+      "lessonId": "oll-cubers-041",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "R U R' U R U2 R' F U R U' R' F' R U2 R' U' R U' R'",
+      "algorithm": "F' U2 F R' F R F B L2 B' U2 R2 B2 L2 D2 B2 R2"
+    },
+    {
+      "lessonId": "oll-cubers-043",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "R U2 R' U' R U' R' F R U R' U' F' U' F R U R' U' F'",
+      "algorithm": "R U' B U2 B' U R' U' F2 U' F2 U' F2 U2 F2 U2"
+    },
+    {
+      "lessonId": "oll-cubers-055",
+      "family": "OLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "R U R' U R U2 R' U2 F U R U' R' F' U' F R U R' U' F'",
+      "algorithm": "R L' F2 D2 B R' L' U L2 B2 D' R2 D' R2 F2 U F2"
+    },
+    {
+      "lessonId": "pll-cubers-001",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "U L2 B2 U' B2 U B2 D' B2 D L2"
+    },
+    {
+      "lessonId": "pll-cubers-002",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R U R U R' U' R' U' R' U R' U' R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "F B' U2 F B' D' B2 U2 L2 B2 R2 D B2 D F2 D' F2"
+    },
+    {
+      "lessonId": "pll-cubers-003",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U2 R U R U R U' R' U' R2",
+      "algorithm": "U R2 B2 U B2 U' B2 D B2 D' R2"
+    },
+    {
+      "lessonId": "pll-cubers-006",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "R L F2 R' L D L2 D R2 D' L2 B2 D' R2 L2 F2"
+    },
+    {
+      "lessonId": "pll-cubers-007",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U R2 D B2 D' F2 D B2 D' F2 R2"
+    },
+    {
+      "lessonId": "pll-cubers-008",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R U R U R' U' R' U' R' U R' U2 F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "R L U2 R' L U' B2 U F2 D' F2 U' R2 D F2 D' B2"
+    },
+    {
+      "lessonId": "pll-cubers-009",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' F R U' R' U R U R2 F' R U R U' R' U F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "R L' B2 R' L' F R2 F2 D2 F' R2 F2 L2 U2 B U2 B2"
+    },
+    {
+      "lessonId": "pll-cubers-010",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 F R U' R' U R U R2 F' R U R U' R' U' R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "R' L B2 R' L U' L2 U2 B2 U L2 D2 F2 U L2 D2 B2"
+    },
+    {
+      "lessonId": "pll-cubers-011",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "R L U2 R L' F2 U F2 U' L2 U R2 L2 B2 R2 D B2"
+    },
+    {
+      "lessonId": "pll-cubers-012",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U' R2 D' F2 D B2 D' F2 D B2 R2"
+    },
+    {
+      "lessonId": "pll-cubers-013",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U' R U R U R U' R' U' R2",
+      "algorithm": "R' L F2 R' L' U' R2 B2 D' R2 D L2 D' R2 L2 B2 U"
+    },
+    {
+      "lessonId": "pll-cubers-014",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U F2 U' F2 D R2 B2 U B2 D' R2"
+    },
+    {
+      "lessonId": "pll-cubers-015",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U' R U R U R U' R' U' R2",
+      "algorithm": "B2 R2 U B2 D' B2 D L2 U' R2 L2 B2"
+    },
+    {
+      "lessonId": "pll-cubers-016",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "R2 U R U R' U' R' U' R' U R' U' R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "R2 F2 B2 L2 D' R2 F2 B2 L2"
+    },
+    {
+      "lessonId": "pll-cubers-017",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U F R U' R' U R U R2 F' R U R U' R' U' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "R L' B2 R L F D2 R2 B2 R2 F D2 F2 R2 B U2 B2"
+    },
+    {
+      "lessonId": "pll-cubers-018",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R U R U R' U' R' U' R' U R'",
+      "algorithm": "R L U2 R L B2 U' L2 F2 U' F2 D L2 D' R2 F2 D'"
+    },
+    {
+      "lessonId": "pll-cubers-019",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "R2 U R U R' U' R' U' R' U R' U R2 U R U R' U' R' U' R' U R'",
+      "algorithm": "R L F2 R L' U R2 U2 R2 F2 R2 U2 F2 U' R2 F2 U"
+    },
+    {
+      "lessonId": "pll-cubers-020",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U R U' R U R U R U' R' U' R2",
+      "algorithm": "R2 F2 B2 U B2 U' B2 D B2 D' F2 R2"
+    },
+    {
+      "lessonId": "pll-cubers-021",
+      "family": "PLL",
+      "puzzle": "3x3",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "R L F2 R' L' U B2 U2 L2 U F2 U' L2 U2 B2 U R2"
+    },
+    {
+      "lessonId": "cll-cubers-001",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' F R U' R' U R U R2 F' R U R U R' U' R U' R'",
+      "algorithm": "L2 F L2 F2 U2 F L2"
+    },
+    {
+      "lessonId": "cll-cubers-002",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U R' U' R U R' U' R U' R'",
+      "algorithm": "L U' L U2 L2 F' L F U L2"
+    },
+    {
+      "lessonId": "cll-cubers-003",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U R' U' R U' R'",
+      "algorithm": "U F2 U2 F U2 F2"
+    },
+    {
+      "lessonId": "cll-cubers-004",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U' R' U R U2 R' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "L2 U F U F' L2 U2 L U' L"
+    },
+    {
+      "lessonId": "cll-cubers-005",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U' R' U' R U2 R' U' R U' R'",
+      "algorithm": "U F U2 F2 U' F2 U F2 U2 F'"
+    },
+    {
+      "lessonId": "cll-cubers-006",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U2 R U2 R'",
+      "algorithm": "L2 U L2 F' L2 F L2 U' L2"
+    },
+    {
+      "lessonId": "cll-cubers-007",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U R' U' R U' R' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "L U F2 U F2 U L U2 F2"
+    },
+    {
+      "lessonId": "cll-cubers-008",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U' R' U2 R U2 R' U' R U' R'",
+      "algorithm": "U2 L F U F' U' L'"
+    },
+    {
+      "lessonId": "cll-cubers-009",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' U' R U2 R' U' R U' R'",
+      "algorithm": "L' U2 L' F2 L U2 L' F2 L2"
+    },
+    {
+      "lessonId": "cll-cubers-010",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R' U' R U2 R' U' R U' R'",
+      "algorithm": "F U L' U L2 F L' F' U' F2"
+    },
+    {
+      "lessonId": "cll-cubers-011",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' U' R U2 R' U' R U' R'",
+      "algorithm": "L U2 F2 L' U' L F' U L'"
+    },
+    {
+      "lessonId": "cll-cubers-012",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U' R' U R U2 R'",
+      "algorithm": "F2 U2 L U L2 U F2 U L"
+    },
+    {
+      "lessonId": "cll-cubers-013",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R'",
+      "algorithm": "L' U L F' L F L'"
+    },
+    {
+      "lessonId": "cll-cubers-014",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R'",
+      "algorithm": "U2 F2 L F U2 L U2 F' L' F2"
+    },
+    {
+      "lessonId": "cll-cubers-015",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'",
+      "algorithm": "U2 F' L F L' U2 L' U2 L"
+    },
+    {
+      "lessonId": "cll-cubers-016",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U R' U R U2 R'",
+      "algorithm": "U2 F' U2 F U2 F L' U' L"
+    },
+    {
+      "lessonId": "cll-cubers-017",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "L F' L' F L' U' L"
+    },
+    {
+      "lessonId": "cll-cubers-018",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U2 R' U' R U' R'",
+      "algorithm": "U' L2 F U F2 L' F2 U' F' L2"
+    },
+    {
+      "lessonId": "cll-cubers-019",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R'",
+      "algorithm": "U' L U' L' F L2 F L2 F'"
+    },
+    {
+      "lessonId": "cll-cubers-020",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U L F2 L' U2 L' U L F'"
+    },
+    {
+      "lessonId": "cll-cubers-021",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U R' U' R U' R'",
+      "algorithm": "U2 F L' U L F2 U2 F U F'"
+    },
+    {
+      "lessonId": "cll-cubers-022",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' U R U2 R' U' R U' R'",
+      "algorithm": "L U' F L' U L F2 U2 L'"
+    },
+    {
+      "lessonId": "cll-cubers-023",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R' U' R U R' U R U2 R'",
+      "algorithm": "F2 L2 F' L2 F U2 F' L2 F'"
+    },
+    {
+      "lessonId": "cll-cubers-024",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U R' U' R U' R'",
+      "algorithm": "F U L U' F L' U' F' U2 L2"
+    },
+    {
+      "lessonId": "cll-cubers-025",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' U R U2 R' U' R U' R'",
+      "algorithm": "F L' F' L' U L2 F' L U2 L'"
+    },
+    {
+      "lessonId": "cll-cubers-026",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'",
+      "algorithm": "U F' U L F2 L' U F2 L' U2 L"
+    },
+    {
+      "lessonId": "cll-cubers-027",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U2 F2 U' F' U2 F L' U2 L F'"
+    },
+    {
+      "lessonId": "cll-cubers-028",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U2 F U' F2 U L' U2 L U F2"
+    },
+    {
+      "lessonId": "cll-cubers-029",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' U2 R U2 R' U' R U' R'",
+      "algorithm": "U' F2 U' F U F2 U L F2 L'"
+    },
+    {
+      "lessonId": "cll-cubers-030",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'",
+      "algorithm": "L2 U F' U' L2 U' F' U2 F"
+    },
+    {
+      "lessonId": "cll-cubers-033",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U' R U R' U R U2 R' U2 R U2 R' U' R U' R'",
+      "algorithm": "U F U F' U' L' U' L"
+    },
+    {
+      "lessonId": "cll-cubers-034",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U2 R' U' R U' R' F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R'",
+      "algorithm": "F U' F' U2 L' U2 L"
+    },
+    {
+      "lessonId": "cll-cubers-035",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U R' U' R U' R' U R U R' U R U2 R'",
+      "algorithm": "U2 F L2 F L F' L2 F U' F2"
+    },
+    {
+      "lessonId": "cll-cubers-036",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' F R U' R' U R U R2 F' R U R U' R' U2 R U2 R' U' R U' R'",
+      "algorithm": "U F U2 F' U' L2 U' L' U L2"
+    },
+    {
+      "lessonId": "cll-cubers-037",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 R U R' U R U2 R' U R U2 R' U' R U' R'",
+      "algorithm": "U F L2 U F' U' L2 F'"
+    },
+    {
+      "lessonId": "cll-cubers-038",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' U R U2 R' U' R U' R'",
+      "algorithm": "U L F' L' U' F' U F"
+    },
+    {
+      "lessonId": "cll-cubers-039",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U2 R U2 R' F R U' R' U R U R2 F' R U R U' R' U R U2 R' U' R U' R'",
+      "algorithm": "U F U2 F2 L F L' F U2 F'"
+    },
+    {
+      "lessonId": "cll-cubers-040",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "R U R' U R U2 R' U2 R U2 R' U' R U' R'",
+      "algorithm": "U F2 U L' F2 L U2 L' U F2"
+    },
+    {
+      "lessonId": "cll-cubers-041",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "U F2 L2 F L F' L2 F U' F"
+    },
+    {
+      "lessonId": "cll-cubers-042",
+      "family": "CLL",
+      "puzzle": "2x2",
+      "baselineAlgorithm": "F R U' R' U R U R2 F' R U R U' R' U2 F R U' R' U R U R2 F' R U R U' R'",
+      "algorithm": "F2 U F' L U L2 F' U L U2 L'"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+# Offline capture/sealed-restore/key-expiry tooling; combine with production + recovery.
+# Requires prepared private regional roots. No service or restore activation.
+services:
+  media-vault-operator: &media-vault-operator
+    profiles: [operations]
+    image: ${CUBERS_RECOVERY_IMAGE:-cubers-recovery:local}
+    build: {context: .., dockerfile: infra/Dockerfile.api, target: recovery-tools}
+    restart: "no"
+    command: [node, apps/api/dist/media-vault-cli.js, /private-operator/request.json]
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    environment:
+      NODE_ENV: test
+      AI_MODE: disabled
+      AI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      QWEN_API_KEY: ""
+      SMTP_URL: ""
+      DELETION_JOURNAL_MODE: file
+      DELETION_JOURNAL_DIRECTORY: /var/lib/cubers/deletion-journal
+      DELETION_JOURNAL_KEY_FILE: /run/secrets/cubers-deletion-journal.json
+    volumes:
+      - type: bind
+        source: ${CUBERS_DELETION_JOURNAL_HOST_DIRECTORY:?Set the independent regional journal directory}
+        target: /var/lib/cubers/deletion-journal
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_RECOVERY_KEY_HOST_DIRECTORY:?Set the private regional key directory}/deletion-journal.json
+        target: /run/secrets/cubers-deletion-journal.json
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_MEDIA_VAULT_HOST_DIRECTORY:?Set the encrypted regional media bundle directory}
+        target: /var/lib/cubers/media-vault
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_MEDIA_VAULT_KEY_HOST_DIRECTORY:?Set the separate private regional vault key directory}
+        target: /var/lib/cubers/media-vault-keys
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_OPERATOR_REQUEST_HOST_DIRECTORY:?Set the private operator request directory}
+        target: /private-operator
+        read_only: true
+        bind: {create_host_path: false}
+    networks: [private, vault_egress]
+    read_only: true
+    user: "1000:1000"
+    pids_limit: 64
+    mem_limit: 512m
+    tmpfs:
+      - "/var/lib/postgresql/data:size=1048576,mode=0700,uid=1000,gid=1000,noexec,nosuid"
+      - "/recovery-tmp:size=134217728,mode=0700,uid=1000,gid=1000,noexec,nosuid"
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  media-vault-maintenance:
+    <<: *media-vault-operator
+    profiles: [maintenance]
+    restart: unless-stopped
+    command: [node, apps/api/dist/media-maintenance-cli.js, daemon, /private-operator/request.json]
+    stop_grace_period: 6m
+    tmpfs:
+      - "/var/lib/postgresql/data:size=1048576,mode=0700,uid=1000,gid=1000,noexec,nosuid"
+      - "/maintenance-health:size=1048576,mode=0700,uid=1000,gid=1000,noexec,nosuid"
+    healthcheck:
+      test: [CMD, node, apps/api/dist/media-maintenance-cli.js, health, /maintenance-health]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 2
+networks:
+  vault_egress: {}

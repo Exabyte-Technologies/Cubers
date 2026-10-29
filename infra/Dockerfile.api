@@ -1,0 +1,60 @@
+FROM node:24.22.1-bookworm-slim AS build
+RUN apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 upgrade -y && apt-get -o Acquire::Retries=3 install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY package.json package-lock.json tsconfig.base.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/admin/package.json apps/admin/package.json
+COPY apps/mobile/package.json apps/mobile/package.json
+COPY packages/core/package.json packages/core/package.json
+COPY scripts/prepare-dependencies.cjs scripts/prepare-dependencies.cjs
+RUN npm ci --no-audit --workspace @cubers/api --workspace @cubers/core --include-workspace-root
+COPY packages/core packages/core
+COPY apps/api apps/api
+RUN npm run build:core && npm run db:generate && npm run build -w @cubers/api
+
+FROM build AS migrations
+USER node
+ENV PRISMA_HIDE_UPDATE_MESSAGE=true
+CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy", "--schema", "apps/api/prisma/schema.prisma"]
+
+FROM migrations AS development-storage
+USER root
+RUN mkdir -p /data && chown node:node /data
+COPY --chown=node:node infra/smoke-storage.cjs /app/infra/smoke-storage.cjs
+USER node
+ENV STORAGE_DIRECTORY=/data
+CMD ["node", "--openssl-legacy-provider", "/app/infra/smoke-storage.cjs"]
+
+FROM build AS production-dependencies
+RUN npm prune --no-audit --omit=dev --workspace @cubers/api --workspace @cubers/core --include-workspace-root
+RUN mkdir -p /app/apps/api/node_modules
+
+FROM postgres:17-bookworm AS recovery-tools
+RUN apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 upgrade -y && rm -rf /var/lib/apt/lists/*
+COPY --from=build --chown=1000:1000 /app/apps/api/assets/third-party /app/licenses/cubing
+COPY --from=build /usr/local/bin/node /usr/local/bin/node
+WORKDIR /app
+COPY --from=production-dependencies --chown=1000:1000 /app/node_modules ./node_modules
+COPY --from=production-dependencies --chown=1000:1000 /app/packages/core ./packages/core
+COPY --from=production-dependencies --chown=1000:1000 /app/apps/api/package.json ./apps/api/package.json
+COPY --from=production-dependencies --chown=1000:1000 /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=production-dependencies --chown=1000:1000 /app/apps/api/dist ./apps/api/dist
+RUN node --version && pg_dump --version && pg_restore --version
+USER 1000:1000
+ENTRYPOINT []
+CMD ["node", "apps/api/dist/snapshot-cli.js", "/private-operator/request.json"]
+
+FROM node:24.22.1-bookworm-slim AS runtime
+RUN apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 upgrade -y && apt-get -o Acquire::Retries=3 install -y --no-install-recommends ffmpeg ca-certificates openssl fontconfig fonts-noto-cjk fonts-noto-color-emoji && fc-cache -f && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
+COPY --from=production-dependencies --chown=node:node /app/packages/core ./packages/core
+COPY --from=production-dependencies --chown=node:node /app/apps/api/package.json ./apps/api/package.json
+COPY --from=production-dependencies --chown=node:node /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=production-dependencies --chown=node:node /app/apps/api/dist ./apps/api/dist
+COPY --from=production-dependencies --chown=node:node /app/apps/api/prisma ./apps/api/prisma
+COPY --from=production-dependencies --chown=node:node /app/apps/api/assets ./apps/api/assets
+USER node
+ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0
+EXPOSE 3000
+CMD ["node", "apps/api/dist/main.js"]

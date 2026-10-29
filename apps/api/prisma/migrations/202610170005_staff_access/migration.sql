@@ -1,0 +1,4 @@
+ALTER TABLE "User"
+  ADD COLUMN "mfaGeneration" INTEGER NOT NULL DEFAULT 0,
+  ADD COLUMN "mfaLastStep" INTEGER NOT NULL DEFAULT -1,
+  ADD COLUMN "staffRecoveryHash" TEXT;

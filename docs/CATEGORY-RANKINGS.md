@@ -1,0 +1,13 @@
+# Category rankings
+
+Play → Category rankings opens the authenticated bilingual `/rankings` screen. It reads the existing regional `GET /v1/rankings` endpoint. Select 2×2, 3×3, 4×4 or Pyraminx, virtual/physical/smart input and race/daily mode independently. Results are all-time attempts within that category, not a daily-date board or a personal-best leaderboard. Different daily challenges can use different scrambles. One person may occupy several rows.
+
+The server returns at most 100 approved timed attempts from ranked rooms, excluding scheduled competition rooms. Current regional account, verified-adult and learning/publication eligibility apply; physical categories additionally require current recording permission. Minors, unverified adults, deleted users and ineligible records are excluded. Mainland game/social gates remain enforced. A screen or empty board does not activate production ranking, physical hardware or platform attestation.
+
+The screen displays only anonymous adult attempts, exact millisecond times in seconds and tied places (1, 1, 3). It never links profiles or displays account/attempt identifiers or supplied nicknames. The local projection discards identity fields and rejects mismatched categories, malformed times or responses over the bounded limit. Exact timing matters: 1.500 and 1.501 seconds are different results.
+
+Rows clear during refresh, blur and category changes. Account/community changes remount the screen; request epochs and category checks discard delayed responses after navigation, refresh or a category switch. Refresh rechecks the server; this is a snapshot rather than a real-time board. A later server-side withdrawal is reflected on the next refresh. Nothing is cached persistently or exported/shared by this screen.
+
+Scheduled competitions keep their separate reviewed sharing workflow, including guardian and independent staff approval for younger children. The existing ranked-room disclosure explains adult anonymous score sharing before creation.
+
+Validation: two source checks cover identity removal, ties, nonmutation and malformed/cross-category/bounded response admission. The complete unit suite passed 162 checks; all 159 backend integration checks passed. Mobile type checking and fresh web, iOS and Android bundle exports passed. Existing backend integration checks cover ranking authorization, evidence/consent withdrawal, minors/unreviewed nickname exclusion and category/competition separation. Browser inspection remained denied and was not bypassed. Native touch, visual, screen-reader, cold-start and permission-change acceptance remain unverified; bundle export is not native compilation or device acceptance. No real AI or public deployment was used.

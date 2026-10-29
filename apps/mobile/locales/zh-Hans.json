@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Cubers",
+    "NSCameraUsageDescription": "用于识别魔方颜色，并在您同意后录制实物魔方排名挑战。",
+    "NSBluetoothAlwaysUsageDescription": "用于连接受支持的智能魔方并读取转动信息。",
+    "NSPhotoLibraryUsageDescription": "用于选择您要附加到 Cubers 帖子的照片或视频。"
+  }
+}

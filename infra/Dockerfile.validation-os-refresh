@@ -1,0 +1,9 @@
+# Local verification: preserve the exact application dependencies while applying
+# the selected Debian release's available package updates. Record and re-review
+# each resulting image before use; this is not a production release approval.
+ARG CACHED_IMAGE
+FROM ${CACHED_IMAGE}
+USER root
+RUN apt-get -o Acquire::Retries=3 update && apt-get -o Acquire::Retries=3 upgrade -y && rm -rf /var/lib/apt/lists/*
+ARG RUNTIME_USER=root
+USER ${RUNTIME_USER}

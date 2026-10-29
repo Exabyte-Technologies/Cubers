@@ -1,0 +1,68 @@
+{
+  "name": "cubers",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build:core": "npm run build -w @cubers/core",
+    "build": "npm run build:core && npm run build -w @cubers/api && npm run build -w @cubers/admin",
+    "typecheck": "npm run build:core && npm run typecheck --workspaces --if-present",
+    "test": "npm run build:core && tsx --tsconfig apps/api/tsconfig.json --test tests/*.test.ts",
+    "test:integration": "npm run build && tsx --tsconfig apps/api/tsconfig.json --test tests/integration/*.test.ts",
+    "test:load": "npm run build:core && npm run build -w @cubers/api && tsx scripts/load-test.ts",
+    "dev:api": "npm run build:core && npm run dev -w @cubers/api",
+    "dev:admin": "npm run dev -w @cubers/admin",
+    "dev:mobile": "npm run build:core && npm run start -w @cubers/mobile",
+    "dev:lan": "node scripts/dev-lan.mjs",
+    "db:generate": "npm run db:generate -w @cubers/api",
+    "db:migrate": "npm run db:migrate -w @cubers/api",
+    "db:seed": "npm run db:seed -w @cubers/api",
+    "ai:mock": "tsx scripts/mock-ai.ts",
+    "cases:generate": "node --import tsx scripts/generate-algorithm-cases.ts",
+    "test:docker": "npm run build:core && node --import tsx scripts/docker-smoke.ts",
+    "test:recovery": "node --import tsx scripts/recovery-drill.ts",
+    "test:media-vault": "node --import tsx scripts/media-vault-drill.ts",
+    "geo:update": "node --import tsx scripts/update-geoip.ts",
+    "postinstall": "node scripts/prepare-dependencies.cjs"
+  },
+  "devDependencies": {
+    "@types/aes-js": "3.1.4",
+    "@types/node": "^24.0.0",
+    "@types/smtp-server": "^3.5.13",
+    "embedded-postgres": "^17.10.0-beta.17",
+    "prettier": "^3.9.10",
+    "s3rver": "^3.7.1",
+    "smtp-server": "^3.19.22",
+    "tsx": "^4.20.0",
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=22.14"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "prisma@6.19.3": true,
+    "@scarf/scarf": false,
+    "@embedded-postgres/darwin-arm64": true
+  },
+  "overrides": {
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    },
+    "query-string": {
+      ".": "7.1.3",
+      "decode-uri-component": "0.5.0"
+    },
+    "xcode": {
+      "uuid": "11.1.1"
+    },
+    "@nestjs/swagger": {
+      "js-yaml": "5.4.1"
+    }
+  }
+}

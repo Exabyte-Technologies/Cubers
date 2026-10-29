@@ -1,0 +1,428 @@
+{
+  "summary": {
+    "files": 32,
+    "fieldsBefore": 26,
+    "fieldsAfter": 26,
+    "wireAttributes": 690,
+    "apiAndRouteCalls": 187,
+    "differences": []
+  },
+  "rows": [
+    {
+      "file": "apps/mobile/app/achievement-cards.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 29,
+      "apiAndRouteCalls": 7,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/announcements.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 2,
+      "apiAndRouteCalls": 1,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/app-verification.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 20,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/assessment.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 27,
+      "apiAndRouteCalls": 9,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/case-recognition.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 10,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/club/[id].tsx",
+      "fields": [
+        2,
+        2
+      ],
+      "wireAttributes": 45,
+      "apiAndRouteCalls": 10,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/clubs.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 4,
+      "apiAndRouteCalls": 1,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/competition/[id].tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 29,
+      "apiAndRouteCalls": 8,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/competition-reviews.tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 19,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/connections.tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 35,
+      "apiAndRouteCalls": 7,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/delete-account.tsx",
+      "fields": [
+        4,
+        4
+      ],
+      "wireAttributes": 18,
+      "apiAndRouteCalls": 9,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/devices.tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 25,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/discover/[id].tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 9,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/downloads.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 18,
+      "apiAndRouteCalls": 2,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/first-solve.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 49,
+      "apiAndRouteCalls": 18,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/guardian-cards.tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 18,
+      "apiAndRouteCalls": 5,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/guardian.tsx",
+      "fields": [
+        3,
+        3
+      ],
+      "wireAttributes": 40,
+      "apiAndRouteCalls": 17,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/index.tsx",
+      "fields": [
+        5,
+        5
+      ],
+      "wireAttributes": 23,
+      "apiAndRouteCalls": 6,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/invitation.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 5,
+      "apiAndRouteCalls": 5,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/legal/[slug].tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 4,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/lesson/[id].tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 44,
+      "apiAndRouteCalls": 4,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/notifications.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 22,
+      "apiAndRouteCalls": 8,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/post/[id].tsx",
+      "fields": [
+        2,
+        2
+      ],
+      "wireAttributes": 25,
+      "apiAndRouteCalls": 9,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/profile/[id].tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 20,
+      "apiAndRouteCalls": 8,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/profile/edit.tsx",
+      "fields": [
+        2,
+        2
+      ],
+      "wireAttributes": 29,
+      "apiAndRouteCalls": 4,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/rankings.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 12,
+      "apiAndRouteCalls": 2,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/replay/[id].tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 16,
+      "apiAndRouteCalls": 3,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/replay-shares.tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 32,
+      "apiAndRouteCalls": 7,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/reset-password.tsx",
+      "fields": [
+        1,
+        1
+      ],
+      "wireAttributes": 5,
+      "apiAndRouteCalls": 2,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/room/[id].tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 44,
+      "apiAndRouteCalls": 13,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/statistics.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 9,
+      "apiAndRouteCalls": 2,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    },
+    {
+      "file": "apps/mobile/app/verify.tsx",
+      "fields": [
+        0,
+        0
+      ],
+      "wireAttributes": 3,
+      "apiAndRouteCalls": 2,
+      "missingAttrs": [],
+      "extraAttrs": [],
+      "missingCalls": [],
+      "extraCalls": []
+    }
+  ]
+}

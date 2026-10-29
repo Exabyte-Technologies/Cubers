@@ -1,0 +1,48 @@
+# Android action verification
+
+International Android builds now connect Expo's Standard Play Integrity APIs to Cubers' authenticated challenge/verification endpoints and all five critical game actions: recording, inspection, start, finish and evidence submission. Setup, cancellation and account/session lifecycle handling are connected. Production ranking and both real verification providers remain off by default. Mainland Google verification is unavailable; a different regional trust service would require separate implementation and review.
+
+## Request flow
+
+The user explicitly selects **Prepare Android verification** in Profile. The client first checks the current community catalogue and learning permission, then prepares the native token provider using the server's public Cloud project number. Preparation is session memory only; it creates no persistent verification key or token. A successful warmup is not server verification or ranking acceptance.
+
+For each protected action, the client requests `POST /v1/me/app-attestation/challenges` with `kind: play-action`, `provider: google-play`, its attempt, operation and strict action body. The server checks current account/session/guardian authority, membership, attempt phase/snapshot and competition deadlines. A random challenge binds that context, the exact body and the configured verification policy. It expires within two minutes, capped by the actual session and operation deadlines.
+
+The server returns the UTF-8 challenge and its SHA-256 base64url `requestHash`. The native client recomputes the hash with `expo-crypto` before requesting a token. It posts the token to `/verify` with `kind: play-action`. The server claims the challenge once, then asks Google's fixed decoder to validate the token outside database locks. It checks the package, exact allowed signing certificates/version codes, request hash, timestamp, Play recognition/licensing, device integrity and absence of a test verdict. Replayed/cleared or mismatched verdicts cannot qualify.
+
+A final transaction rechecks current authority, unchanged attempt context, verifier policy and the claimed challenge. It issues a one-use grant for at most thirty seconds. The actual game handler consumes that grant in the same transaction as the action; a failed mutation rolls it back. Google grants have no Apple key or key version. Migration **44**, `202610210001_play_integrity`, enforces the separate Apple/Google shapes while preserving existing Apple records and immutable challenge/grant guards. Do not run older API/worker versions alongside this deployment.
+
+`DELETE /v1/me/app-attestation/play` cancels the account's outstanding Google grants/challenges. It remains available after learning consent withdrawal and does not undo committed game actions. It can invalidate a proof while provider verification is in flight. Account/session deletion, expiry cleanup and sealed restoration also remove or invalidate these credentials. Challenge metadata is pruned after two days; grants expire independently of a cleanup sweep. Raw Google tokens/verdicts are not stored, exported or sent to AI.
+
+## Native lifecycle
+
+The pinned `@expo/app-integrity` **55.0.17** module prepares and requests Standard tokens; SDK-matched `expo-crypto` **55.0.19** hashes the exact challenge bytes. Both load lazily so old binaries without a required module return unavailable. Android never calls Apple enrollment methods. Web, unsupported services and an unavailable community do not fabricate proofs.
+
+Native operations serialize across account changes. A visible twenty-second caller timeout retains the underlying native job's slot until it actually settles. Backgrounding, leaving a game, consent/account/session changes and cancellation invalidate late callbacks before another server/action submission. An expired native provider requires deliberate preparation again; tokens are never automatically reused. Reset bypasses a stalled native call and cancels outstanding server checks. No Google token, grant, preparation preference or device key is written to device storage. The SDK may retain its own provider in process memory; clearing Cubers preparation stops using it until the user prepares again.
+
+## Operator configuration
+
+Keep these settings disabled until signed-device, provider, privacy and operational acceptance is recorded:
+
+| Setting                                  | Purpose                                                                    |
+| ---------------------------------------- | -------------------------------------------------------------------------- |
+| `APP_ATTESTATION_GOOGLE_ENABLED=false`   | Explicit provider gate                                                     |
+| `APP_ATTESTATION_GOOGLE_PROJECT_NUMBER`  | Linked Cloud project number, sent to the native warmup                     |
+| `APP_ATTESTATION_GOOGLE_PACKAGE`         | Exact released Android package                                             |
+| `APP_ATTESTATION_GOOGLE_SIGNERS`         | Comma-separated allowed SHA-256 signing digests, base64url without padding |
+| `APP_ATTESTATION_GOOGLE_BUILDS`          | Comma-separated exact positive version codes                               |
+| `APP_ATTESTATION_GOOGLE_CREDENTIAL_FILE` | Private operator-managed service-account JSON file                         |
+
+The credential file is not created, bundled, uploaded through admin or mounted automatically by Compose. Mount an absolute canonical, single-link regular file read-only, owned by the service UID or root, with no group/other or execute permissions. It is limited to 32 KiB. The loader accepts a validated RSA service-account key and the fixed Google token URI; it rejects external-account configurations, aliases and alternative credential endpoints. No ADC, metadata-server lookup or executable credential source is used.
+
+Google's pinned **google-auth-library 11.3.1** signs the service-account OAuth request for the `playintegrity` scope. OAuth uses a four-second HTTP deadline, no retries and no redirects. The existing decoder has an eight-second overall deadline and bounded responses, and the service admits at most four concurrent checks. The service account must be authorized in the Cloud project linked to the actual Play app; no real authorization or key was provisioned here. Changing loaded policy values closes availability until the process is restarted. Rotation to a different credential public key/project changes the policy digest and invalidates old challenges/grants.
+
+Rebuild the native binary after adding modules. The Expo module is alpha and upgrades need review. The SDK has since been installed with user-authorized licence acceptance. The [ARM64 Android debug APK](ANDROID-BUILD.md) now compiles and includes the native integrity and crypto classes; artifact checks pass. No Android runtime, signed production build or real Google service acceptance is established. Signed Android builds, actual Play licensing, missing services, provider expiry, poor connectivity, background/disconnect races, real recording and real competition timing still require acceptance. App verification assists review and cannot establish an untampered solve, footage continuity or complete prevention of cheating.
+
+Primary references: [Google Standard requests and replay handling](https://developer.android.com/google/play/integrity/standard), [Google setup](https://developer.android.com/google/play/integrity/setup), [Google's authentication library](https://docs.cloud.google.com/nodejs/docs/reference/google-auth-library/latest) and [Expo SDK 55 app integrity](https://docs.expo.dev/versions/v55.0.0/sdk/app-integrity/).
+
+## Verification record
+
+2026-10-21: **305 source tests / 291 backend cases**, workspace types/builds and final web/iOS/Android exports pass. Six new authenticated PostgreSQL/HTTP cases cover native-client virtual solving, all five physical actions with synthetic recording metadata, one-use/rollback, exact action/evidence binding, same-owner session and cross-account isolation, wrong request/licensing verdicts, concurrent verification, in-flight cancellation and stale session/attempt refusal. Six client groups cover explicit preparation, exact hashes, serialized native timeouts, account/background/navigation isolation, reset after consent withdrawal and expired-provider recovery. Three credential groups use generated test keys and a simulated SDK HTTP adapter to verify private-file handling, selected OAuth scope, zero retries at the transport boundary, configuration changes and mainland refusal. No fixture is a real Play attestation or physical recording.
+
+Final Docker **226522a6** passes **55 INTL / 51 CN** groups on **44 migrations**. Exact-image encrypted restore **c0c28de8** passes **27 / 27**, invalidates restored Apple/Google requests/grants and keeps both targets sealed. Current compiled hashes match; independent named-resource cleanup passes and both restore runners verify six anonymous mounts removed. The unsigned iOS simulator build compiles the new crypto dependency; Android native/device acceptance remains open. The local preview preserves eleven saved-history hashes and simulated tutoring. Production API/core dependency audit reports zero known advisories; cached OS/runtime bases were reused without an upstream refresh. No real provider, actual key provisioning, visual acceptance or release approval occurred. Earlier cancellation-fixture setup failure, corrected synthetic fixture mistakes and dependency-image syntax failure are retained in the private verification record, `.data/play-integrity/verification.json`.

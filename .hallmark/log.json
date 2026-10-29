@@ -1,0 +1,92 @@
+[
+  {
+    "mode": "refinement",
+    "scope": "app",
+    "theme": "hum",
+    "shape": "existing pathway and profile; selected game task",
+    "axes": "light/rounded-sans/coordinated-task-accents",
+    "nav": "original four tabs and neutral idle controls",
+    "signature": "game-specific stock accents with invariant lower room controls",
+    "prompt": "Use coordinated palette variety without rainbow idle elements; switch the selected game accent and keep Join Room/lower controls consistent.",
+    "date": "2026-10-26",
+    "finishReview": {
+      "verdict": "ship",
+      "initialFindings": 1,
+      "resolved": 1,
+      "addedGameScopeFindings": 0
+    },
+    "sweep": {
+      "mobileFail": 0,
+      "mobileReflex": 0,
+      "mobileWarn": 0,
+      "adminFail": 0,
+      "adminWarnings": 4,
+      "adminWarningResolution": "per-theme computed colors and existing disabled exemption"
+    },
+    "comparison": ".hallmark/accent-region-compare.html"
+  },
+  {
+    "mode": "redesign",
+    "depth": "full",
+    "scope": "app",
+    "theme": "hum",
+    "shape": "learning pathway and profile overview",
+    "axes": "light/rounded-sans/chromatic-yellow",
+    "nav": "kept four tabs; unit/pathway sheets and categorized settings",
+    "signature": "round lesson nodes on a winding path with real activity calendar",
+    "imagery": "interactive puzzle and original profile avatar",
+    "photos": [],
+    "prompt": "Match user-supplied Duolingo learn/profile layout references with real units, finer lesson nodes, activity squares and settings behind gear; retain Hum materials.",
+    "finishReview": {
+      "findings": 2,
+      "resolved": 2,
+      "rootConfirmed": true
+    },
+    "sweep": {
+      "fail": 0,
+      "reflex": 0,
+      "warn": 0
+    },
+    "comparison": ".hallmark/pathway-compare.html",
+    "date": "2026-10-26"
+  },
+  {
+    "mode": "redesign",
+    "depth": "full",
+    "scope": "app",
+    "theme": "hum",
+    "shape": "app screen",
+    "axes": "light/rounded-sans/chromatic-yellow",
+    "hero": "not applicable: app-screen scope",
+    "nav": "kept four-tab paper rail and task sidebar",
+    "footer": "existing account, legal and attribution controls",
+    "imagery": "real interactive puzzles and original Cubers mark",
+    "photos": [],
+    "entry": "real next lesson and curriculum",
+    "fingerprint": "hum-cubers-learning-path-20261026",
+    "sections": [
+      "Discover",
+      "Learn",
+      "Play",
+      "Profile",
+      "supporting routes",
+      "admin workspace"
+    ],
+    "signature": "real puzzle learning path",
+    "waived": [],
+    "prompt": "Redesign Cubers with Hallmark Hum and a fun interactive learning feel; preserve content, wiring and safeguards.",
+    "finishReview": {
+      "independentFindings": 3,
+      "resolved": 3,
+      "lastResolution": "root measured aligned search bounds after independent scoring"
+    },
+    "sweep": {
+      "mobileFail": 0,
+      "mobileReflex": 0,
+      "mobileWarn": 0,
+      "adminStaticWarnings": 4,
+      "adminWarningsResolved": "per-theme computed contrast; inactive controls"
+    },
+    "date": "2026-10-26"
+  }
+]

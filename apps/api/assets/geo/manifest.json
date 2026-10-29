@@ -1,0 +1,12 @@
+{
+  "provider": "DB-IP",
+  "edition": "IP to Country Lite",
+  "release": "2026-10",
+  "source": "https://download.db-ip.com/free/dbip-country-lite-2026-10.mmdb.gz",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "attribution": "IP Geolocation by DB-IP",
+  "attributionUrl": "https://db-ip.com",
+  "providerSha1": "e515b63075ad48847f9c4332b724742e8ba15b0e",
+  "sha256": "dbd70ccfa2a13627eaf4913d19920a1a229f1b3c5439ac01c509995b6364202a"
+}

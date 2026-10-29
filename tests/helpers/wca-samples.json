@@ -1,0 +1,15 @@
+{
+  "2x2": ["U2 R2 F' U' R U' R' F R2 U' R", "U' F U' F' U2 F U' R U R' F"],
+  "3x3": [
+    "L U L2 B' U' R' F' D2 F2 L2 U' B2 U' F2 U R2 L D'",
+    "D' B' R2 U' R' U2 B2 F2 L R2 F2 D2 U' R' B2 D' B F D'"
+  ],
+  "4x4": [
+    "D2 L2 D2 L D2 L' D2 F2 R2 L' B' R U' B R B2 F D U B Fw2 Rw2 Uw2 U F Uw2 L2 B' R2 F' U2 B' Rw L B' F2 U Rw B Fw' Uw B' Rw' L",
+    "U' R2 U' F2 D2 F2 U' B' R2 U F L' B U' L2 B' U Uw2 Fw2 F D2 B Uw2 F' U' L2 Uw2 Rw2 L2 U' R' F2 Rw' U2 B' Uw2 R2 Fw' Rw' R' Fw F2 R2 Fw"
+  ],
+  "pyraminx": [
+    "L B R' U L' B' L' B U L' U' u r'",
+    "B R U' B' R' U B' U L' R B' u' r"
+  ]
+}

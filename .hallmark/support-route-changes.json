@@ -1,0 +1,189 @@
+{
+  "changedFiles": [
+    {
+      "file": "apps/mobile/app/achievement-cards.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/app-verification.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/assessment.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/case-recognition.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/club/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/clubs.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/competition/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/competition-reviews.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/connections.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/delete-account.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/devices.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/discover/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/downloads.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/first-solve.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/guardian-cards.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/guardian.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/index.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/legal/[slug].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/lesson/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/notifications.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/post/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/profile/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/profile/edit.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/rankings.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/replay/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/replay-shares.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/reset-password.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/room/[id].tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/statistics.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    },
+    {
+      "file": "apps/mobile/app/verify.tsx",
+      "fonts": "Existing 700/800 styles align to 600 bundled weight; untracked notation",
+      "copy": "Action/nav arrow affixes removed; metadata separators changed from middle dot to slash; date/password hints use parentheses. Consent permission strings retained verbatim.",
+      "syntaxErrors": 0
+    }
+  ],
+  "consentCopyWaivers": [
+    "achievement-cards.tsx: Include my current nickname · requires content review / 加入当前昵称 · 需要内容审核",
+    "achievement-cards.tsx: Your requests · export permission lasts seven days... / 你的申请 · 导出权限有效七日..."
+  ],
+  "visualVerification": "Root agent controls rendered screenshots and full build verification."
+}

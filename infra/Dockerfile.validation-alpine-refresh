@@ -1,0 +1,7 @@
+# Local verification only; keeps the selected application and Alpine release.
+ARG CACHED_IMAGE
+FROM ${CACHED_IMAGE}
+USER root
+RUN apk --no-cache upgrade
+ARG RUNTIME_USER=root
+USER ${RUNTIME_USER}

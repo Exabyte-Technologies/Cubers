@@ -1,0 +1,215 @@
+/* Hallmark · shape: app screen · genre: playful · theme: Hum (by request) · redesign: full · nav: kept four-tab paper rail · signature: real puzzle learning path · states: existing loading, empty, error, full · axes: light/rounded-sans/chromatic-yellow · posture: full-palette · modes: light+dark · spring: primary only · copy: verbatim · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · weakest: H, promoted real lesson tasks and flattened secondary card nesting */
+/* Hallmark · finish-review: subagent · 3 findings · 3 resolved (search alignment confirmed by root bounds check) · gap: none */
+/* Hallmark · answered F4 · existing learning, review and game actions remain available; pear signals the task's main action while secondary navigation uses quiet paper stock */
+/* Hallmark · dropped https://db-ip.com · the user replaced DB-IP with FreeIPAPI; attribution now links https://freeipapi.com */
+@import url("./tokens.css");
+@import url("./base.css");
+:root {
+  --font-display: "ChillaxSemibold", "PingFang SC", ui-rounded, sans-serif;
+  --font-body: "ChillaxMedium", "PingFang SC", ui-rounded, sans-serif;
+  --font-outlier: ui-monospace, monospace;
+  --gutter: 24px;
+  --container: 1000px;
+  --texture-opacity: 0.025;
+  --texture-fibre-opacity: 0.025;
+  --color-transparent: transparent;
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .035 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='turbulence' baseFrequency='.014 .22' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .025 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+html,
+body {
+  overflow-x: clip;
+  width: 100%;
+}
+body {
+  font-family: var(--font-body);
+  font-synthesis: none;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+h1,
+h2,
+h3,
+[role="heading"] {
+  min-width: 0;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+a,
+[role="link"] {
+  text-underline-offset: 3px;
+}
+button,
+[role="button"],
+input,
+textarea,
+select,
+a,
+[tabindex] {
+  -webkit-tap-highlight-color: var(--color-transparent);
+}
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--color-focus) !important;
+  outline-offset: 3px;
+}
+button:active,
+[role="button"]:active {
+  transform: translateY(1px);
+}
+button:disabled,
+[role="button"][aria-disabled="true"],
+input:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+[data-hum="app"] {
+  isolation: isolate;
+}
+[data-hum="topbar"] {
+  z-index: var(--z-sticky);
+}
+[data-hum="card"],
+[data-hum="button"],
+[data-hum="chip"],
+[data-hum="locale"] {
+  background-image: var(--grain), var(--fibre);
+}
+[data-hum="card"] {
+  box-shadow: 0 8px 24px -18px var(--color-muted);
+}
+[data-hum="brand"],
+[data-hum="locale"] {
+  min-height: 44px;
+  cursor: pointer;
+}
+[data-hum="button"] {
+  --stock-edge: var(--color-edge);
+  border-bottom-width: 1px !important;
+  box-shadow: 0 5px 0 var(--stock-edge);
+  margin-bottom: var(--space-xs);
+  cursor: pointer;
+  transition:
+    transform var(--dur-micro) var(--ease-snap),
+    box-shadow var(--dur-micro) var(--ease-snap);
+}
+[data-hum="button"][data-kind="primary"] {
+  --stock-edge: var(--color-accent-deep);
+  transition-timing-function: var(--ease-spring);
+}
+[data-hum="button"][data-kind="danger"] {
+  --stock-edge: var(--color-error);
+}
+[data-hum="button"]:hover:not([aria-disabled="true"]) {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 var(--stock-edge);
+}
+[data-hum="button"]:active:not([aria-disabled="true"]) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--stock-edge);
+}
+[data-hum="button"][aria-disabled="true"] {
+  box-shadow: 0 3px 0 var(--color-edge);
+  transform: none;
+}
+[data-hum="chip"] {
+  cursor: pointer;
+  transition: transform var(--dur-micro) var(--ease-snap);
+}
+[data-hum="chip"]:hover:not([aria-disabled="true"]) {
+  transform: translateY(-1px);
+}
+[data-hum="chip"]:active:not([aria-disabled="true"]) {
+  transform: translateY(1px);
+}
+[data-hum="field"] {
+  caret-color: var(--color-accent-2);
+  transition: background-color var(--dur-micro) var(--ease-snap);
+}
+[data-hum="field"]:hover {
+  background-color: var(--color-paper-3);
+}
+[data-hum="field"]:focus-visible {
+  outline-offset: -3px;
+}
+[data-hum="footer-link"] {
+  align-self: center;
+  max-width: 100%;
+}
+[role="tablist"] {
+  border-color: var(--color-rule);
+}
+[role="tab"] {
+  min-height: 48px;
+  border-radius: var(--radius-stock);
+}
+[role="tab"]:hover {
+  background-color: var(--color-paper-2);
+}
+[role="tab"][aria-selected="true"] {
+  background-color: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+[role="tab"]:active {
+  transform: translateY(1px);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: oklch(17% 0.012 255);
+    --color-paper-2: oklch(20% 0.014 255);
+    --color-paper-3: oklch(26% 0.014 255);
+    --color-card: oklch(23% 0.014 255);
+    --color-ink: oklch(95% 0.012 95);
+    --color-ink-2: oklch(88% 0.014 95);
+    --color-muted: oklch(75% 0.014 95);
+    --color-rule: oklch(36% 0.018 255);
+    --color-edge: oklch(41% 0.025 255);
+    --color-focus: oklch(75% 0.12 250);
+    --color-accent-2: oklch(75% 0.12 250);
+    --color-error: oklch(78% 0.14 27);
+  }
+  [data-hum="card"] {
+    box-shadow: none;
+  }
+}
+@media (max-width: 640px) {
+  [data-hum="button"] {
+    flex-shrink: 1;
+  }
+  [data-hum="button-label"] {
+    font-size: 14px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  [data-hum="button"]:hover,
+  [data-hum="chip"]:hover {
+    transform: none;
+  }
+}
+
+/* Match each action's stock edge to its declared task accent. */
+:root { --color-coral-edge: #b94149; }
+[data-hum="button"][data-kind="primary"][data-tone="mint"] { --stock-edge: var(--color-mint-deep); }
+[data-hum="button"][data-kind="primary"][data-tone="blue"] { --stock-edge: var(--color-accent-2); }
+[data-hum="button"][data-kind="primary"][data-tone="coral"] { --stock-edge: var(--color-coral-edge); }
+@media (prefers-color-scheme: dark) {
+  :root { --color-coral-edge: #ba6261; }
+}
+
+:root { --color-sand-edge: #966327; }
+[data-hum="button"][data-kind="primary"][data-tone="sand"] { --stock-edge: var(--color-sand-edge); }
+@media (prefers-color-scheme: dark) { :root { --color-sand-edge: #ac804b; } }

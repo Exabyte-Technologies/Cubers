@@ -1,0 +1,60 @@
+# Verification fallback only. The runner verifies identical dependency manifests
+# in CACHED_BUILD before use. This does not refresh OS/runtime dependencies.
+ARG CACHED_BUILD
+ARG CACHED_API
+ARG CACHED_ADMIN
+ARG CACHED_RECOVERY
+FROM ${CACHED_BUILD} AS build
+USER root
+WORKDIR /app
+COPY packages/core packages/core
+COPY apps/api apps/api
+RUN npm run build:core && npm run db:generate && npm run build -w @cubers/api
+
+FROM build AS migrations
+USER node
+ENV PRISMA_HIDE_UPDATE_MESSAGE=true
+CMD ["node", "node_modules/prisma/build/index.js", "migrate", "deploy", "--schema", "apps/api/prisma/schema.prisma"]
+
+FROM migrations AS development-storage
+USER root
+RUN mkdir -p /data && chown node:node /data
+COPY --chown=node:node infra/smoke-storage.cjs /app/infra/smoke-storage.cjs
+USER node
+ENV STORAGE_DIRECTORY=/data
+CMD ["node", "--openssl-legacy-provider", "/app/infra/smoke-storage.cjs"]
+
+FROM build AS production-dependencies
+RUN npm prune --no-audit --omit=dev --workspace @cubers/api --workspace @cubers/core --include-workspace-root
+RUN mkdir -p /app/apps/api/node_modules
+
+FROM ${CACHED_API} AS runtime
+USER root
+RUN rm -rf /app/node_modules /app/apps/api/node_modules
+COPY --from=production-dependencies --chown=node:node /app/node_modules /app/node_modules
+COPY --from=production-dependencies --chown=node:node /app/apps/api/package.json /app/apps/api/package.json
+COPY --from=production-dependencies --chown=node:node /app/apps/api/node_modules /app/apps/api/node_modules
+USER node
+COPY --from=build --chown=node:node /app/packages/core /app/packages/core
+COPY --from=build --chown=node:node /app/apps/api/dist /app/apps/api/dist
+COPY --from=build --chown=node:node /app/apps/api/prisma /app/apps/api/prisma
+COPY --from=build --chown=node:node /app/apps/api/assets /app/apps/api/assets
+
+FROM ${CACHED_ADMIN} AS admin
+# The runner rebuilds these assets from current sources before the image build.
+USER root
+RUN rm -rf /usr/share/nginx/html && mkdir -p /usr/share/nginx/html
+USER 101
+COPY infra/nginx.admin.conf /etc/nginx/conf.d/default.conf
+COPY apps/admin/dist /usr/share/nginx/html
+
+FROM ${CACHED_RECOVERY} AS recovery-tools
+USER root
+RUN rm -rf /app/node_modules /app/apps/api/node_modules
+COPY --from=build --chown=1000:1000 /app/apps/api/assets/third-party /app/licenses/cubing
+COPY --from=production-dependencies --chown=1000:1000 /app/node_modules /app/node_modules
+COPY --from=production-dependencies --chown=1000:1000 /app/apps/api/package.json /app/apps/api/package.json
+COPY --from=production-dependencies --chown=1000:1000 /app/apps/api/node_modules /app/apps/api/node_modules
+USER 1000:1000
+COPY --from=build --chown=1000:1000 /app/packages/core /app/packages/core
+COPY --from=build --chown=1000:1000 /app/apps/api/dist /app/apps/api/dist

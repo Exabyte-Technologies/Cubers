@@ -1,0 +1,23 @@
+{
+  "scanned": "2026-10-26",
+  "findings": {
+    "fonts": "React Native system sans; admin Inter/system fallback (apps/mobile/src/ui.tsx:82, apps/admin/src/style.css:1)",
+    "palette": "Warm green/cream with lavender; local component tokens (apps/mobile/src/ui.tsx:16)",
+    "motion": "Press opacity, reduced-motion puzzle renderers (apps/mobile/src/ui.tsx:170)",
+    "spacing": "Shared mobile Screen/Card primitives, ad hoc inline spacing (apps/mobile/src/ui.tsx:120)",
+    "framework": "Expo 55 / React Native and Vite React admin (apps/mobile/package.json:1, apps/admin/package.json:1)"
+  },
+  "preserve": [
+    "Cubers logo geometry and name",
+    "all routes, backend calls, forms, legal text and bilingual content",
+    "dark mode and native functionality"
+  ],
+  "introduce": [
+    "Hum palette and paper surfaces",
+    "Chillax locally bundled typography",
+    "recomposed main screens and navigation",
+    "global accessible interaction states"
+  ],
+  "scope": "full app redesign by explicit user request",
+  "material": "existing Cubers product, authored courses and genuine saved progress; no invented activity or metrics"
+}

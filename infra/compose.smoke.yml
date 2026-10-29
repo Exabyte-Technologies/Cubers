@@ -1,0 +1,57 @@
+# LOCAL VERIFICATION ONLY. Merge after compose.production.yml using the test
+# runner. It generates disposable credentials/volumes and publishes only one
+# loopback TLS port. It never approves or publishes a production deployment.
+services:
+  monitor:
+    environment:
+      NODE_ENV: test
+      PUBLIC_RELEASE_APPROVED: "false"
+  worker:
+    environment:
+      NODE_ENV: test
+      PUBLIC_RELEASE_APPROVED: "false"
+    depends_on:
+      storage: {condition: service_healthy}
+  api:
+    volumes:
+      - ./smoke-stalled-verifier.cjs:/opt/cubers-stalled-verifier:ro
+    environment:
+      NODE_ENV: test
+      AI_MODE: disabled
+      PUBLIC_RELEASE_APPROVED: "false"
+      TRUSTED_PROXY_CIDRS: ${SMOKE_PROXY_IP}/32
+    depends_on:
+      storage: {condition: service_healthy}
+      mail: {condition: service_started}
+  https:
+    volumes:
+      - ./Caddyfile.smoke:/etc/caddy/Caddyfile:ro
+    ports: !override
+      - {target: 443, published: "${SMOKE_PORT}", host_ip: 127.0.0.1, protocol: tcp}
+    networks:
+      edge: {ipv4_address: "${SMOKE_PROXY_IP}"}
+  storage:
+    image: ${CUBERS_MIGRATIONS_IMAGE}
+    command: ["node", "--openssl-legacy-provider", "/app/infra/smoke-storage.cjs"]
+    environment:
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+    volumes: ["./smoke-storage.cjs:/app/infra/smoke-storage.cjs:ro"]
+    read_only: true
+    tmpfs: ["/tmp:size=134217728,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:9000').then(r=>{if(r.status!==403)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    networks: [private]
+  mail:
+    image: axllent/mailpit:v1.27
+    networks: [private]
+networks:
+  edge:
+    ipam:
+      config: !override [{subnet: "${SMOKE_SUBNET}", ip_range: "${SMOKE_POOL}"}]

@@ -1,0 +1,8 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "Cubers",
+    "NSCameraUsageDescription": "Scan puzzle colors and record ranked physical attempts with your consent.",
+    "NSBluetoothAlwaysUsageDescription": "Connect to a supported smart cube to read puzzle moves.",
+    "NSPhotoLibraryUsageDescription": "Choose photos or videos to attach to your Cubers posts."
+  }
+}

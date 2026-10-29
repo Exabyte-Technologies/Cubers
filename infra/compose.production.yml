@@ -1,0 +1,274 @@
+name: cubers-${REGION:?Set REGION to CN or INTL}
+services:
+  postgres:
+    image: ${CUBERS_POSTGRES_IMAGE:-postgres:17-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cubers
+      POSTGRES_USER: cubers
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set a unique database password}
+    volumes: ["database:/var/lib/postgresql/data"]
+    networks: [private]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cubers -d cubers"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  redis:
+    image: ${CUBERS_REDIS_IMAGE:-redis:7-alpine}
+    restart: unless-stopped
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory",
+        "256mb",
+        "--maxmemory-policy",
+        "noeviction",
+      ]
+    volumes: ["redis:/data"]
+    networks: [private]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  migrate:
+    image: ${CUBERS_MIGRATIONS_IMAGE:-cubers-migrations:local}
+    build: { context: .., dockerfile: infra/Dockerfile.api, target: migrations }
+    restart: "no"
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the regional database URL}
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [private]
+    read_only: true
+    tmpfs: ["/tmp:size=268435456,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  seed:
+    image: ${CUBERS_MIGRATIONS_IMAGE:-cubers-migrations:local}
+    build: { context: .., dockerfile: infra/Dockerfile.api, target: migrations }
+    restart: "no"
+    command: ["node", "--import", "tsx", "apps/api/prisma/seed.ts"]
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the regional database URL}
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    networks: [private]
+    read_only: true
+    tmpfs: ["/tmp:size=268435456,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  api:
+    image: ${CUBERS_API_IMAGE:-cubers-api:local}
+    build: { context: .., dockerfile: infra/Dockerfile.api }
+    restart: unless-stopped
+    stop_grace_period: 60s
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    volumes: ["document_socket:/run/cubers-documents"]
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      REDIS_URL: redis://redis:6379
+      TRUSTED_PROXY_CIDRS: 172.30.70.2/32
+      WORKER_ENABLED: "false"
+    depends_on:
+      seed: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      worker: { condition: service_started }
+      documents: { condition: service_healthy }
+    networks: [private, edge]
+    read_only: true
+    pids_limit: 256
+    mem_limit: 1536m
+    cpus: 2
+    tmpfs: ["/tmp:size=1073741824,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    expose: ["3000"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/v1/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 8s
+      retries: 3
+    logging: { driver: json-file, options: { max-size: 10m, max-file: "3" } }
+  documents:
+    image: ${CUBERS_DOCUMENTS_IMAGE:-cubers-documents:local}
+    build: { context: .., dockerfile: infra/Dockerfile.documents }
+    restart: unless-stopped
+    network_mode: none
+    user: "1000:1000"
+    read_only: true
+    init: true
+    pids_limit: 32
+    mem_limit: 512m
+    cpus: 1
+    volumes: ["document_socket:/run/cubers-documents"]
+    tmpfs: ["/tmp:size=134217728,mode=1777"]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    stop_grace_period: 20s
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "if(!require('fs').lstatSync('/run/cubers-documents/review.sock').isSocket())process.exit(1)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    logging: { driver: json-file, options: { max-size: 10m, max-file: "3" } }
+  worker:
+    image: ${CUBERS_API_IMAGE:-cubers-api:local}
+    build: { context: .., dockerfile: infra/Dockerfile.api }
+    restart: unless-stopped
+    command: ["node", "apps/api/dist/worker-main.js"]
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+      WORKER_ENABLED: "true"
+      AI_MODE: disabled
+      AI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      QWEN_API_KEY: ""
+    depends_on:
+      seed: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    networks: [private, edge]
+    read_only: true
+    pids_limit: 256
+    mem_limit: 1536m
+    cpus: 2
+    stop_grace_period: 120s
+    tmpfs: ["/tmp:size=1073741824,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    logging: { driver: json-file, options: { max-size: 10m, max-file: "3" } }
+  monitor:
+    image: ${CUBERS_API_IMAGE:-cubers-api:local}
+    restart: unless-stopped
+    command: ["node", "apps/api/dist/operations-main.js"]
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    environment:
+      NODE_ENV: production
+      REDIS_URL: redis://redis:6379
+      WORKER_ENABLED: "false"
+      S3_ACCESS_KEY: monitor-unused
+      S3_SECRET_KEY: monitor-unused
+      AI_MODE: disabled
+      AI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      QWEN_API_KEY: ""
+    depends_on:
+      seed: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    networks: [private]
+    read_only: true
+    pids_limit: 64
+    mem_limit: 384m
+    cpus: 0.5
+    stop_grace_period: 30s
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    logging: { driver: json-file, options: { max-size: 10m, max-file: "3" } }
+  admin:
+    image: ${CUBERS_ADMIN_IMAGE:-cubers-admin:local}
+    build: { context: .., dockerfile: infra/Dockerfile.admin }
+    restart: unless-stopped
+    networks: [edge]
+    pids_limit: 64
+    mem_limit: 128m
+    read_only: true
+    tmpfs: ["/tmp:size=67108864,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  web:
+    image: ${CUBERS_WEB_IMAGE:-cubers-web:local}
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+      args:
+        EXPO_PUBLIC_REGION: ${REGION:?Set the regional installation}
+        EXPO_PUBLIC_API_URL_INTL: ${EXPO_PUBLIC_API_URL_INTL:?Set the international API origin}
+        EXPO_PUBLIC_API_URL_CN: ${EXPO_PUBLIC_API_URL_CN:?Set the mainland API origin}
+        EXPO_PUBLIC_COMMUNITY_DISCOVERY_URL: ${EXPO_PUBLIC_COMMUNITY_DISCOVERY_URL:?Set the discovery origin}
+    restart: unless-stopped
+    networks: [edge]
+    pids_limit: 64
+    mem_limit: 128m
+    read_only: true
+    tmpfs: ["/tmp:size=67108864,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "-q",
+          "--spider",
+          "-T",
+          "2",
+          "http://127.0.0.1:8080/healthz",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  https:
+    image: ${CUBERS_PROXY_IMAGE:-cubers-proxy:local}
+    build: { context: .., dockerfile: infra/Dockerfile.proxy }
+    restart: unless-stopped
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?Set the regional API hostname}
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:?Set the regional admin hostname}
+      APP_ORIGIN: ${APP_ORIGIN:?Set the regional public app origin}
+      TLS_EMAIL: ${TLS_EMAIL:?Set the certificate contact email}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      [
+        "./Caddyfile:/etc/caddy/Caddyfile:ro",
+        "./Caddyfile.public:/etc/caddy/public-pages.caddy:ro",
+        "tls:/data",
+        "caddy_config:/config",
+      ]
+    networks:
+      edge: { ipv4_address: 172.30.70.2 }
+    pids_limit: 128
+    mem_limit: 256m
+    read_only: true
+    tmpfs: ["/tmp:size=67108864,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    depends_on:
+      api: { condition: service_healthy }
+      admin: { condition: service_started }
+      web: { condition: service_healthy }
+volumes:
+  database: {}
+  redis: {}
+  tls: {}
+  caddy_config: {}
+  document_socket:
+    driver_opts:
+      { type: tmpfs, device: tmpfs, o: "size=1m,uid=1000,gid=1000,mode=0700" }
+networks:
+  private: { internal: true }
+  # Change this subnet and both proxy trust settings together if it overlaps
+  # a host network. Only the HTTPS container is trusted to supply client IPs.
+  edge:
+    ipam:
+      # Keep automatic assignments away from the proxy's fixed .2 address.
+      config: [{ subnet: 172.30.70.0/24, ip_range: 172.30.70.128/25 }]

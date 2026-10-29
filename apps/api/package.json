@@ -1,0 +1,47 @@
+{
+  "name": "@cubers/api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node -e \"for (const f of ['wca-worker.mjs', 'wca-filter.mjs']) require('node:fs').copyFileSync('src/'+f, 'dist/'+f)\"",
+    "typecheck": "tsc --noEmit",
+    "dev": "npm run build && node --env-file-if-exists=../../.env.local dist/main.js",
+    "start": "node dist/main.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.900.0",
+    "@aws-sdk/s3-request-presigner": "^3.900.0",
+    "@cubers/core": "0.1.0",
+    "@nestjs/common": "^11.1.0",
+    "@nestjs/core": "^11.1.0",
+    "@nestjs/platform-express": "^11.1.0",
+    "@nestjs/platform-socket.io": "^11.1.0",
+    "@nestjs/websockets": "^11.1.0",
+    "@prisma/client": "6.19.3",
+    "bullmq": "^5.60.0",
+    "cubing": "0.66.1",
+    "google-auth-library": "11.3.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.7.0",
+    "ipaddr.js": "^2.5.0",
+    "maxmind": "5.0.7",
+    "nodemailer": "^10.1.1",
+    "otplib": "^12.0.1",
+    "proxy-addr": "^2.0.8",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "sharp": "^0.35.5",
+    "socket.io": "^4.8.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@nestjs/swagger": "^11.2.0",
+    "@types/express": "^5.0.0",
+    "@types/nodemailer": "^7.0.0",
+    "@types/proxy-addr": "^2.0.3",
+    "prisma": "6.19.3"
+  }
+}

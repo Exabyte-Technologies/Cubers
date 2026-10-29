@@ -1,0 +1,73 @@
+# REQUIRED production recovery overlay. Prepare private owned host directories
+# and initialize the regional binding before starting API/worker. No public ports.
+services:
+  api:
+    environment:
+      DELETION_JOURNAL_MODE: file
+      DELETION_JOURNAL_DIRECTORY: /var/lib/cubers/deletion-journal
+      DELETION_JOURNAL_KEY_FILE: /run/secrets/cubers-deletion-journal.json
+    volumes:
+      - type: bind
+        source: ${CUBERS_DELETION_JOURNAL_HOST_DIRECTORY:?Set the independent regional journal directory}
+        target: /var/lib/cubers/deletion-journal
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_RECOVERY_KEY_HOST_DIRECTORY:?Set the private regional key directory}/deletion-journal.json
+        target: /run/secrets/cubers-deletion-journal.json
+        read_only: true
+        bind: {create_host_path: false}
+  worker:
+    environment:
+      DELETION_JOURNAL_MODE: file
+      DELETION_JOURNAL_DIRECTORY: /var/lib/cubers/deletion-journal
+      DELETION_JOURNAL_KEY_FILE: /run/secrets/cubers-deletion-journal.json
+    volumes:
+      - type: bind
+        source: ${CUBERS_DELETION_JOURNAL_HOST_DIRECTORY:?Set the independent regional journal directory}
+        target: /var/lib/cubers/deletion-journal
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_RECOVERY_KEY_HOST_DIRECTORY:?Set the private regional key directory}/deletion-journal.json
+        target: /run/secrets/cubers-deletion-journal.json
+        read_only: true
+        bind: {create_host_path: false}
+  recovery-operator:
+    profiles: [operations]
+    image: ${CUBERS_API_IMAGE:-cubers-api:local}
+    build: {context: .., dockerfile: infra/Dockerfile.api}
+    restart: "no"
+    command: [node, apps/api/dist/recovery-cli.js, /private-operator/request.json]
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    environment:
+      NODE_ENV: test
+      AI_MODE: disabled
+      AI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      QWEN_API_KEY: ""
+      SMTP_URL: ""
+      DELETION_JOURNAL_MODE: file
+      DELETION_JOURNAL_DIRECTORY: /var/lib/cubers/deletion-journal
+      DELETION_JOURNAL_KEY_FILE: /var/lib/cubers/recovery-key/deletion-journal.json
+    volumes:
+      - type: bind
+        source: ${CUBERS_DELETION_JOURNAL_HOST_DIRECTORY:?Set the independent regional journal directory}
+        target: /var/lib/cubers/deletion-journal
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_RECOVERY_KEY_HOST_DIRECTORY:?Set the private regional key directory}
+        target: /var/lib/cubers/recovery-key
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${CUBERS_OPERATOR_REQUEST_HOST_DIRECTORY:?Set the private operator request directory}
+        target: /private-operator
+        read_only: true
+        bind: {create_host_path: false}
+    depends_on:
+      seed: {condition: service_completed_successfully}
+    networks: [private]
+    read_only: true
+    pids_limit: 64
+    mem_limit: 512m
+    tmpfs: ["/tmp:size=67108864,mode=1777"]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]

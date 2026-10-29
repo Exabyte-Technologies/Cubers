@@ -1,0 +1,122 @@
+# Offline database-only recovery stage; combine with production + recovery.
+# Restores remain SEALED. This is not the complete media recovery workflow.
+services:
+  snapshot-operator:
+    profiles: [operations]
+    image: ${CUBERS_RECOVERY_IMAGE:-cubers-recovery:local}
+    build:
+      { context: .., dockerfile: infra/Dockerfile.api, target: recovery-tools }
+    restart: "no"
+    command:
+      [node, apps/api/dist/snapshot-cli.js, /private-operator/request.json]
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    environment:
+      NODE_ENV: test
+      AI_MODE: disabled
+      AI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      QWEN_API_KEY: ""
+      SMTP_URL: ""
+      DELETION_JOURNAL_MODE: file
+      DELETION_JOURNAL_DIRECTORY: /var/lib/cubers/deletion-journal
+      DELETION_JOURNAL_KEY_FILE: /var/lib/cubers/recovery-key/deletion-journal.json
+    volumes:
+      - type: bind
+        source: ${CUBERS_DELETION_JOURNAL_HOST_DIRECTORY:?Set the independent regional journal directory}
+        target: /var/lib/cubers/deletion-journal
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_RECOVERY_KEY_HOST_DIRECTORY:?Set the private regional key directory}
+        target: /var/lib/cubers/recovery-key
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_SNAPSHOT_HOST_DIRECTORY:?Set the separate encrypted regional snapshot directory}
+        target: /var/lib/cubers/snapshots
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_OPERATOR_REQUEST_HOST_DIRECTORY:?Set the private operator request directory}
+        target: /private-operator
+        read_only: true
+        bind: { create_host_path: false }
+    networks: [private]
+    read_only: true
+    user: "1000:1000"
+    pids_limit: 64
+    mem_limit: 512m
+    tmpfs:
+      [
+        "/recovery-tmp:size=134217728,mode=0700,uid=1000,gid=1000,noexec,nosuid",
+        "/var/lib/postgresql/data:size=1048576,mode=0700,uid=1000,gid=1000,noexec,nosuid",
+      ]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  snapshot-expiry:
+    profiles: [maintenance]
+    image: ${CUBERS_API_IMAGE:-cubers-api:local}
+    restart: unless-stopped
+    command:
+      [
+        node,
+        apps/api/dist/snapshot-expiry-cli.js,
+        daemon,
+        /private-operator/snapshot-expiry.json,
+      ]
+    env_file: ${CUBERS_ENV_FILE:-../.env.production}
+    environment:
+      NODE_ENV: test
+      AI_MODE: disabled
+      AI_API_KEY: ""
+      OPENAI_API_KEY: ""
+      QWEN_API_KEY: ""
+      SMTP_URL: ""
+      DELETION_JOURNAL_MODE: file
+      DELETION_JOURNAL_DIRECTORY: /var/lib/cubers/deletion-journal
+      DELETION_JOURNAL_KEY_FILE: /var/lib/cubers/recovery-key/deletion-journal.json
+    volumes:
+      - type: bind
+        source: ${CUBERS_DELETION_JOURNAL_HOST_DIRECTORY:?Set the independent regional journal directory}
+        target: /var/lib/cubers/deletion-journal
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_RECOVERY_KEY_HOST_DIRECTORY:?Set the private regional key directory}
+        target: /var/lib/cubers/recovery-key
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_SNAPSHOT_HOST_DIRECTORY:?Set the separate encrypted regional snapshot directory}
+        target: /var/lib/cubers/snapshots
+        bind: { create_host_path: false }
+      - type: bind
+        source: ${CUBERS_OPERATOR_REQUEST_HOST_DIRECTORY:?Set the private operator request directory}
+        target: /private-operator
+        read_only: true
+        bind: { create_host_path: false }
+    network_mode: none
+    read_only: true
+    user: "1000:1000"
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    stop_grace_period: 150s
+    tmpfs:
+      [
+        "/maintenance-health:size=1048576,mode=0700,uid=1000,gid=1000,noexec,nosuid",
+      ]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          apps/api/dist/snapshot-expiry-cli.js,
+          health,
+          /maintenance-health,
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 150s
+    logging: { driver: json-file, options: { max-size: 10m, max-file: "3" } }
