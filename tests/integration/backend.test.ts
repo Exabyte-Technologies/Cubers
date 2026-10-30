@@ -133,7 +133,13 @@ let adminToken: string,
   adultId: string;
 let infrastructure: Infrastructure;
 registerActivityCalendarCases({ db, origin, cnOrigin, fixture, call });
-registerStepLessonCases({db,fixture,call,actor:communityActor,infra:()=>infrastructure});
+registerStepLessonCases({
+  db,
+  fixture,
+  call,
+  actor: communityActor,
+  infra: () => infrastructure,
+});
 registerServerRegionCases({
   db: db as Db,
   fixture,
@@ -22600,6 +22606,7 @@ test("operational Redis signals expire, recover and remain isolated between comm
     ...infrastructure.config,
     REDIS_URL: url.toString(),
   });
+  const cn = new Infrastructure({ ...local.config, REGION: "CN" });
   const keys = [
     "INTL:ops:v1:workers",
     "CN:ops:v1:workers",
@@ -22608,19 +22615,20 @@ test("operational Redis signals expire, recover and remain isolated between comm
       `CN:ops:v1:job:${job}`,
     ]),
   ];
-  assert.equal(
-    await local.redis.exists(...keys),
-    0,
-    "Telemetry fixture namespace is already in use",
-  );
-  const cn = new Infrastructure({ ...local.config, REGION: "CN" });
   const operations: Operations[] = [];
+  let fixtureOwned = false;
   const observe = async (client = local, database: any = db) => {
     const service = new Operations(database, client);
     operations.push(service);
     return service.snapshot();
   };
   try {
+    assert.equal(
+      await local.redis.exists(...keys),
+      0,
+      "Telemetry fixture namespace is already in use",
+    );
+    fixtureOwned = true;
     await local.telemetry.heartbeat("synthetic-operations-worker");
     await local.telemetry.outcome("maintenance", true);
     await local.telemetry.outcome("media", true);
@@ -22674,10 +22682,12 @@ test("operational Redis signals expire, recover and remain isolated between comm
     assert.ok(!JSON.stringify(sample).includes("sensitive"));
   } finally {
     for (const service of operations) await service.onApplicationShutdown();
-    await local.redis.del(...keys);
-    // BullMQ may initialize only these fixed queue metadata keys on inspection.
-    for (const region of ["INTL", "CN"])
-      await local.redis.del(`bull:cubers-${region}:meta`);
+    if (fixtureOwned) {
+      await local.redis.del(...keys);
+      // BullMQ may initialize only these fixed queue metadata keys on inspection.
+      for (const region of ["INTL", "CN"])
+        await local.redis.del(`bull:cubers-${region}:meta`);
+    }
     await local.close();
     await cn.close();
   }

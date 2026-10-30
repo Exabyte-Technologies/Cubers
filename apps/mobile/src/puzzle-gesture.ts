@@ -38,12 +38,16 @@ export class PuzzleGesture {
     return active.multiple ? undefined : delta;
   }
   finish(x: number, y: number): Point | undefined {
+    return this.finishGesture(x, y).tap;
+  }
+  finishGesture(x: number, y: number): { tap?: Point; drag: boolean } {
     this.move(x, y, 0);
     const active = this.active;
     this.cancel();
-    return active && !active.multiple && active.maximum < 8
-      ? active.start
-      : undefined;
+    if (!active || active.multiple) return { drag: false };
+    return active.maximum < 8
+      ? { tap: active.start, drag: false }
+      : { drag: true };
   }
   cancel() {
     this.active = undefined;

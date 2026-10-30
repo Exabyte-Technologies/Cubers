@@ -9,8 +9,10 @@ import {
   Switch,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { reloadAppAsync } from "expo";
+import { usePathname } from "expo-router";
 import { Scanner } from "../Scanner";
 import { ScanTurnReview } from "./ScanTurnReview";
 import Constants from "expo-constants";
@@ -644,6 +646,11 @@ export function DevelopmentTools() {
     c = useTheme(),
     insets = useSafeAreaInsets(),
     { t } = useApp();
+  const pathname = usePathname(),
+    { width } = useWindowDimensions();
+  const phoneLesson =
+    width < 700 &&
+    (pathname === "/first-solve" || pathname.startsWith("/lesson/"));
   if (!DEVELOPMENT_BUILD) return null;
   return (
     <>
@@ -653,10 +660,11 @@ export function DevelopmentTools() {
         onPress={() => setVisible(true)}
         style={{
           position: "absolute",
-          right: 16,
-          bottom: Math.max(insets.bottom, 16) + 82,
-          width: 52,
-          height: 52,
+          right: phoneLesson ? 100 : 16,
+          top: phoneLesson ? Math.max(insets.top, 4) + 2 : undefined,
+          bottom: phoneLesson ? undefined : Math.max(insets.bottom, 16) + 82,
+          width: phoneLesson ? 44 : 52,
+          height: phoneLesson ? 44 : 52,
           borderRadius: 26,
           backgroundColor: c.paper,
           borderWidth: 2,

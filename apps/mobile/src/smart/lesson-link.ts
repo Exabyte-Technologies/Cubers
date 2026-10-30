@@ -221,6 +221,33 @@ export class SmartLessonLink<T extends SmartConnectionView = SmartLessonView> {
   async finish() {
     return this.checkpoint(this.options.guided ? "checkpoint" : "finish");
   }
+  async continueWithoutCheck() {
+    if (!this.options.guided)
+      throw Error(
+        "Only guided units can continue without an intermediate check",
+      );
+    await this.flush(true);
+    if (
+      this.closed ||
+      this.flight ||
+      !this.row ||
+      !this.accepted ||
+      !this.latest ||
+      this.pending.length ||
+      stateKey(this.accepted) !== stateKey(this.latest.state)
+    )
+      throw Error("Wait for all received turns before continuing");
+    return this.track(
+      (async () => {
+        this.row = await this.api<T>(this.path(this.row!.id), {
+          action: "continue",
+          version: this.row!.version,
+          epoch: this.row!.smart.epoch,
+        });
+        this.publish();
+      })(),
+    );
+  }
   async replan() {
     if (!this.options.guided)
       throw Error("Only first-solve guidance can be updated");

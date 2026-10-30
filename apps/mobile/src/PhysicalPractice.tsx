@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import {
   practiceApply,
+  lessonAlgorithmCoaching,
   practiceSetup,
   practiceSolved,
   isPyraminx,
@@ -15,6 +16,8 @@ import {
 import { Scanner } from "./Scanner";
 import { PyraminxScanner } from "./PyraminxScanner";
 import { CubeView } from "./CubeView";
+import { useTutorial } from "./TutorialContext";
+import { AlgorithmCoach } from "./AlgorithmCoach";
 import { PyraminxView } from "./PyraminxView";
 import { useApp } from "./state";
 import { Card, Row, Button, Txt, Notice, Busy } from "./ui";
@@ -45,7 +48,8 @@ export function PhysicalPractice({
   onActiveChange?: (active: boolean) => void;
   onGuideChange?: (id?: string) => void;
 }) {
-  const { api, t } = useApp(),
+  const tutorial = useTutorial();
+  const { api, t, locale } = useApp(),
     [session, setSession] = useState<Saved>(),
     [busy, setBusy] = useState(true);
   const [scanning, setScanning] = useState<
@@ -142,6 +146,15 @@ export function PhysicalPractice({
     ),
     session?.moves || [],
   );
+  const coaching =
+    session?.status === "PRACTICING" && !uncertain && !scanning
+      ? lessonAlgorithmCoaching(
+          lesson,
+          session.moves,
+          locale,
+          session.guideId || undefined,
+        )
+      : null;
   const turns =
     lesson.puzzle === "pyraminx"
       ? [
@@ -205,10 +218,26 @@ export function PhysicalPractice({
           "请将实物摆成下方模型的状态。模型只根据你确认的转动更新，系统无法识别看不到的转动，请重新扫描核对。这是学习练习，不是排名证据。颜色配置请与课程参照配色一致。",
         )}
       />
+      <AlgorithmCoach
+        coaching={coaching}
+        cursor={session?.moves.length || 0}
+        disabled={busy || uncertain || !!scanning}
+        onAction={
+          session && coaching
+            ? () =>
+                void perform(() =>
+                  api<Saved>(`lesson-sessions/${session.id}/moves`, {
+                    version: session.version,
+                    moves: [coaching.nextMove],
+                  }),
+                )
+            : undefined
+        }
+      />
       {isPyraminx(expected) ? (
-        <PyraminxView state={expected} />
+        <PyraminxView state={expected} cueMove={coaching?.nextMove} />
       ) : (
-        <CubeView state={expected} />
+        <CubeView state={expected} cueMove={coaching?.nextMove} />
       )}
       <Card>
         <Txt style={{ fontWeight: "700", fontSize: 20 }}>
@@ -255,21 +284,25 @@ export function PhysicalPractice({
             )}
             {session.status === "PRACTICING" && (
               <>
-                <Txt selectable style={{ fontWeight: "700", fontSize: 20 }}>
-                  {session.guideAlgorithm || session.algorithm}
-                </Txt>
-                <Txt small>
-                  {t(
-                    "This saved practice retains its original guide. Finish or cancel it before starting with another sequence.",
-                    "本次已保存练习保留创建时的公式。请先完成或取消，再用其他公式创建新练习。",
-                  )}
-                </Txt>
-                <Txt small>
-                  {t(
-                    "After making a physical turn, tap its matching button once.",
-                    "实物每转动一次，就点击对应按钮确认一次。",
-                  )}
-                </Txt>
+                {!tutorial.observing && (
+                  <>
+                    <Txt selectable style={{ fontWeight: "700", fontSize: 20 }}>
+                      {session.guideAlgorithm || session.algorithm}
+                    </Txt>
+                    <Txt small>
+                      {t(
+                        "This saved practice retains its original guide. Finish or cancel it before starting with another sequence.",
+                        "本次已保存练习保留创建时的公式。请先完成或取消，再用其他公式创建新练习。",
+                      )}
+                    </Txt>
+                    <Txt small>
+                      {t(
+                        "After making a physical turn, tap its matching button once.",
+                        "实物每转动一次，就点击对应按钮确认一次。",
+                      )}
+                    </Txt>
+                  </>
+                )}
                 <MoveGrid
                   moves={[
                     ...new Set([

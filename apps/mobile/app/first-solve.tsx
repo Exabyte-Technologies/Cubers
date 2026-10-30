@@ -12,6 +12,8 @@ import {
   guidedGoal,
   guidedInverse,
   guidedTeaching,
+  algorithmCoaching,
+  teachingNotation,
   practiceApply,
   isPyraminx,
   GuidedPuzzle,
@@ -21,7 +23,8 @@ import {
   type PracticeState,
 } from "@cubers/core";
 import { LessonStageNotice } from "../src/LessonStageNotice";
-import { guidedMoveText } from "../src/guided-move-text";
+import { AlgorithmCoach } from "../src/AlgorithmCoach";
+import { useTutorialLayout } from "../src/useTutorialLayout";
 import { useApp } from "../src/state";
 import { CubeView } from "../src/CubeView";
 import { Scanner } from "../src/Scanner";
@@ -39,6 +42,7 @@ import {
   Chip,
   Notice,
   Busy,
+  LocaleButton,
   useTheme,
 } from "../src/ui";
 type Summary = {
@@ -100,6 +104,7 @@ function OrdinaryFirstSolvePage() {
       puzzle === "pyraminx"
         ? t("Pyraminx", "金字塔魔方")
         : puzzle.replace("x", "×");
+  const layout = useTutorialLayout();
   const scope = lessonStage(lessonId),
     courseId = scope?.id || guidedCourseId(puzzle),
     historyPath = `first-solves?puzzle=${puzzle}${scope ? `&lessonId=${scope.id}` : ""}`;
@@ -340,17 +345,69 @@ function OrdinaryFirstSolvePage() {
   const nextMove = session?.matchedGuide
     ? step?.moves[session.guideIndex]
     : undefined;
+  const coaching =
+    step && session
+      ? algorithmCoaching(
+          step,
+          session.currentFaces,
+          session.guideIndex,
+          puzzle,
+          locale,
+          session.matchedGuide,
+        )
+      : null;
   const activeStep = session?.status === "ACTIVE" && !scan;
   const disabled = busy || playing,
     shown = preview || state;
+  const focusedPhone = layout.compact && activeStep;
+  const canContinue =
+    !!session?.canContinueWithoutCheck &&
+    !!step &&
+    !!ready &&
+    session.matchedGuide &&
+    session.guideIndex === step.moves.length;
+  function continueUnit() {
+    if (!session || !canContinue) return;
+    void perform(() =>
+      api(`first-solves/${session.id}/continue`, { version: session.version }),
+    );
+  }
+  function checkStage() {
+    if (!session) return;
+    if (session.input === "scan") setScan("checkpoint");
+    else
+      void perform(() =>
+        api(`first-solves/${session.id}/checkpoint`, {
+          version: session.version,
+        }),
+      );
+  }
   return (
-    <Screen>
-      <Button
-        small
-        kind="secondary"
-        label={t("Learning paths", "返回学习路线")}
-        onPress={() => backOrReplace(router, "/(tabs)/learn")}
-      />
+    <Screen
+      compact={focusedPhone}
+      showAttribution={!focusedPhone || details}
+      stickyHeader={
+        focusedPhone ? (
+          <Row style={{ justifyContent: "space-between" }}>
+            <Button
+              small
+              kind="secondary"
+              label={t("Learning paths", "返回学习路线")}
+              onPress={() => backOrReplace(router, "/(tabs)/learn")}
+            />
+            <LocaleButton />
+          </Row>
+        ) : undefined
+      }
+    >
+      {!focusedPhone && (
+        <Button
+          small
+          kind="secondary"
+          label={t("Learning paths", "返回学习路线")}
+          onPress={() => backOrReplace(router, "/(tabs)/learn")}
+        />
+      )}
       {!activeStep && (
         <>
           <View
@@ -526,51 +583,95 @@ function OrdinaryFirstSolvePage() {
       teaching &&
       step ? (
         <>
-          <Card>
-            <Txt
-              small
-              style={{
-                color: c.green,
-                fontWeight: "600",
-                alignSelf: "flex-start",
-                backgroundColor: c.mint,
-                paddingHorizontal: 12,
-                paddingVertical: 7,
-                borderRadius: 14,
-              }}
-            >
-              {t(
-                `Checkpoint ${session.stage + 1} of ${session.total}`,
-                `第 ${session.stage + 1} 个检查点，共 ${session.total} 个`,
-              )}
-            </Txt>
-            <Txt style={{ fontSize: 23, fontWeight: "600" }}>
-              {teaching.title}
-            </Txt>
-            {details && <Txt>{teaching.why}</Txt>}
-            {nextMove && <Txt>{guidedMoveText(nextMove, locale, puzzle)}</Txt>}
+          <Card style={focusedPhone ? { padding: 12, gap: 8 } : undefined}>
+            <View style={{ gap: 2 }}>
+              <Txt
+                small
+                style={{
+                  color: c.green,
+                  fontWeight: "600",
+                  alignSelf: "flex-start",
+                  backgroundColor: c.mint,
+                  paddingHorizontal: focusedPhone ? 8 : 12,
+                  paddingVertical: focusedPhone ? 0 : 7,
+                  borderRadius: 14,
+                }}
+              >
+                {t(
+                  `Checkpoint ${session.stage + 1} of ${session.total}`,
+                  `第 ${session.stage + 1} 个检查点，共 ${session.total} 个`,
+                )}
+              </Txt>
+              <Txt
+                style={{
+                  fontSize: focusedPhone ? 18 : 23,
+                  lineHeight: focusedPhone ? 24 : 30,
+                  fontWeight: "600",
+                }}
+              >
+                {teaching.title}
+              </Txt>
+            </View>
+            <AlgorithmCoach
+              externalAction
+              coaching={coaching}
+              cursor={session.guideIndex}
+              fallback={
+                canContinue
+                  ? t(
+                      "This part is complete in the model. Continue to the next part.",
+                      "模型中的这一小节已完成，可以继续下一小节。",
+                    )
+                  : ready
+                    ? t(
+                        "This step is complete in the model. Check your cube.",
+                        "模型中的这一步已完成，请核对你的魔方。",
+                      )
+                    : t(
+                        "Your turns differ from the guide. Use More to undo, restart or rescan before following another suggested move.",
+                        "当前转动已偏离指导，请在“更多”中撤销、重试或重新扫描，再跟随下一步。",
+                      )
+              }
+              notice={
+                playing
+                  ? t(
+                      "Preview only; turns are not saved.",
+                      "仅为演示，不保存转动。",
+                    )
+                  : session.input === "scan"
+                    ? t(
+                        "Confirm your physical turns. The model cannot see hidden moves; scan again at the unit’s final check.",
+                        "请确认实物转动，模型看不到未记录的变化，单元最终检查时需重新扫描。",
+                      )
+                    : undefined
+              }
+            />
 
-            <Txt small>
-              {puzzle === "3x3"
-                ? t(
-                    "Hold white down and green toward you.",
-                    "白色朝下，绿色朝前。",
-                  )
-                : t(
-                    "Keep the model’s reference orientation.",
-                    "保持与模型一致的参照方向。",
-                  )}
-            </Txt>
-            {details && <Notice text={teaching.frame} />}
-            {session.input === "scan" && (
+            {!focusedPhone && !coaching && (
+              <Txt small>
+                {puzzle === "3x3" && !coaching
+                  ? t(
+                      "Hold white down and green toward you.",
+                      "白色朝下，绿色朝前。",
+                    )
+                  : t(
+                      "Keep the model’s reference orientation.",
+                      "保持与模型一致的参照方向。",
+                    )}
+              </Txt>
+            )}
+            {details && !focusedPhone && !coaching && (
+              <Notice text={teaching.frame} />
+            )}
+            {session.input === "scan" && !focusedPhone && (
               <Notice
                 text={t(
-                  "The model predicts confirmed turns. It cannot see hidden physical moves; scan again at every checkpoint.",
-                  "模型仅推算你确认的转动，无法看到实物未记录的变化；每个检查点都需要重新扫描。",
+                  "The model predicts confirmed turns. It cannot see hidden physical moves; scan again at the unit’s final check.",
+                  "模型仅推算你确认的转动，无法看到实物未记录的变化；单元最终检查时需要重新扫描。",
                 )}
               />
             )}
-            {playing && (
+            {playing && !focusedPhone && (
               <Notice
                 text={t(
                   "Watching a preview. These turns are not saved; your practice returns afterward.",
@@ -581,7 +682,10 @@ function OrdinaryFirstSolvePage() {
             {shown &&
               (isPyraminx(shown) ? (
                 <PyraminxView
+                  showFaces={!focusedPhone && details}
+                  height={focusedPhone ? layout.cubeHeight : 290}
                   state={shown}
+                  cueMove={playing ? undefined : nextMove}
                   lastMove={lastMove}
                   onTurn={
                     session.input === "virtual" && !disabled ? turn : undefined
@@ -589,7 +693,10 @@ function OrdinaryFirstSolvePage() {
                 />
               ) : (
                 <CubeView
-                  showFaces={details}
+                  height={focusedPhone ? layout.cubeHeight : 290}
+                  showFaces={details && !focusedPhone}
+                  cueMove={playing ? undefined : nextMove}
+                  teachingFrame={coaching?.frame}
                   state={shown}
                   lastMove={lastMove}
                   onTurn={
@@ -597,96 +704,146 @@ function OrdinaryFirstSolvePage() {
                   }
                 />
               ))}
-            {nextMove ? (
-              <Button
-                label={
-                  session.input === "virtual"
-                    ? t(
-                        `Try the next turn / ${nextMove}`,
-                        `试着转下一步 / ${nextMove}`,
-                      )
-                    : t(
-                        `I made this turn / ${nextMove}`,
-                        `我已转动这一步 / ${nextMove}`,
-                      )
-                }
-                onPress={() => turn(nextMove)}
-                disabled={disabled}
-              />
-            ) : (
-              <Txt small>
-                {ready
-                  ? t(
-                      "The model is ready for this checkpoint.",
-                      "模型状态已达到本项检查目标。",
-                    )
-                  : t(
-                      "You used a different route. Check the goal, reset virtual practice, or rescan your physical puzzle.",
-                      "你采用了不同的转动路线，请检查目标；也可以重置虚拟阶段，或重新扫描实物状态。",
-                    )}
-              </Txt>
-            )}
-            <Button
-              small
-              kind="secondary"
-              label={
-                details
-                  ? t(
-                      "Hide explanation and holding details",
-                      "收起原理与握持说明",
-                    )
-                  : t(
-                      "Why this works · holding details",
-                      "为什么这样转 · 握持说明",
-                    )
-              }
-              onPress={() => setDetails((v) => !v)}
-            />
-            {session.setupMoves && (
-              <Txt small selectable>
-                {t("Lesson setup: ", "课程打乱：") +
-                  session.setupMoves.join(" ")}
-              </Txt>
-            )}
-            <Txt small>{teaching.check}</Txt>
-            <Button
-              small
-              kind="secondary"
-              label={t("Watch the next short group", "观看下一组短转动")}
-              onPress={() => void watch()}
-              disabled={disabled || !nextMove || !session.matchedGuide}
-            />
-            {!!step.moves.length && (
-              <Txt small selectable>
-                {step.moves.join(" ")}
-              </Txt>
-            )}
             <View
-              style={{
-                borderTopWidth: 1,
-                borderTopColor: c.line,
-                paddingTop: 16,
-                gap: 12,
-              }}
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
             >
-              <DownloadButton
-                key={`${session.id}:${session.version}`}
-                id={courseId}
-                practice={{ id: session.id, version: session.version }}
-                disabled={disabled || session.stageMoves.length > 0}
-              />
-              <Txt small>
-                {t(
-                  "Download between checkpoints to follow this checked starting state offline. Offline work stays separate from saved progress.",
-                  "请在检查点之间、转动前下载，以便离线跟随当前已检查的起始状态。离线练习与已保存进度分开。",
+              <View style={{ flex: 1, minWidth: 0 }}>
+                {nextMove ? (
+                  <Button
+                    tutorialAction
+                    label={
+                      session.input === "virtual"
+                        ? t(
+                            `${focusedPhone ? "Next" : "Try the next turn"} / ${coaching?.nextMove || nextMove}`,
+                            `${focusedPhone ? "下一步" : "试着转下一步"} / ${coaching?.nextMove || nextMove}`,
+                          )
+                        : t(
+                            `${focusedPhone ? "Confirm" : "I made this turn"} / ${coaching?.nextMove || nextMove}`,
+                            `${focusedPhone ? "已转动" : "我已转动这一步"} / ${coaching?.nextMove || nextMove}`,
+                          )
+                    }
+                    onPress={() => turn(nextMove)}
+                    disabled={disabled}
+                  />
+                ) : focusedPhone ? (
+                  <Button
+                    label={
+                      canContinue
+                        ? t("Continue", "继续指导")
+                        : session.input === "scan"
+                          ? t("Scan and check", "扫描并检查")
+                          : t("Check this stage", "检查这一阶段")
+                    }
+                    disabled={
+                      disabled || (session.input === "virtual" && !ready)
+                    }
+                    onPress={canContinue ? continueUnit : checkStage}
+                  />
+                ) : (
+                  <Txt small>
+                    {ready
+                      ? t(
+                          "The model is ready for this checkpoint.",
+                          "模型状态已达到本项检查目标。",
+                        )
+                      : t(
+                          "You used a different route. Check the goal, reset virtual practice, or rescan your physical puzzle.",
+                          "你采用了不同的转动路线，请检查目标；也可以重置虚拟阶段，或重新扫描实物状态。",
+                        )}
+                  </Txt>
                 )}
-              </Txt>
+              </View>
+              {focusedPhone && (
+                <Button
+                  small
+                  kind="secondary"
+                  label={details ? t("Less", "收起") : t("More", "更多")}
+                  onPress={() => setDetails((v) => !v)}
+                />
+              )}
             </View>
           </Card>
-          {session.input === "virtual" && (
+          {(!focusedPhone || details) && (
+            <Card>
+              {canContinue && (
+                <Button
+                  label={t("Continue without checking", "暂不检查，继续指导")}
+                  disabled={disabled}
+                  onPress={continueUnit}
+                />
+              )}
+              {focusedPhone && (
+                <Button
+                  kind="secondary"
+                  label={t("Check this part now", "现在检查此小节")}
+                  disabled={disabled || (session.input === "virtual" && !ready)}
+                  onPress={checkStage}
+                />
+              )}
+              <Button
+                small
+                kind="secondary"
+                label={
+                  details
+                    ? t(
+                        "Hide explanation and holding details",
+                        "收起原理与握持说明",
+                      )
+                    : t(
+                        "Why this works · holding details",
+                        "为什么这样转 · 握持说明",
+                      )
+                }
+                onPress={() => setDetails((v) => !v)}
+              />
+              {session.setupMoves && (
+                <Txt small selectable>
+                  {t("Lesson setup: ", "课程打乱：") +
+                    session.setupMoves.join(" ")}
+                </Txt>
+              )}
+              {ready && <Txt small>{teaching.check}</Txt>}
+              <Button
+                small
+                kind="secondary"
+                label={t("Watch the next short group", "观看下一组短转动")}
+                tutorialDemo
+                onPress={() => void watch()}
+                disabled={disabled || !nextMove || !session.matchedGuide}
+              />
+              {!!step.moves.length && (
+                <Txt small selectable>
+                  {step.moves.join(" ")}
+                </Txt>
+              )}
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderTopColor: c.line,
+                  paddingTop: 16,
+                  gap: 12,
+                }}
+              >
+                <DownloadButton
+                  key={`${session.id}:${session.version}`}
+                  id={courseId}
+                  practice={{ id: session.id, version: session.version }}
+                  disabled={disabled || session.stageMoves.length > 0}
+                />
+                <Txt small>
+                  {t(
+                    "Download between checkpoints to follow this checked starting state offline. Offline work stays separate from saved progress.",
+                    "请在检查点之间、转动前下载，以便离线跟随当前已检查的起始状态。离线练习与已保存进度分开。",
+                  )}
+                </Txt>
+              </View>
+            </Card>
+          )}
+          {session.input === "virtual" && (!focusedPhone || details) && (
             <Card>
               <Txt small>{t("Try your own turns", "也可以尝试自己的转动")}</Txt>
               <MoveGrid
+                displayMove={(move) => teachingNotation(move, coaching?.frame)}
                 moves={
                   puzzle === "pyraminx"
                     ? [
@@ -765,24 +922,18 @@ function OrdinaryFirstSolvePage() {
               </Row>
             </Card>
           )}
-          <Button
-            label={
-              session.input === "virtual"
-                ? t("Check this stage", "检查这一阶段")
-                : t("Scan and check this stage", "扫描并检查这一阶段")
-            }
-            disabled={disabled || (session.input === "virtual" && !ready)}
-            onPress={() =>
-              session.input === "scan"
-                ? setScan("checkpoint")
-                : void perform(() =>
-                    api(`first-solves/${session.id}/checkpoint`, {
-                      version: session.version,
-                    }),
-                  )
-            }
-          />
-          {session.input === "scan" && (
+          {!focusedPhone && (
+            <Button
+              label={
+                session.input === "virtual"
+                  ? t("Check this stage", "检查这一阶段")
+                  : t("Scan and check this stage", "扫描并检查这一阶段")
+              }
+              disabled={disabled || (session.input === "virtual" && !ready)}
+              onPress={checkStage}
+            />
+          )}
+          {session.input === "scan" && (!focusedPhone || details) && (
             <Button
               kind="secondary"
               label={t("Rescan and update my guide", "重新扫描并更新指导")}
@@ -790,30 +941,32 @@ function OrdinaryFirstSolvePage() {
               onPress={() => setScan("recover")}
             />
           )}
-          <Row>
-            <Button
-              small
-              kind="secondary"
-              label={t("Reload saved practice", "重新读取练习")}
-              disabled={disabled}
-              onPress={() => void reload()}
-            />
-            <Button
-              small
-              kind="secondary"
-              label={t("End this practice", "结束这次练习")}
-              disabled={disabled}
-              onPress={() =>
-                void perform(() =>
-                  api(
-                    `first-solves/${session.id}`,
-                    { version: session.version },
-                    "DELETE",
-                  ),
-                )
-              }
-            />
-          </Row>
+          {(!focusedPhone || details) && (
+            <Row>
+              <Button
+                small
+                kind="secondary"
+                label={t("Reload saved practice", "重新读取练习")}
+                disabled={disabled}
+                onPress={() => void reload()}
+              />
+              <Button
+                small
+                kind="secondary"
+                label={t("End this practice", "结束这次练习")}
+                disabled={disabled}
+                onPress={() =>
+                  void perform(() =>
+                    api(
+                      `first-solves/${session.id}`,
+                      { version: session.version },
+                      "DELETE",
+                    ),
+                  )
+                }
+              />
+            </Row>
+          )}
         </>
       ) : !loading && !scan ? (
         <Card>
@@ -892,7 +1045,7 @@ function OrdinaryFirstSolvePage() {
           )}
         </Card>
       ) : null}
-      {!!history?.items.length && (
+      {!!history?.items.length && (!focusedPhone || details) && (
         <Card>
           <Txt style={{ fontWeight: "600" }}>
             {t("Private guided practice history", "私密的指导练习记录")}

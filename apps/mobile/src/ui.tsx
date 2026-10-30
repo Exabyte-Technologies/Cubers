@@ -22,6 +22,7 @@ import Svg, {
 import { useApp } from "./state";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Link } from "expo-router";
+import { TutorialProvider, useTutorial } from "./TutorialContext";
 import {
   lightPalette,
   darkPalette,
@@ -269,6 +270,8 @@ export function Button({
   small = false,
   tone,
   compact = false,
+  tutorialAction = false,
+  tutorialDemo = false,
 }: {
   label: string;
   onPress: () => void;
@@ -277,7 +280,31 @@ export function Button({
   small?: boolean;
   tone?: AccentTone;
   compact?: boolean;
+  tutorialAction?: boolean;
+  tutorialDemo?: boolean;
 }) {
+  const tutorial = useTutorial();
+  const { t } = useApp();
+  if (tutorialDemo) {
+    const action = onPress;
+    onPress = () => {
+      tutorial.showAlgorithm();
+      action();
+    };
+  }
+  if (tutorialAction && tutorial.instruction) {
+    if (tutorial.observing) {
+      label =
+        tutorial.instruction.kind === "regrip"
+          ? t("I’m holding it like this", "我已按此方向握持")
+          : t("Next", "下一步");
+      onPress = tutorial.next;
+    } else
+      label = t(
+        `I’ve made this turn · ${tutorial.flow?.coaching.nextMove}`,
+        `我已转动这一步 · ${tutorial.flow?.coaching.nextMove}`,
+      );
+  }
   const inheritedTone = useContext(Accent);
   const c = useTheme(),
     accent = accentColors(
@@ -499,21 +526,37 @@ export function Chip({
     </Pressable>
   );
 }
-export function Screen({
+export function Screen(props: React.ComponentProps<typeof ScreenContent>) {
+  return (
+    <TutorialProvider>
+      <ScreenContent {...props} />
+    </TutorialProvider>
+  );
+}
+function ScreenContent({
   children,
   stickyHeader,
   tone,
+  compact = false,
+  showAttribution = true,
 }: {
   children: React.ReactNode;
   stickyHeader?: React.ReactNode;
   tone?: AccentTone;
+  compact?: boolean;
+  showAttribution?: boolean;
 }) {
   const c = useTheme(),
     insets = useSafeAreaInsets(),
     { offline, t, token } = useApp();
+  const tutorial = useTutorial();
   return (
     <Accent.Provider value={tone}>
       <View
+        onStartShouldSetResponderCapture={(event) => {
+          tutorial.outside(event.nativeEvent.pageX, event.nativeEvent.pageY);
+          return false;
+        }}
         {...web({ hum: "app", mode: c.dark ? "dark" : "light" })}
         style={{ flex: 1, backgroundColor: c.bg }}
       >
@@ -524,9 +567,9 @@ export function Screen({
               width: "100%",
               maxWidth: 1000,
               alignSelf: "center",
-              paddingHorizontal: space.lg,
-              paddingTop: Math.max(space.md, insets.top),
-              paddingBottom: space.md,
+              paddingHorizontal: compact ? 8 : space.lg,
+              paddingTop: Math.max(compact ? 4 : space.md, insets.top),
+              paddingBottom: compact ? 4 : space.md,
               backgroundColor: c.bg,
               borderBottomWidth: 1,
               borderColor: c.line,
@@ -536,12 +579,16 @@ export function Screen({
           </View>
         )}
         <ScrollView
+          scrollEnabled={!tutorial.focused}
           style={{ flex: 1 }}
           contentContainerStyle={{
-            padding: space.lg,
-            paddingTop: Math.max(space.lg, insets.top),
-            paddingBottom: Math.max(space.xl, insets.bottom + space.lg),
-            gap: space.lg,
+            padding: compact ? 8 : space.lg,
+            paddingTop: compact ? 8 : Math.max(space.lg, insets.top),
+            paddingBottom: Math.max(
+              compact ? 8 : space.xl,
+              insets.bottom + (compact ? 8 : space.lg),
+            ),
+            gap: compact ? 8 : space.lg,
             width: "100%",
             maxWidth: 1000,
             alignSelf: "center",
@@ -594,26 +641,28 @@ export function Screen({
             </View>
           )}
           {children}
-          <Link
-            href="https://freeipapi.com"
-            {...web({ hum: "footer-link" })}
-            style={{
-              color: c.muted,
-              fontFamily: fonts.body,
-              fontSize: 12,
-              paddingVertical: space.md,
-              textAlign: "center",
-            }}
-            accessibilityLabel={t(
-              "IP Geolocation by FreeIPAPI",
-              "IP 地理位置数据由 FreeIPAPI 提供",
-            )}
-          >
-            {t(
-              "IP Geolocation by FreeIPAPI",
-              "IP 地理位置数据由 FreeIPAPI 提供",
-            )}
-          </Link>
+          {showAttribution && (
+            <Link
+              href="https://freeipapi.com"
+              {...web({ hum: "footer-link" })}
+              style={{
+                color: c.muted,
+                fontFamily: fonts.body,
+                fontSize: 12,
+                paddingVertical: space.md,
+                textAlign: "center",
+              }}
+              accessibilityLabel={t(
+                "IP Geolocation by FreeIPAPI",
+                "IP 地理位置数据由 FreeIPAPI 提供",
+              )}
+            >
+              {t(
+                "IP Geolocation by FreeIPAPI",
+                "IP 地理位置数据由 FreeIPAPI 提供",
+              )}
+            </Link>
+          )}
         </ScrollView>
       </View>
     </Accent.Provider>

@@ -113,6 +113,20 @@ Current package inspection and runtime results are recorded alongside the artifa
 
 ## Current artifacts
 
+The 2026-10-30 development packages include algorithm-focused tutorials, animated translucent ribbons around the turning layer’s side stickers, stable phone layouts, and optional continuation between parts of a unit. A final unit check is still required before completion credit. See [Tutorial algorithms and verification](TUTORIAL-ALGORITHMS.md).
+
+Both standalone packages contain current embedded Hermes code and both Chillax fonts. Source maps match **130 mobile files and 57 core files** on each platform. Android and iPhone native builds completed successfully; the iPhone build is a fresh Xcode build, not a repackaged older native runtime. All 57 generated production native source files were restored byte for byte afterward.
+
+| Package                                                                                                              | Purpose                                                                          | SHA-256                                                            |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| [Standalone Android tutorial APK](../artifacts/android/Cubers-0.1.0-development-arm64-20261030-tutorials.apk)        | ARM64; embedded code and fonts; starts without Metro                             | `fca97585ac351085eefbf3ceb381db1ad42fc5619ef595f8a562bc7ec0134c63` |
+| [Android Metro debug client](../artifacts/android/Cubers-0.1.0-development-metro-debug-arm64-20261030-tutorials.apk) | ARM64; loads code and fonts from Metro; native runtime reused when unchanged     | `bb3da2d6cdbac1b72ae9dfb8d7c63acbaa744a29d187bf6e87172f529bb67df1` |
+| [Unsigned iPhone tutorial IPA](../artifacts/ios/Cubers-0.1.0-development-unsigned-20261030-tutorials.ipa)            | ARM64, iOS 16+; embedded code and fonts; requires Apple provisioning and signing | `1718931f727c78c9016b95cba156f67eda6d9277fa6bb4dc8c41a4da8f2b637f` |
+
+These binaries are local, Git-ignored build artifacts. Their links work in this checkout; they are not published GitHub downloads. The unsigned IPA cannot be installed directly on an iPhone until it is appropriately signed and provisioned. Camera/physical-cube, real Bluetooth hardware and iPhone runtime acceptance remain open. Production activation gates are unchanged.
+
+### Earlier scanner-fix packages (2026-10-28)
+
 The [2026-10-28 scanner correction](SCANNER-RELIABILITY.md) replaces the flat turn cue with rigid projected 3D faces and improves camera alignment. The following packages contain it and the public-document retry correction. Android source maps match **126 mobile files**; iOS matches **125**, with platform-specific modules accounting for the difference. Bundled fonts and static package checks pass.
 
 | Package                                                                                                                  | Purpose                                                                                                        | SHA-256                                                            |
@@ -140,7 +154,7 @@ All 88 standalone IPA payload files and all 53 Metro-debug IPA payload files mat
 
 Open gear → Diagnostics → **Open React Native developer menu** in a native Metro debug runtime. The button is disabled in standalone optimized builds and on the web. The Android emulator verified that it opens React Native's actual menu. The final standalone APK also passed cold launch with one Cubers gear, persisted origins, and its live 2×2 camera grid after correcting the camera library's late device-discovery notification. The development-only native setup disables Expo's separate floating menu button/onboarding, preserving Cubers' own gear as the ordinary screen's development entry point. The local camera test under Diagnostics opens in a focused screen, requires no account and saves/sends no progress; see [AUTOMATIC-SCANNING.md](AUTOMATIC-SCANNING.md).
 
-For this Mac's current LAN setup, use **http://172.20.10.4:3000 in all three fields**. The app/Metro host is port 8081, admin is 4173, and signed development storage is 9009. This single local backend is INTL; no separate mainland backend runs. `npm run dev:lan` detects the current private IPv4 address and prints it. The machine-specific guide is saved outside this project at `/Users/jingwen.hu/Downloads/Cubers-Local-Development.md`. The address can change when switching networks.
+For this Mac's LAN setup, verified on 2026-10-30, use **http://192.168.50.129:3000 in all three fields**. The app/Metro host is port 8081, admin is 4173, and signed development storage is 9009. This single local backend is INTL; no separate mainland backend runs. `npm run dev:lan` detects the current private IPv4 address and prints it. The machine-specific guide is saved outside this project at `/Users/jingwen.hu/Downloads/Cubers-Local-Development.md`. The address can change when switching networks.
 
 ![Chinese development settings](../artifacts/screenshots/cubers-development-settings-web-zh-20261027.png)
 

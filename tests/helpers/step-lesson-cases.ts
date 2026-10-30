@@ -96,6 +96,76 @@ export function registerStepLessonCases(h: Harness) {
     assert.equal(view.status, "COMPLETED");
     return view;
   }
+  test("scanned and custom-color lessons can start alongside a saved practice in another unit", async () => {
+    const owner = await h.fixture("stage-scan-conflict", "1990-01-01");
+    const peer = await h.fixture("stage-scan-conflict-peer", "1990-01-01");
+    for (const input of ["scan", "virtual"]) {
+      const faces = guidedFacelets(lessonStageSetup("3-corners").state);
+      const full = await start(owner, "3-first-solve", input, faces);
+      assert.equal(full.status, 201, JSON.stringify(full.body));
+      const before = await h.db.guidedSolve.findUniqueOrThrow({
+        where: { id: full.body.id },
+      });
+      const corners = await start(owner, "3-corners", input, faces);
+      assert.equal(corners.status, 201, JSON.stringify(corners.body));
+      assert.equal(corners.body.lessonId, "3-corners");
+      assert.deepEqual(corners.body.currentFaces, faces);
+      const middle = await start(
+        owner,
+        "3-middle",
+        input,
+        guidedFacelets(lessonStageSetup("3-middle").state),
+      );
+      assert.equal(middle.status, 201, JSON.stringify(middle.body));
+      assert.equal(middle.body.lessonId, "3-middle");
+      // A second start in the same unit still requires an explicit resume/end.
+      const duplicate = await start(owner, "3-corners", input, faces);
+      assert.equal(duplicate.status, 409);
+      assert.match(duplicate.body.message, /Resume or end/);
+      assert.deepEqual(
+        await h.db.guidedSolve.findUniqueOrThrow({ where: { id: before.id } }),
+        before,
+        "Starting another unit must preserve the earlier practice exactly",
+      );
+      const history = await h.call(
+        "first-solves?puzzle=3x3&lessonId=3-corners",
+        undefined,
+        owner.token,
+      );
+      assert.equal(history.status, 200);
+      assert.ok(
+        history.body.active.some((row: any) => row.id === corners.body.id),
+      );
+      assert.ok(
+        history.body.items.every((row: any) => row.id !== full.body.id),
+      );
+    }
+    assert.equal(
+      await h.db.guidedSolve.count({
+        where: { userId: owner.u.id, status: "ACTIVE" },
+      }),
+      6,
+    );
+    const peerScan = await start(
+      peer,
+      "3-corners",
+      "scan",
+      guidedFacelets(lessonStageSetup("3-corners").state),
+    );
+    assert.equal(peerScan.status, 201, JSON.stringify(peerScan.body));
+    assert.equal(
+      await h.db.guidedSolve.count({ where: { userId: peer.u.id } }),
+      1,
+    );
+    assert.equal(
+      await h.db.progress.count({ where: { userId: owner.u.id } }),
+      0,
+    );
+    assert.equal(
+      await h.db.attempt.count({ where: { userId: owner.u.id } }),
+      0,
+    );
+  });
   test("stage tutorial rejects the wrong prerequisite or puzzle without storing a session and identifies the correct lesson", async () => {
     const owner = await h.fixture("stage-admission", "1990-01-01");
     const wrong = await start(
@@ -271,6 +341,107 @@ export function registerStepLessonCases(h: Harness) {
     );
     await finish(owner, view, true);
   });
+  for (const input of ["virtual", "scan"])
+    test(`unit continuation: ${input} defers intermediate checks without final credit or a final-check bypass`, async () => {
+      const owner = await h.fixture(`unit-${input}`, "1990-01-01"),
+        stranger = await h.fixture(`unit-other-${input}`, "1990-01-01");
+      const { inverse } = await import("@cubers/core");
+      const initial = practiceApply(
+        prepareGuidedState(solvedPuzzle("3x3")),
+        ["R", "F", "L", "B"].flatMap((f) => inverse([f, "U", f + "'", "U'"])),
+      );
+      const started = await start(
+        owner,
+        "3-corners",
+        input,
+        guidedFacelets(initial),
+      );
+      assert.equal(started.status, 201);
+      let view = started.body as GuidedSolveView,
+        continued = 0;
+      const endpoint = () => `first-solves/${view.id}/continue`;
+      assert.equal(
+        (await h.call(endpoint(), { version: view.version })).status,
+        401,
+      );
+      assert.equal(
+        (await h.call(endpoint(), { version: view.version }, stranger.token))
+          .status,
+        404,
+      );
+      assert.equal(
+        (await h.call(endpoint(), { version: view.version }, owner.token))
+          .status,
+        400,
+      );
+      for (let guard = 0; guard < 5; guard++) {
+        const moves = view.step!.moves;
+        if (moves.length) {
+          const moved = await h.call(
+            `first-solves/${view.id}/moves`,
+            { version: view.version, moves },
+            owner.token,
+          );
+          assert.equal(moved.status, 201);
+          view = moved.body;
+        }
+        assert.equal(
+          await h.db.progress.count({ where: { userId: owner.u.id } }),
+          0,
+        );
+        const previousVersion = view.version;
+        const next = await h.call(
+          endpoint(),
+          { version: view.version },
+          owner.token,
+        );
+        if (!view.canContinueWithoutCheck) {
+          assert.equal(next.status, 400);
+          break;
+        }
+        assert.equal(next.status, 201);
+        view = next.body;
+        continued++;
+        assert.equal(view.status, "ACTIVE");
+        assert.equal(view.checkpoints.at(-1)?.kind, "CONTINUE_UNCHECKED");
+        assert.equal(
+          (await h.call(endpoint(), { version: previousVersion }, owner.token))
+            .status,
+          409,
+        );
+      }
+      assert.ok(continued > 0);
+      assert.equal(view.canContinueWithoutCheck, false);
+      assert.equal(view.stage, 3);
+      if (input === "scan")
+        assert.equal(
+          (
+            await h.call(
+              `first-solves/${view.id}/checkpoint`,
+              { version: view.version },
+              owner.token,
+            )
+          ).status,
+          400,
+        );
+      const final = await h.call(
+        `first-solves/${view.id}/checkpoint`,
+        {
+          version: view.version,
+          ...(input === "scan" ? { faces: view.currentFaces } : {}),
+        },
+        owner.token,
+      );
+      assert.equal(final.status, 201);
+      assert.equal(final.body.status, "COMPLETED");
+      assert.equal(final.body.checkpoints.at(-1).kind, "CHECKPOINT");
+      assert.equal(
+        await h.db.progress.count({
+          where: { userId: owner.u.id, completed: true },
+        }),
+        1,
+      );
+    });
   test("smart stage guidance uses independent hardware colors and counters, refuses prerequisites and stops at corners", async () => {
     const owner = await h.fixture("stage-smart", "1990-01-01"),
       actor = await h.actor(owner);
@@ -345,6 +516,27 @@ export function registerStepLessonCases(h: Harness) {
             independentState: true,
           });
         }
+        if (view.guidance.canContinueWithoutCheck) {
+          view = await service.action(actor, view.id, {
+            action: "continue",
+            version: view.version,
+            epoch: view.smart.epoch,
+          });
+          assert.equal(view.status, "PRACTICING");
+          assert.equal(
+            await h.db.progress.count({ where: { userId: owner.u.id } }),
+            0,
+          );
+          continue;
+        }
+        await assert.rejects(
+          service.action(actor, view.id, {
+            action: "continue",
+            version: view.version,
+            epoch: view.smart.epoch,
+          }),
+          (e: any) => e.getStatus?.() === 400,
+        );
         view = await service.action(actor, view.id, {
           action: "checkpoint",
           version: view.version,

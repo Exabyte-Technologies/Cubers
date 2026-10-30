@@ -49,8 +49,8 @@ export function firstSolveTeaching(
           `放好第 ${step.target! - 3} 个白色角块`,
         ),
         why: t(
-          `Find the corner with ${targetColors}. Its home is where the ${home} meet. Short groups may lift it before inserting it; previously placed white corners return when a group finishes.`,
-          `找到带有${targetColors}的角块，目标位在${home}相交的位置。短转动组可能先取出角块，再将它插入；整组结束后，之前放好的白角会恢复。`,
+          `Find the corner with ${targetColors}. Its home is where the ${home} meet. Bring the working slot to the front-right as shown, align the corner above its home with U, then use the sexy move R U R' U'. Repeat the complete four moves as needed; the other white corners return after each complete trigger.`,
+          `找到带有${targetColors}的角块，目标位在${home}相交的位置。按模型让工作槽位位于前右方，用 U 把角块对齐到目标上方，再用右手四步 R U R' U' 插入。需要时重复完整四步，整组后其他白角会恢复。`,
         ),
         check: t(
           "This corner and the earlier white corners match the target color frame. After four corners, check the side colors as well as the white face.",
@@ -106,8 +106,8 @@ export function firstSolveTeaching(
         `放好第 ${step.target! - 3} 个白色角块`,
       ),
       why: t(
-        `Find the corner with ${targetColors}. Those three colors identify its home. A short group can lift a misplaced corner and insert it; white edges return when the group finishes.`,
-        `找到带有${targetColors}的角块，这三种颜色确定它的目标位置。短转动组可能先取出放错的角块，再插入目标位；整组结束后白棱会恢复。`,
+        `Find the corner with ${targetColors}; its three colors identify its home. Hold the working slot at the front-right, align the top corner above it, then use the sexy move R U R' U'. A trapped corner is lifted first with the same trigger. Repeat complete triggers until it fits; the cross and other bottom corners return after each group.`,
+        `找到带有${targetColors}的角块，用三个颜色确定目标槽位。让工作槽位位于前右方，把顶层角块对齐到槽位上方，再执行右手四步 R U R' U'。若角块卡在底层，先用同一公式取出。重复完整转动组直到归位，每组结束后十字和其他底角会恢复。`,
       ),
       check: t(
         "This corner and all previously checked white corners match their side centers. Keep the white cross intact.",

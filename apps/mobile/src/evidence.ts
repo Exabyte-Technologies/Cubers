@@ -1,6 +1,5 @@
 import { File } from "expo-file-system";
-import { fetch as nativeFetch } from "expo/fetch";
-import { withTimeout } from "./timeout";
+import { uploadNativeBinary } from "./native-binary-upload";
 type Api = (path: string, body?: unknown, method?: string) => Promise<any>;
 export async function uploadEvidence(
   api: Api,
@@ -16,17 +15,8 @@ export async function uploadEvidence(
     purpose: "evidence",
     attemptId,
   });
-  const response = await withTimeout(
-    (signal) =>
-      nativeFetch(upload.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": "video/mp4" },
-        signal,
-      }),
-    120000,
-  );
-  if (!response.ok)
+  const status = await uploadNativeBinary(upload.uploadUrl, file, "video/mp4");
+  if (status < 200 || status >= 300)
     throw new Error(
       "Recording upload failed. Keep the app open and try again.",
     );

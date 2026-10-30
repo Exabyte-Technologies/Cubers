@@ -18,6 +18,7 @@ import { z } from "zod";
 import { Prisma, type GuidedSolve } from "@prisma/client";
 import {
   lessonStage,
+  nextUnitStage,
   scopedLessonPlan,
   scopedLessonStart,
   lessonStageComplete,
@@ -393,6 +394,50 @@ export class SmartFirstSolveController {
               currentFaces: json(guidedFacelets(accepted.state)),
               moves: [...row.moves, ...accepted.moves],
               stageMoves,
+              version: { increment: 1 },
+            },
+          }),
+        );
+      }
+      if (request.action === "continue") {
+        const shown = guidedView(row),
+          plan = planOf(row);
+        if (
+          !shown.step ||
+          !shown.matchedGuide ||
+          shown.guideIndex !== shown.step.moves.length
+        )
+          throw new BadRequestException(
+            "Complete the algorithm before continuing without a check",
+          );
+        if (checkpoints.length >= 100)
+          throw new BadRequestException(
+            "Start a new practice after 100 checkpoints",
+          );
+        let stage: number;
+        try {
+          stage = nextUnitStage(plan.steps, row.stage, state, plan.lessonId);
+        } catch (error) {
+          throw new BadRequestException((error as Error).message);
+        }
+        return view(
+          await tx.guidedSolve.update({
+            where: { id },
+            data: {
+              stage,
+              stageMoves: [],
+              checkpointFaces: row.currentFaces as Prisma.InputJsonValue,
+              checkpoints: json([
+                ...checkpoints,
+                {
+                  kind: "CONTINUE_UNCHECKED",
+                  goal: shown.step.goal,
+                  ...(shown.step.target === undefined
+                    ? {}
+                    : { target: shown.step.target }),
+                  at: new Date().toISOString(),
+                },
+              ]),
               version: { increment: 1 },
             },
           }),

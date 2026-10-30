@@ -99,7 +99,44 @@ function conjugates(algorithms: string[]) {
   return [...result.values()];
 }
 const top = outer.filter((op) => op.moves[0][0] === "U");
-const cornerInsert = [...top, ...conjugates(["R U R'", "F' U F"])];
+// Teach a repeatable trigger rather than the shortest three-turn insertion.
+// These are the four y-frame equivalents of R U R' U'. No inverse trigger:
+// a beginner learns one muscle-memory pattern and repeats it when necessary.
+const cornerTriggers = conjugates(["R U R' U'"]).filter(
+  (op) => op.moves[0][0] !== "U",
+);
+const cornerInsert = [...top, ...cornerTriggers];
+function beginnerCorner(coordinate: number, target: number): Operation[] {
+  if (coordinate === target * 3) return [];
+  const result: Operation[] = [];
+  const use = (op: Operation) => {
+    result.push(op);
+    coordinate = op.corners[coordinate];
+  };
+  const triggerAt = (slot: number) => {
+    const op = cornerTriggers.find((op) => op.corners[slot * 3] !== slot * 3);
+    if (!op) throw Error("Missing beginner corner trigger");
+    return op;
+  };
+  // A corner trapped in the bottom layer must first be lifted. Each complete
+  // trigger restores the cross and every other bottom corner.
+  if (Math.floor(coordinate / 3) >= 4)
+    use(triggerAt(Math.floor(coordinate / 3)));
+  const above = target - 4;
+  if (Math.floor(coordinate / 3) !== above) {
+    const align = top.find(
+      (op) => Math.floor(op.corners[coordinate] / 3) === above,
+    );
+    if (!align) throw Error("Corner was not lifted to the top layer");
+    use(align);
+  }
+  const trigger = triggerAt(target);
+  for (let repeat = 0; coordinate !== target * 3 && repeat < 6; repeat++)
+    use(trigger);
+  if (coordinate !== target * 3)
+    throw Error("Beginner corner insertion failed");
+  return result;
+}
 const middleInsert = [
   ...top,
   ...conjugates(["U R U' R' U' F' U F", "U' L' U L U F U' F'"]),
@@ -219,25 +256,8 @@ export function planFirstSolve(input: CubeState): FirstSolvePlan {
   }
   save("cross", cross);
   for (let target = 4; target < 8; target++) {
-    const allowed = cornerInsert.filter((op) =>
-      preserves(
-        op,
-        [4, 5, 6, 7],
-        [4, 5, 6, 7].filter((id) => id < target),
-      ),
-    );
     const coordinate = pieceCoordinates(cube).corners[target];
-    save(
-      "corner",
-      search(
-        [coordinate],
-        "corners",
-        allowed,
-        ([code]) => code === target * 3,
-        24,
-      ),
-      target,
-    );
+    save("corner", beginnerCorner(coordinate, target), target);
   }
   for (let target = 8; target < 12; target++) {
     const allowed = middleInsert.filter((op) =>
@@ -336,22 +356,9 @@ function planTwoByTwo(input: CubeState): FirstSolvePlan {
     });
   };
   for (let target = 4; target < 8; target++) {
-    const allowed = cornerInsert.filter((op) =>
-      preserves(
-        op,
-        [],
-        [4, 5, 6, 7].filter((id) => id < target),
-      ),
-    );
     save(
       "corner",
-      search(
-        [twoByTwoCoordinates(cube)[target]],
-        "corners",
-        allowed,
-        ([code]) => code === target * 3,
-        24,
-      ),
+      beginnerCorner(twoByTwoCoordinates(cube)[target], target),
       target,
     );
   }

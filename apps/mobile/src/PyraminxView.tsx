@@ -12,6 +12,7 @@ import * as THREE from "three";
 import Svg, { Polygon, Text as SvgText } from "react-native-svg";
 import {
   PYRA_FACES,
+  PYRA_POINTS,
   pyraminxFacelets,
   COLORS,
   type PyraminxState,
@@ -24,8 +25,14 @@ import {
   clearPyraminxGroup as clear,
   pyraminxTurnAt,
   pyraminxAnimatedTurn,
+  previewPyraminxSelection,
+  pyraminxDragAngle,
 } from "./pyraminx-scene";
+import { useTutorial } from "./TutorialContext";
+import { highlightTutorialStickers } from "./tutorial-visuals";
 import { PuzzleGesture } from "./puzzle-gesture";
+import { buildPyraminxTurnCue, animateTurnCue } from "./turn-cue";
+import { syncPuzzleViewport } from "./puzzle-viewport";
 const build = (group: THREE.Group, state: PyraminxState) =>
   buildPyraminxGroup(group, state, Platform.OS !== "web");
 export function PyraminxNet({
@@ -83,21 +90,53 @@ export function PyraminxView({
   state,
   lastMove,
   onTurn,
+  cueMove,
+  height = 290,
+  showFaces = true,
 }: {
   state: PyraminxState;
   lastMove?: string;
   onTurn?: (move: string) => void;
+  cueMove?: string;
+  height?: number;
+  showFaces?: boolean;
 }) {
+  const tutorial = useTutorial(),
+    tutorialRef = useRef(tutorial),
+    windowRef = useRef<View>(null);
+  tutorialRef.current = tutorial;
+  const selected = useRef<string | null>(null),
+    lifted = useRef<string | null>(null),
+    lift = useRef(0),
+    dragAngle = useRef(0),
+    previewAngle = useRef(0),
+    start = useRef({ x: 0, y: 0 }),
+    released = useRef<{ angle: number; time: number } | null>(null),
+    viewAnimation = useRef<{
+      from: THREE.Quaternion;
+      to: THREE.Quaternion;
+      time: number;
+    } | null>(null),
+    visualKey = useRef("");
+  useEffect(() => {
+    if (!tutorial.focused || tutorial.observing) {
+      selected.current = null;
+      dragAngle.current = 0;
+    }
+  }, [tutorial.focused, tutorial.observing]);
   const c = useTheme(),
     { t } = useApp(),
     [error, setError] = useState(false),
     current = useRef(state),
     turnRef = useRef(onTurn),
+    cueRef = useRef(cueMove),
+    activeRef = useRef(AppState.currentState === "active"),
     reduced = useRef(false),
     gesture = useRef(new PuzzleGesture()),
     viewport = useRef({ width: 0, height: 0 });
   const scene = useRef<{
     group: THREE.Group;
+    cue: THREE.Group;
     renderer: THREE.WebGLRenderer;
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -111,8 +150,17 @@ export function PyraminxView({
     angle: number;
     started: number;
     next: PyraminxState;
+    fromAngle?: number;
   } | null>(null);
   turnRef.current = onTurn;
+  cueRef.current = tutorial.observing ? undefined : cueMove;
+  useEffect(() => {
+    const r = scene.current;
+    if (!r) return;
+    clear(r.cue);
+    buildPyraminxTurnCue(r.cue, cueMove, c.green);
+    r.dirty = true;
+  }, [cueMove, c.green]);
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(
       (value) => (reduced.current = value),
@@ -129,6 +177,9 @@ export function PyraminxView({
     current.current = state;
     if (!r) return;
     r.dirty = true;
+    previewPyraminxSelection(r.group, null, 0, 0);
+    dragAngle.current = 0;
+    previewAngle.current = 0;
     const move = pyraminxAnimatedTurn(previous, state, lastMove);
     if (move && !reduced.current) {
       if (animation.current) build(r.group, previous);
@@ -143,7 +194,9 @@ export function PyraminxView({
         angle: move.angle,
         started: performance.now(),
         next: state,
+        fromAngle: released.current?.angle || 0,
       };
+      released.current = null;
     } else {
       animation.current = null;
       build(r.group, state);
@@ -157,6 +210,7 @@ export function PyraminxView({
     if (r) {
       cancelAnimationFrame(r.frame);
       clear(r.group);
+      clear(r.cue);
       r.renderer.dispose();
     }
   }
@@ -165,7 +219,16 @@ export function PyraminxView({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderTerminationRequest: () => !tutorialRef.current.focused,
       onPanResponderGrant: (event, g) => {
+        windowRef.current?.measureInWindow((x, y, width, height) =>
+          tutorialRef.current.focus({ x, y, width, height }),
+        );
+        viewAnimation.current = null;
+        start.current = {
+          x: event.nativeEvent.locationX,
+          y: event.nativeEvent.locationY,
+        };
         gesture.current.begin(
           event.nativeEvent.locationX,
           event.nativeEvent.locationY,
@@ -176,34 +239,94 @@ export function PyraminxView({
         gesture.current.observeTouches(g.numberActiveTouches),
       onPanResponderMove: (_, g) => {
         const delta = gesture.current.move(g.dx, g.dy, g.numberActiveTouches);
-        if (scene.current && delta) {
+        if (
+          scene.current &&
+          delta &&
+          selected.current &&
+          turnRef.current &&
+          !tutorialRef.current.observing
+        ) {
+          dragAngle.current = pyraminxDragAngle(
+            scene.current.group,
+            scene.current.camera,
+            start.current,
+            { x: g.dx, y: g.dy },
+            viewport.current,
+            selected.current,
+          );
+          scene.current.dirty = true;
+        } else if (scene.current && delta) {
           scene.current.group.rotation.y += delta.x * 0.01;
           scene.current.group.rotation.x += delta.y * 0.01;
           scene.current.dirty = true;
         }
       },
       onPanResponderRelease: (_, g) => {
-        const point = gesture.current.finish(g.dx, g.dy),
+        const finished = gesture.current.finishGesture(g.dx, g.dy),
+          point = finished.tap,
           r = scene.current;
-        if (!point || !r || animation.current || !turnRef.current) return;
-        const move = pyraminxTurnAt(r.group, r.camera, point, viewport.current);
-        if (move) turnRef.current(move);
+        if (!r || animation.current || released.current) return;
+        if (
+          finished.drag &&
+          selected.current &&
+          turnRef.current &&
+          !tutorialRef.current.observing
+        )
+          dragAngle.current = pyraminxDragAngle(
+            r.group,
+            r.camera,
+            start.current,
+            { x: g.dx, y: g.dy },
+            viewport.current,
+            selected.current,
+          );
+        if (
+          finished.drag &&
+          selected.current &&
+          turnRef.current &&
+          !tutorialRef.current.observing &&
+          Math.abs(dragAngle.current) > 0.18
+        ) {
+          released.current = {
+            angle: previewAngle.current,
+            time: performance.now(),
+          };
+          const move = selected.current + (dragAngle.current > 0 ? "'" : "");
+          dragAngle.current = previewAngle.current;
+          turnRef.current(move);
+        } else if (point && turnRef.current && !tutorialRef.current.observing) {
+          const move = pyraminxTurnAt(
+            r.group,
+            r.camera,
+            point,
+            viewport.current,
+          );
+          selected.current = selected.current === move ? null : move || null;
+        }
+        if (!released.current) dragAngle.current = 0;
+        r.dirty = true;
       },
-      onPanResponderTerminate: () => gesture.current.cancel(),
+      onPanResponderTerminate: () => {
+        gesture.current.cancel();
+        dragAngle.current = 0;
+      },
     }),
   ).current;
   function context(gl: ExpoWebGLRenderingContext) {
     let initializing: THREE.WebGLRenderer | undefined;
     try {
-      const canvas = {
-        width: gl.drawingBufferWidth,
-        height: gl.drawingBufferHeight,
-        style: {},
-        addEventListener() {},
-        removeEventListener() {},
-        setAttribute() {},
-        getContext: () => gl,
-      };
+      const canvas =
+        Platform.OS === "web"
+          ? (gl as any).canvas
+          : {
+              width: gl.drawingBufferWidth,
+              height: gl.drawingBufferHeight,
+              style: {},
+              addEventListener() {},
+              removeEventListener() {},
+              setAttribute() {},
+              getContext: () => gl,
+            };
       const renderer = new THREE.WebGLRenderer({
         context: gl as any,
         canvas: canvas as any,
@@ -227,9 +350,12 @@ export function PyraminxView({
       light.position.set(4, 7, 6);
       world.add(light);
       const group = new THREE.Group();
+      const cue = new THREE.Group();
       world.add(group);
+      world.add(cue);
       scene.current = {
         group,
+        cue,
         renderer,
         scene: world,
         camera,
@@ -239,25 +365,113 @@ export function PyraminxView({
       };
       initializing = undefined;
       build(group, current.current);
+      buildPyraminxTurnCue(cue, cueRef.current, c.green);
+      const pixels = { width: -1, height: -1 };
       function draw() {
         const r = scene.current;
         if (!r) return;
         try {
-          const a = animation.current;
+          const a = animation.current,
+            now = performance.now(),
+            instruction = tutorialRef.current.instruction;
+          const key = JSON.stringify([instruction?.id, instruction?.text]);
+          if (visualKey.current !== key) {
+            visualKey.current = key;
+            r.dirty = true;
+            const target = instruction?.viewTarget;
+            if (target?.length === 4) {
+              const normal = new THREE.Vector3();
+              const index = target.indexOf(0);
+              if (index >= 0)
+                normal
+                  .copy(new THREE.Vector3(...PYRA_POINTS[index]))
+                  .negate()
+                  .normalize();
+              viewAnimation.current = {
+                from: r.group.quaternion.clone(),
+                to: new THREE.Quaternion().setFromUnitVectors(
+                  normal,
+                  r.camera.position.clone().normalize(),
+                ),
+                time: now,
+              };
+            }
+          }
+          const viewing = viewAnimation.current;
+          if (viewing && a) viewing.time = now;
+          if (viewing && !tutorialRef.current.focused && !a) {
+            const progress = reduced.current
+              ? 1
+              : Math.min(1, (now - viewing.time) / 600);
+            r.group.quaternion.slerpQuaternions(
+              viewing.from,
+              viewing.to,
+              progress * progress * (3 - 2 * progress),
+            );
+            if (progress === 1) viewAnimation.current = null;
+            r.dirty = true;
+          }
+          const highlighting = highlightTutorialStickers(
+            r.group,
+            instruction?.highlights || [],
+            now,
+            reduced.current,
+          );
+          if (!a) {
+            const wanted = selected.current ? 0.08 : 0;
+            lift.current = reduced.current
+              ? wanted
+              : lift.current + (wanted - lift.current) * 0.25;
+            if (selected.current) lifted.current = selected.current;
+            if (lift.current < 0.001 && !selected.current)
+              lifted.current = null;
+            if (released.current && now - released.current.time > 2000) {
+              released.current = null;
+              dragAngle.current = 0;
+            }
+            previewAngle.current = reduced.current
+              ? dragAngle.current
+              : previewAngle.current +
+                (dragAngle.current - previewAngle.current) * 0.35;
+            previewPyraminxSelection(
+              r.group,
+              lifted.current,
+              previewAngle.current,
+              lift.current,
+            );
+            if (selected.current || lift.current > 0.001) r.dirty = true;
+          }
+          const showCue = !!cueRef.current && !a && activeRef.current;
+          r.cue.visible = showCue;
+          r.cue.quaternion.copy(r.group.quaternion);
+          if (showCue)
+            animateTurnCue(r.cue, performance.now(), reduced.current);
           if (a) {
             const progress = reduced.current
               ? 1
               : Math.min(1, (performance.now() - a.started) / 210);
             a.group.quaternion.setFromAxisAngle(
               a.axis,
-              a.angle * (1 - (1 - progress) ** 3),
+              (a.fromAngle || 0) +
+                (a.angle - (a.fromAngle || 0)) * (1 - (1 - progress) ** 3),
             );
             if (progress === 1) {
               animation.current = null;
               build(r.group, a.next);
             }
           }
-          if (Platform.OS === "web" || r.dirty || a) {
+          const resized =
+            pixels.width !== r.gl.drawingBufferWidth ||
+            pixels.height !== r.gl.drawingBufferHeight;
+          if (
+            syncPuzzleViewport(pixels, r.gl, r.renderer, r.camera) &&
+            (Platform.OS === "web" ||
+              resized ||
+              r.dirty ||
+              highlighting ||
+              a ||
+              (showCue && !reduced.current))
+          ) {
             r.renderer.render(r.scene, r.camera);
             r.gl.endFrameEXP();
             r.dirty = false;
@@ -277,6 +491,7 @@ export function PyraminxView({
   }
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (status) => {
+      activeRef.current = status === "active";
       if (status === "active" && scene.current) scene.current.dirty = true;
     });
     return () => subscription.remove();
@@ -285,6 +500,14 @@ export function PyraminxView({
   return (
     <View style={{ gap: 12 }}>
       <View
+        ref={windowRef}
+        focusable
+        onFocus={() =>
+          windowRef.current?.measureInWindow((x, y, width, height) =>
+            tutorial.focus({ x, y, width, height }),
+          )
+        }
+        onBlur={() => tutorial.focus(null)}
         {...pan.panHandlers}
         onLayout={(event) => {
           viewport.current = {
@@ -295,7 +518,7 @@ export function PyraminxView({
         accessibilityLabel={
           onTurn
             ? t(
-                "Interactive Pyraminx. Drag to rotate the view. Tap a tip to turn only that tip, or a center sticker to turn its main layer clockwise.",
+                "Interactive Pyraminx. Drag to rotate the view. Tap a tip or center to select its layer, then drag to turn. Tap again to return to viewing.",
                 "交互金字塔。拖动改变视角，点击角尖仅转动该角尖，点击中心贴片以顺时针转动相应主层。",
               )
             : t(
@@ -304,8 +527,13 @@ export function PyraminxView({
               )
         }
         style={{
-          height: 290,
+          height,
           borderRadius: 24,
+          borderWidth: 3,
+          borderColor: tutorial.focused ? c.blue : "transparent",
+          ...(Platform.OS === "web"
+            ? ({ touchAction: "none", overscrollBehavior: "contain" } as any)
+            : {}),
           overflow: "hidden",
           backgroundColor: c.field,
         }}
@@ -321,7 +549,7 @@ export function PyraminxView({
           <GLView style={{ flex: 1 }} onContextCreate={context} />
         )}
       </View>
-      {onTurn && !error && (
+      {onTurn && !error && showFaces && (
         <Txt small>
           {t(
             "Drag to rotate the view. Tap a tip for a tip turn or a center sticker for a main-layer turn. Edge stickers do not turn a layer.",
@@ -329,18 +557,20 @@ export function PyraminxView({
           )}
         </Txt>
       )}
-      <Row style={{ justifyContent: "center" }}>
-        {PYRA_FACES.map((face) => (
-          <View
-            key={face}
-            style={{ gap: 5, alignItems: "center" }}
-            accessibilityLabel={`${face}: ${faces[face].join(" ")}`}
-          >
-            <Txt small>{face}</Txt>
-            <PyraminxNet colors={faces[face]} />
-          </View>
-        ))}
-      </Row>
+      {(showFaces || error) && (
+        <Row style={{ justifyContent: "center" }}>
+          {PYRA_FACES.map((face) => (
+            <View
+              key={face}
+              style={{ gap: 5, alignItems: "center" }}
+              accessibilityLabel={`${face}: ${faces[face].join(" ")}`}
+            >
+              <Txt small>{face}</Txt>
+              <PyraminxNet colors={faces[face]} />
+            </View>
+          ))}
+        </Row>
+      )}
     </View>
   );
 }

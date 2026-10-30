@@ -1,4 +1,5 @@
 import { lessonStageComplete } from "./lesson-stage";
+import { canContinueUnit, nextUnitStage } from "./unit-continuation";
 import { DownloadedLesson } from "./downloads";
 import {
   guidedState,
@@ -130,6 +131,13 @@ class OfflineGuidanceSession {
       needsScan: this.needsScan,
       faces: guidedFacelets(this.current),
       step: step ? structuredStep(step) : null,
+      guideIndex: index ?? 0,
+      matchedGuide: index !== undefined,
+      canContinueWithoutCheck: canContinueUnit(
+        snapshot.steps as GuidedSolveStep[],
+        this.stage,
+        snapshot.lessonId,
+      ),
       nextMove:
         this.needsScan || index === undefined ? undefined : step?.moves[index],
       canUndo: this.turns.length > 0,
@@ -192,6 +200,29 @@ class OfflineGuidanceSession {
       return;
     }
     throw new OfflineGuidanceError("STATE_DIFFERS");
+  }
+  continueWithoutCheck() {
+    this.check();
+    const snapshot = this.packet.guidedPractice!,
+      step = snapshot.steps[this.stage];
+    if (
+      !step ||
+      this.needsScan ||
+      this.prefixes[this.stage].get(practiceKey(this.current)) !==
+        step.moves.length
+    )
+      throw new OfflineGuidanceError("STATE_DIFFERS");
+    try {
+      this.stage = nextUnitStage(
+        snapshot.steps as GuidedSolveStep[],
+        this.stage,
+        this.current,
+        snapshot.lessonId,
+      );
+    } catch {
+      throw new OfflineGuidanceError("SCAN_REQUIRED");
+    }
+    this.turns = [];
   }
   checkpoint(faces?: Record<string, string[]>) {
     this.check();

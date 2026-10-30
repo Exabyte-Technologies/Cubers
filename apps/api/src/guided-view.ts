@@ -4,6 +4,7 @@ import {
   GuidedPuzzle,
   practiceKey,
   practiceApply,
+  canContinueUnit,
   type GuidedSolvePlan,
   type GuidedSolveView,
 } from "@cubers/core";
@@ -53,6 +54,10 @@ export function guidedView(row: GuidedSolve): GuidedSolveView {
     moveCount: row.moves.length,
     matchedGuide: guideIndex >= 0,
     guideIndex,
+    canContinueWithoutCheck:
+      !!step &&
+      status === "ACTIVE" &&
+      canContinueUnit(plan.steps, row.stage, plan.lessonId),
     createdAt: row.createdAt.toISOString(),
     expiresAt: row.expiresAt.toISOString(),
     finishedAt: row.finishedAt?.toISOString() || null,

@@ -15,14 +15,22 @@ import {
   facelets,
   stateKey,
   turn,
+  teachingNotation,
   type CubeState,
+  type Face,
 } from "@cubers/core";
 import {
   buildCubeGroup,
   clearCubeGroup as clear,
   cubeFaceAt,
+  cubeDragAngle,
+  previewCubeFace,
 } from "./cube-scene";
+import { useTutorial } from "./TutorialContext";
+import { highlightTutorialStickers } from "./tutorial-visuals";
 import { PuzzleGesture } from "./puzzle-gesture";
+import { buildTurnCue, animateTurnCue } from "./turn-cue";
+import { syncPuzzleViewport } from "./puzzle-viewport";
 import { Txt, Row, useTheme } from "./ui";
 import { useApp } from "./state";
 const build = (group: THREE.Group, state: CubeState) =>
@@ -33,20 +41,50 @@ export function CubeView({
   onTurn,
   height = 290,
   showFaces = true,
+  cueMove,
+  teachingFrame = 0,
 }: {
   state: CubeState;
   lastMove?: string;
   onTurn?: (move: string) => void;
   height?: number;
   showFaces?: boolean;
+  cueMove?: string;
+  teachingFrame?: number;
 }) {
   const { t } = useApp();
+  const tutorial = useTutorial(),
+    tutorialRef = useRef(tutorial),
+    windowRef = useRef<View>(null);
+  tutorialRef.current = tutorial;
+  const selectedFace = useRef<Face | null>(null),
+    liftedFace = useRef<Face | null>(null),
+    visualKey = useRef(""),
+    lift = useRef(0),
+    dragAngle = useRef(0),
+    previewAngle = useRef(0),
+    dragStart = useRef({ x: 0, y: 0 }),
+    releasedDrag = useRef<{ move: string; angle: number; time: number } | null>(
+      null,
+    ),
+    viewAnimation = useRef<{
+      from: THREE.Quaternion;
+      to: THREE.Quaternion;
+      time: number;
+    } | null>(null);
+  useEffect(() => {
+    if (!tutorial.focused || tutorial.observing) {
+      selectedFace.current = null;
+      dragAngle.current = 0;
+    }
+  }, [tutorial.focused, tutorial.observing]);
   const c = useTheme(),
     onTurnRef = useRef(onTurn),
     sceneRef = useRef<
       | {
           scene: THREE.Scene;
           group: THREE.Group;
+          cue: THREE.Group;
           renderer: THREE.WebGLRenderer;
           camera: THREE.PerspectiveCamera;
           gl: ExpoWebGLRenderingContext;
@@ -57,6 +95,9 @@ export function CubeView({
     >(undefined),
     current = useRef(state),
     moveRef = useRef(lastMove),
+    cueRef = useRef(cueMove),
+    teachingFrameRef = useRef(teachingFrame),
+    activeRef = useRef(AppState.currentState === "active"),
     [error, setError] = useState(""),
     reduced = useRef(false),
     gesture = useRef(new PuzzleGesture()),
@@ -67,8 +108,40 @@ export function CubeView({
       axis: number;
       angle: number;
       next: CubeState;
+      fromAngle?: number;
     } | null>(null);
   onTurnRef.current = onTurn;
+  cueRef.current = tutorial.observing ? undefined : cueMove;
+  teachingFrameRef.current = teachingFrame;
+  useEffect(() => {
+    const r = sceneRef.current;
+    if (!r) return;
+    clear(r.cue);
+    buildTurnCue(r.cue, cueMove, c.green, state.size);
+    r.dirty = true;
+  }, [cueMove, c.green, state.size]);
+  useEffect(() => {
+    const r = sceneRef.current;
+    if (!r) return;
+    const target = tutorial.instruction?.viewTarget;
+    if (!target && tutorial.instruction?.kind === "observe") return;
+    const to =
+      target?.length === 3 && new THREE.Vector3(...target).length() > 0
+        ? new THREE.Quaternion().setFromUnitVectors(
+            new THREE.Vector3(...target).normalize(),
+            r.camera.position.clone().normalize(),
+          )
+        : new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 1, 0),
+            (-teachingFrame * Math.PI) / 2,
+          );
+    viewAnimation.current = {
+      from: r.group.quaternion.clone(),
+      to,
+      time: performance.now(),
+    };
+    r.dirty = true;
+  }, [teachingFrame, tutorial.instruction?.id, tutorial.instruction?.text]);
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(
       (v) => (reduced.current = v),
@@ -86,6 +159,9 @@ export function CubeView({
       return;
     }
     r.dirty = true;
+    previewCubeFace(r.group, null, 0, 0);
+    dragAngle.current = 0;
+    previewAngle.current = 0;
     const move = lastMove,
       m = /^([URFDLBMESxyz])(w)?(2|')?$/.exec(move || "");
     let oneTurn = false;
@@ -129,7 +205,12 @@ export function CubeView({
         axis,
         angle: ((dir * Math.PI) / 2) * (suffix === "2" ? 2 : 1),
         next: state,
+        fromAngle:
+          releasedDrag.current?.move === move
+            ? (releasedDrag.current?.angle || 0) * ("RUF".includes(f) ? 1 : -1)
+            : 0,
       };
+      releasedDrag.current = null;
     } else {
       animation.current = null;
       build(r.group, state);
@@ -143,6 +224,7 @@ export function CubeView({
       if (r) {
         cancelAnimationFrame(r.frame);
         clear(r.group);
+        clear(r.cue);
         r.renderer.dispose();
         sceneRef.current = undefined;
         gesture.current.cancel();
@@ -154,7 +236,16 @@ export function CubeView({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      onPanResponderTerminationRequest: () => !tutorialRef.current.focused,
       onPanResponderGrant: (event, g) => {
+        windowRef.current?.measureInWindow((x, y, width, height) =>
+          tutorialRef.current.focus({ x, y, width, height }),
+        );
+        viewAnimation.current = null;
+        dragStart.current = {
+          x: event.nativeEvent.locationX,
+          y: event.nativeEvent.locationY,
+        };
         gesture.current.begin(
           event.nativeEvent.locationX,
           event.nativeEvent.locationY,
@@ -166,33 +257,96 @@ export function CubeView({
       onPanResponderMove: (_, g) => {
         const delta = gesture.current.move(g.dx, g.dy, g.numberActiveTouches);
         const r = sceneRef.current;
-        if (r && delta) {
+        if (
+          r &&
+          delta &&
+          selectedFace.current &&
+          onTurnRef.current &&
+          !tutorialRef.current.observing
+        ) {
+          dragAngle.current = cubeDragAngle(
+            r.group,
+            r.camera,
+            dragStart.current,
+            { x: g.dx, y: g.dy },
+            viewport.current,
+            selectedFace.current,
+          );
+          r.dirty = true;
+        } else if (r && delta) {
           r.group.rotation.y += delta.x * 0.01;
           r.group.rotation.x += delta.y * 0.01;
           r.dirty = true;
         }
       },
       onPanResponderRelease: (_, g) => {
-        const point = gesture.current.finish(g.dx, g.dy),
+        const finished = gesture.current.finishGesture(g.dx, g.dy),
+          point = finished.tap,
           r = sceneRef.current;
-        if (!point || !r || animation.current || !onTurnRef.current) return;
-        const face = cubeFaceAt(r.group, r.camera, point, viewport.current);
-        if (face) onTurnRef.current(face);
+        if (!r || animation.current || releasedDrag.current) return;
+        if (
+          finished.drag &&
+          selectedFace.current &&
+          onTurnRef.current &&
+          !tutorialRef.current.observing
+        ) {
+          dragAngle.current = cubeDragAngle(
+            r.group,
+            r.camera,
+            dragStart.current,
+            { x: g.dx, y: g.dy },
+            viewport.current,
+            selectedFace.current,
+          );
+        }
+        if (
+          finished.drag &&
+          selectedFace.current &&
+          onTurnRef.current &&
+          !tutorialRef.current.observing &&
+          Math.abs(dragAngle.current) > 0.18
+        ) {
+          const move =
+            selectedFace.current + (dragAngle.current > 0 ? "'" : "");
+          releasedDrag.current = {
+            move,
+            angle: previewAngle.current,
+            time: performance.now(),
+          };
+          dragAngle.current = previewAngle.current;
+          onTurnRef.current(move);
+        } else if (
+          point &&
+          onTurnRef.current &&
+          !tutorialRef.current.observing
+        ) {
+          const face = cubeFaceAt(r.group, r.camera, point, viewport.current);
+          selectedFace.current =
+            face === selectedFace.current ? null : face || null;
+        }
+        if (!releasedDrag.current) dragAngle.current = 0;
+        r.dirty = true;
       },
-      onPanResponderTerminate: () => gesture.current.cancel(),
+      onPanResponderTerminate: () => {
+        gesture.current.cancel();
+        dragAngle.current = 0;
+      },
     }),
   ).current;
   async function context(gl: ExpoWebGLRenderingContext) {
     try {
-      const canvas = {
-        width: gl.drawingBufferWidth,
-        height: gl.drawingBufferHeight,
-        style: {},
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        setAttribute: () => {},
-        getContext: () => gl,
-      };
+      const canvas =
+        Platform.OS === "web"
+          ? (gl as any).canvas
+          : {
+              width: gl.drawingBufferWidth,
+              height: gl.drawingBufferHeight,
+              style: {},
+              addEventListener: () => {},
+              removeEventListener: () => {},
+              setAttribute: () => {},
+              getContext: () => gl,
+            };
       const renderer = new THREE.WebGLRenderer({
         context: gl as any,
         canvas: canvas as any,
@@ -215,25 +369,111 @@ export function CubeView({
       light.position.set(4, 7, 6);
       scene.add(light);
       const group = new THREE.Group();
+      const cue = new THREE.Group();
       scene.add(group);
+      scene.add(cue);
+      group.rotation.y = (-teachingFrameRef.current * Math.PI) / 2;
       build(group, current.current);
+      buildTurnCue(cue, cueRef.current, c.green, current.current.size);
       sceneRef.current = {
         scene,
         renderer,
         camera,
         group,
+        cue,
         gl,
         frame: 0,
         dirty: true,
       };
+      const pixels = { width: -1, height: -1 };
       function draw() {
         const r = sceneRef.current;
         if (!r) return;
         const a = animation.current;
+        const now = performance.now();
+        const viewing = viewAnimation.current;
+        if (viewing && a) viewing.time = now;
+        if (viewing && !tutorialRef.current.focused && !a) {
+          const progress = reduced.current
+            ? 1
+            : Math.min(1, (now - viewing.time) / 600);
+          r.group.quaternion.slerpQuaternions(
+            viewing.from,
+            viewing.to,
+            progress * progress * (3 - 2 * progress),
+          );
+          if (progress === 1) viewAnimation.current = null;
+          r.dirty = true;
+        }
+        const instruction = tutorialRef.current.instruction;
+        const key = JSON.stringify([
+          instruction?.id,
+          instruction?.text,
+          teachingFrameRef.current,
+        ]);
+        if (visualKey.current !== key) {
+          visualKey.current = key;
+          r.dirty = true;
+          const target = instruction?.viewTarget;
+          const to =
+            target?.length === 3 && new THREE.Vector3(...target).length() > 0
+              ? new THREE.Quaternion().setFromUnitVectors(
+                  new THREE.Vector3(...target).normalize(),
+                  r.camera.position.clone().normalize(),
+                )
+              : new THREE.Quaternion().setFromAxisAngle(
+                  new THREE.Vector3(0, 1, 0),
+                  (-teachingFrameRef.current * Math.PI) / 2,
+                );
+          if (target || instruction?.kind !== "observe")
+            viewAnimation.current = {
+              from: r.group.quaternion.clone(),
+              to,
+              time: now,
+            };
+        }
+        const targets = instruction?.highlights || [];
+        const highlighting = highlightTutorialStickers(
+          r.group,
+          targets,
+          now,
+          reduced.current,
+        );
+        if (!a) {
+          const wanted = selectedFace.current ? 0.08 : 0;
+          lift.current = reduced.current
+            ? wanted
+            : lift.current + (wanted - lift.current) * 0.25;
+          if (selectedFace.current) liftedFace.current = selectedFace.current;
+          if (lift.current < 0.001 && !selectedFace.current)
+            liftedFace.current = null;
+          if (releasedDrag.current && now - releasedDrag.current.time > 2000) {
+            releasedDrag.current = null;
+            dragAngle.current = 0;
+          }
+          previewAngle.current = reduced.current
+            ? dragAngle.current
+            : previewAngle.current +
+              (dragAngle.current - previewAngle.current) * 0.35;
+          previewCubeFace(
+            r.group,
+            liftedFace.current,
+            previewAngle.current,
+            lift.current,
+          );
+          if (selectedFace.current || lift.current > 0.001) r.dirty = true;
+        }
+        const showCue = !!cueRef.current && !a && activeRef.current;
+        r.cue.visible = showCue;
+        r.cue.quaternion.copy(r.group.quaternion);
+        if (showCue) animateTurnCue(r.cue, performance.now(), reduced.current);
         if (a) {
-          const progress = Math.min(1, (performance.now() - a.time) / 180);
+          const progress = reduced.current
+            ? 1
+            : Math.min(1, (performance.now() - a.time) / 180);
           a.group.rotation[(["x", "y", "z"] as const)[a.axis]] =
-            a.angle * (1 - (1 - progress) ** 3);
+            (a.fromAngle || 0) +
+            (a.angle - (a.fromAngle || 0)) * (1 - (1 - progress) ** 3);
           if (progress === 1) {
             animation.current = null;
             build(r.group, a.next);
@@ -241,7 +481,18 @@ export function CubeView({
         }
         // Idle puzzles do not enqueue another full native GL draw every frame.
         // Software-backed contexts otherwise starve move and navigation events.
-        if (Platform.OS === "web" || r.dirty || a) {
+        const resized =
+          pixels.width !== gl.drawingBufferWidth ||
+          pixels.height !== gl.drawingBufferHeight;
+        if (
+          syncPuzzleViewport(pixels, gl, r.renderer, r.camera) &&
+          (Platform.OS === "web" ||
+            resized ||
+            r.dirty ||
+            highlighting ||
+            a ||
+            (showCue && !reduced.current))
+        ) {
           r.renderer.render(r.scene, r.camera);
           gl.endFrameEXP();
           r.dirty = false;
@@ -256,8 +507,10 @@ export function CubeView({
       if (failed) {
         cancelAnimationFrame(failed.frame);
         clear(failed.group);
+        clear(failed.cue);
         failed.renderer.dispose();
       }
+      tutorialRef.current.focus(null);
       setError(
         t(
           "3D rendering unavailable on this device. The labeled face view below remains usable.",
@@ -268,6 +521,7 @@ export function CubeView({
   }
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (status) => {
+      activeRef.current = status === "active";
       if (status === "active" && sceneRef.current)
         sceneRef.current.dirty = true;
     });
@@ -277,11 +531,19 @@ export function CubeView({
   return (
     <View style={{ gap: 12 }}>
       <View
+        ref={windowRef}
+        focusable
+        onFocus={() =>
+          windowRef.current?.measureInWindow((x, y, width, height) =>
+            tutorial.focus({ x, y, width, height }),
+          )
+        }
+        onBlur={() => tutorial.focus(null)}
         accessibilityLabel={
           (onTurn
             ? t(
-                "Interactive 3D puzzle. Drag to rotate the view. Tap a colored sticker to turn its face clockwise.",
-                "交互三维魔方。拖动改变视角，点击彩色贴片以顺时针转动该面。",
+                "Interactive 3D puzzle. Drag to view. Tap a face to select it, then drag to turn. Tap it again to return to viewing.",
+                "交互三维魔方。拖动改变视角。点击一个面选中后拖动转动该面，再次点击恢复视角模式。",
               )
             : t(
                 "Read-only 3D puzzle. Drag to rotate the view.",
@@ -309,6 +571,11 @@ export function CubeView({
         style={{
           height,
           borderRadius: 24,
+          borderWidth: 3,
+          borderColor: tutorial.focused ? c.blue : "transparent",
+          ...(Platform.OS === "web"
+            ? ({ touchAction: "none", overscrollBehavior: "contain" } as any)
+            : {}),
           overflow: "hidden",
           backgroundColor: c.field,
         }}
@@ -326,11 +593,11 @@ export function CubeView({
           {FACES.map((f) => (
             <View
               key={f}
-              accessibilityLabel={`Face ${f}: ${faces[f].join(" ")}`}
+              accessibilityLabel={`Face ${teachingNotation(f, teachingFrame)}: ${faces[f].join(" ")}`}
               style={{ gap: 5, alignItems: "center" }}
             >
               <Txt small style={{ fontWeight: "700" }}>
-                {f}
+                {teachingNotation(f, teachingFrame)}
               </Txt>
               <View
                 style={{

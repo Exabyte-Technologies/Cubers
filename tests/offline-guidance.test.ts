@@ -289,3 +289,37 @@ test("physical scans outside the admitted path cannot change the model or silent
     code("STATE_DIFFERS"),
   );
 });
+
+test("offline continuation skips only intermediate model checks and still requires fresh physical scans at unit ends", async () => {
+  for (const input of ["virtual", "scan"] as const) {
+    const packet = fixture("3x3", input),
+      session = await openOfflineGuidance(packet, options);
+    if (input === "scan")
+      session.resumePhysical(packet.guidedPractice!.startingFaces);
+    let continued = 0,
+      checked = 0;
+    for (let guard = 0; guard < 14 && !session.view().completed; guard++) {
+      const before = session.view();
+      if (
+        !before.canContinueWithoutCheck ||
+        before.guideIndex !== before.step!.moves.length
+      )
+        assert.throws(() => session.continueWithoutCheck());
+      for (const move of before.step!.moves) session.turn(move);
+      const view = session.view();
+      if (view.canContinueWithoutCheck) {
+        session.continueWithoutCheck();
+        continued++;
+      } else {
+        assert.throws(() => session.continueWithoutCheck());
+        if (input === "scan") {
+          assert.throws(() => session.checkpoint(), code("SCAN_REQUIRED"));
+          session.checkpoint(view.faces);
+        } else session.checkpoint();
+        checked++;
+      }
+    }
+    assert.equal(session.view().completed, true);
+    assert.ok(continued > 0 && checked > 0);
+  }
+});

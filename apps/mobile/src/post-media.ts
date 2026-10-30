@@ -1,7 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { File, Paths } from "expo-file-system";
-import { fetch as nativeFetch } from "expo/fetch";
-import { withTimeout } from "./timeout";
+import { uploadNativeBinary } from "./native-binary-upload";
 import {
   checkPostFile,
   selectedImageType,
@@ -52,17 +51,9 @@ export async function choosePostMedia(
       aiDeclared,
     });
     id = upload.id;
-    const response = await withTimeout(
-      (signal) =>
-        nativeFetch(upload.uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": type },
-          body: file,
-          signal,
-        }),
-      120000,
-    );
-    if (!response.ok) throw new Error("Upload failed · 上传失败");
+    const status = await uploadNativeBinary(upload.uploadUrl, file, type);
+    if (status < 200 || status >= 300)
+      throw new Error("Upload failed · 上传失败");
     await api(`media/${id}/complete`, {});
     return { id: id!, type, aiDeclared };
   } catch (error) {

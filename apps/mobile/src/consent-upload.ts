@@ -1,7 +1,6 @@
 import * as DocumentPicker from "expo-document-picker";
 import { File } from "expo-file-system";
-import { fetch as nativeFetch } from "expo/fetch";
-import { withTimeout } from "./timeout";
+import { uploadNativeBinary } from "./native-binary-upload";
 type Api = (path: string, body?: unknown) => Promise<any>;
 export async function chooseConsent(api: Api): Promise<string | null> {
   const result = await DocumentPicker.getDocumentAsync({
@@ -21,17 +20,13 @@ export async function chooseConsent(api: Api): Promise<string | null> {
       type: "application/pdf",
       size: file.size,
     });
-    const response = await withTimeout(
-      (signal) =>
-        nativeFetch(upload.uploadUrl, {
-          method: "PUT",
-          headers: { "Content-Type": "application/pdf" },
-          body: file,
-          signal,
-        }),
-      120000,
+    const status = await uploadNativeBinary(
+      upload.uploadUrl,
+      file,
+      "application/pdf",
     );
-    if (!response.ok) throw new Error("Private upload failed · 私密上传失败");
+    if (status < 200 || status >= 300)
+      throw new Error("Private upload failed · 私密上传失败");
     await api(`media/${upload.id}/complete`, {});
     return upload.id;
   } finally {

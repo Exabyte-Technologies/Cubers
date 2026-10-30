@@ -30,6 +30,8 @@ import {
 import { useApp } from "./state";
 import { Card, Row, Button, Txt, Notice, Field } from "./ui";
 import { CubeView } from "./CubeView";
+import { algorithmCoaching, lessonAlgorithmCoaching } from "@cubers/core";
+import { AlgorithmCoach } from "./AlgorithmCoach";
 import {
   createSmartLessonRadio,
   type SmartRadio,
@@ -376,6 +378,22 @@ export function SmartPractice({
       }
     }
   }
+  async function continueUnit() {
+    if (operation.current || !link.current) return;
+    operation.current = true;
+    const epoch = generation.current;
+    setBusy(true);
+    try {
+      await link.current.continueWithoutCheck();
+    } catch (error) {
+      if (epoch === generation.current) setMessage((error as Error).message);
+    } finally {
+      if (epoch === generation.current) {
+        operation.current = false;
+        setBusy(false);
+      }
+    }
+  }
   async function refresh() {
     if (operation.current || !device.current) return;
     const epoch = generation.current,
@@ -430,6 +448,25 @@ export function SmartPractice({
   const teaching = guidance?.step
     ? guidedTeaching(guidance.step, guidance.currentFaces, locale, "3x3")
     : undefined;
+  const coaching = guidance?.step
+    ? algorithmCoaching(
+        guidance.step,
+        guidance.currentFaces,
+        guidance.guideIndex,
+        "3x3",
+        locale,
+        guidance.matchedGuide,
+      )
+    : null;
+  const drill =
+    saved && "moves" in saved && saved.status === "PRACTICING"
+      ? lessonAlgorithmCoaching(
+          lesson,
+          saved.moves,
+          locale,
+          saved.guideId || undefined,
+        )
+      : null;
   const checkpointReady =
     state &&
     (guided
@@ -497,7 +534,17 @@ export function SmartPractice({
         );
         await demonstrateState(
           initial,
-          row.guidance.step.moves.slice(row.guidance.guideIndex),
+          (() => {
+            let offset = 0;
+            for (const block of row.guidance.step!.blocks) {
+              if (offset + block.length > row.guidance.guideIndex)
+                return block.slice(
+                  Math.max(0, row.guidance.guideIndex - offset),
+                );
+              offset += block.length;
+            }
+            return [];
+          })(),
           task,
           (frame) => {
             if (epoch === generation.current && "size" in frame.state) {
@@ -676,21 +723,37 @@ export function SmartPractice({
           <Txt style={{ fontSize: 22, fontWeight: "700" }}>
             {teaching.title}
           </Txt>
-          <Txt>{teaching.why}</Txt>
-          {guidance.step.moves[guidance.guideIndex] && (
-            <Txt>
-              {guidedMoveText(
-                guidance.step.moves[guidance.guideIndex],
-                locale,
-                "3x3",
-              )}
-            </Txt>
-          )}
+          <AlgorithmCoach coaching={coaching} cursor={guidance.guideIndex} />
+          {!coaching &&
+            guidance.matchedGuide &&
+            guidance.step.moves[guidance.guideIndex] && (
+              <Txt>
+                {guidedMoveText(
+                  guidance.step.moves[guidance.guideIndex],
+                  locale,
+                  "3x3",
+                )}
+              </Txt>
+            )}
         </>
+      )}
+      {drill && (
+        <AlgorithmCoach
+          coaching={drill}
+          cursor={saved && "moves" in saved ? saved.moves.length : 0}
+        />
       )}
       {(preview || state) && (
         <CubeView
           showFaces={!guided}
+          cueMove={
+            !preview
+              ? guidance?.matchedGuide
+                ? guidance.step?.moves[guidance.guideIndex]
+                : drill?.nextMove
+              : undefined
+          }
+          teachingFrame={coaching?.frame}
           state={(preview || state)!}
           lastMove={preview ? previewMove : lastMove}
         />
@@ -704,16 +767,19 @@ export function SmartPractice({
       )}
       {guidance?.step && teaching && (
         <>
-          <Notice text={teaching.frame} />
-          <Txt small>{teaching.check}</Txt>
-          <Txt selectable>
-            {guidance.step.moves.join(" ") ||
-              t(
-                "This goal already matches your position; refresh and verify it.",
-                "当前状态已经符合此目标，请刷新并验证。",
-              )}
-          </Txt>
-          {guidance.matchedGuide &&
+          {!coaching && <Notice text={teaching.frame} />}
+          {!coaching && checkpointReady && <Txt small>{teaching.check}</Txt>}
+          {!coaching && (
+            <Txt selectable>
+              {guidance.step.moves.join(" ") ||
+                t(
+                  "This goal already matches your position; refresh and verify it.",
+                  "当前状态已经符合此目标，请刷新并验证。",
+                )}
+            </Txt>
+          )}
+          {!coaching &&
+            guidance.matchedGuide &&
             guidance.step.moves[guidance.guideIndex] && (
               <Notice
                 text={t(
@@ -727,6 +793,7 @@ export function SmartPractice({
             kind="secondary"
             label={t("Preview this stage", "观看这一阶段演示")}
             disabled={busy || !guidance.matchedGuide}
+            tutorialDemo
             onPress={() => void watch()}
           />
           <Button
@@ -761,6 +828,18 @@ export function SmartPractice({
       )}
       {phase === "ready" && (
         <Row>
+          {guidance?.canContinueWithoutCheck && (
+            <Button
+              label={t("Continue without checking", "暂不检查，继续指导")}
+              disabled={
+                busy ||
+                !checkpointReady ||
+                !guidance.matchedGuide ||
+                guidance.guideIndex !== guidance.step?.moves.length
+              }
+              onPress={() => void continueUnit()}
+            />
+          )}
           <Button
             kind="secondary"
             label={t("Refresh device position", "刷新设备状态")}

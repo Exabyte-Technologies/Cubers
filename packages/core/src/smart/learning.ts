@@ -126,6 +126,7 @@ export const SmartGuidedAction = z.discriminatedUnion("action", [
     })
     .strict(),
   SmartLessonAction.options[3],
+  z.object({ ...Base, action: z.literal("continue") }).strict(),
 ]);
 export type SmartGuidedAction = z.infer<typeof SmartGuidedAction>;
 export type SmartConnectionView = {

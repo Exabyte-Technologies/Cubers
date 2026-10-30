@@ -1,16 +1,21 @@
 import React, { useState } from "react";
 import { View, ScrollView, Platform } from "react-native";
 import { Button } from "./ui";
+import { useTutorial } from "./TutorialContext";
 import { moveGridRows } from "./move-grid";
 export function MoveGrid({
   moves,
   disabled = false,
   onMove,
+  displayMove = (move) => move,
 }: {
   moves: readonly string[];
   disabled?: boolean;
   onMove: (move: string) => void;
+  displayMove?: (move: string) => string;
 }) {
+  const tutorial = useTutorial();
+  disabled = disabled || tutorial.observing;
   const [width, setWidth] = useState(302);
   const tableWidth = Math.max(269, Math.min(width - 8, 660));
   const columnGap = Math.max(1, Math.min(6, (tableWidth - 6 * 44) / 5));
@@ -21,6 +26,7 @@ export function MoveGrid({
     >
       <ScrollView
         horizontal
+        scrollEnabled={!tutorial.focused}
         nestedScrollEnabled
         showsHorizontalScrollIndicator={false}
         style={{ flexGrow: 0 }}
@@ -45,7 +51,7 @@ export function MoveGrid({
                       small
                       compact
                       kind="secondary"
-                      label={row[col]}
+                      label={displayMove(row[col])}
                       disabled={disabled}
                       onPress={() => onMove(row[col])}
                     />

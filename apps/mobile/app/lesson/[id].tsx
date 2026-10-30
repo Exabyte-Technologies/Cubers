@@ -10,6 +10,7 @@ import {
 } from "expo-router";
 import {
   lessonStage,
+  lessonAlgorithmCoaching,
   practiceSetup,
   GUIDED_COURSE_IDS,
   guidedPuzzleForCourse,
@@ -25,6 +26,8 @@ import { useApp } from "../../src/state";
 import { lessonStep } from "../../src/learning-paths";
 import { DownloadButton } from "../../src/offline/DownloadButton";
 import { CubeView } from "../../src/CubeView";
+import { AlgorithmCoach } from "../../src/AlgorithmCoach";
+import { useTutorialLayout } from "../../src/useTutorialLayout";
 import { PyraminxView } from "../../src/PyraminxView";
 import { PhysicalPractice } from "../../src/PhysicalPractice";
 import { SmartPractice } from "../../src/SmartPractice";
@@ -42,6 +45,7 @@ import {
   Notice,
   Field,
   Busy,
+  LocaleButton,
   useTheme,
 } from "../../src/ui";
 export default function LessonPage() {
@@ -93,6 +97,8 @@ function LessonView({
     [step, setStep] = useState(0),
     [replaying, setReplaying] = useState(false);
   const [alternativeId, setAlternativeId] = useState<string>();
+  const [more, setMore] = useState(false);
+  const layout = useTutorialLayout();
   const [physicalActive, setPhysicalActive] = useState(false);
   const work = useRef(new LessonWork()).current;
   useEffect(() => {
@@ -196,6 +202,12 @@ function LessonView({
     teachingSteps = (selectedGuide?.steps || lesson.steps)[locale],
     teachingStep = Math.min(step, teachingSteps.length - 1),
     sequence = demonstration.split(" ");
+  const coaching = lessonAlgorithmCoaching(
+    lesson,
+    moves,
+    locale,
+    alternativeId,
+  );
   function execute(move: string) {
     if (!work.ready || input !== "virtual") return;
     try {
@@ -207,6 +219,7 @@ function LessonView({
       setMessage((e as Error).message);
     }
   }
+  const focusedPhone = layout.compact && input === "virtual";
   function reset() {
     if (!work.ready) return;
     setState(practiceSetup(lesson!.puzzle, lesson!.algorithm));
@@ -282,81 +295,101 @@ function LessonView({
     }
   }
   return (
-    <Screen>
-      <Button
-        small
-        kind="secondary"
-        label={t("Learning paths", "返回学习路线")}
-        onPress={() => backOrReplace(router, "/(tabs)/learn")}
-      />
-      <View
-        style={{
-          backgroundColor: c.lavender,
-          padding: 24,
-          borderRadius: 24,
-          gap: 8,
-        }}
-      >
-        <Heading
-          eyebrow={`${lesson.puzzle.replace("x", "×")} / ${t("A little practice", "练习一点点")}`}
-        >
-          {lesson.title[locale]}
-        </Heading>
-        <Txt style={{ color: c.muted }}>{lesson.summary[locale]}</Txt>
-        {initialStep !== undefined && (
+    <Screen
+      compact={focusedPhone}
+      showAttribution={!focusedPhone || more}
+      stickyHeader={
+        focusedPhone ? (
+          <Row style={{ justifyContent: "space-between" }}>
+            <Button
+              small
+              kind="secondary"
+              label={t("Learning paths", "返回学习路线")}
+              onPress={() => backOrReplace(router, "/(tabs)/learn")}
+            />
+            <LocaleButton />
+          </Row>
+        ) : undefined
+      }
+    >
+      {(!focusedPhone || more) && (
+        <>
+          <Button
+            small
+            kind="secondary"
+            label={t("Learning paths", "返回学习路线")}
+            onPress={() => backOrReplace(router, "/(tabs)/learn")}
+          />
           <View
             style={{
-              borderTopWidth: 1,
-              borderColor: c.line,
-              paddingTop: 12,
+              backgroundColor: c.lavender,
+              padding: 24,
+              borderRadius: 24,
               gap: 8,
             }}
           >
-            <Txt small>
-              {t(
-                `Lesson ${teachingStep + 1} of ${teachingSteps.length}`,
-                `第 ${teachingStep + 1} / ${teachingSteps.length} 小课`,
-              )}
-            </Txt>
-            <Txt>{teachingSteps[teachingStep]}</Txt>
+            <Heading
+              eyebrow={`${lesson.puzzle.replace("x", "×")} / ${t("A little practice", "练习一点点")}`}
+            >
+              {lesson.title[locale]}
+            </Heading>
+            <Txt style={{ color: c.muted }}>{lesson.summary[locale]}</Txt>
+            {initialStep !== undefined && more && (
+              <View
+                style={{
+                  borderTopWidth: 1,
+                  borderColor: c.line,
+                  paddingTop: 12,
+                  gap: 8,
+                }}
+              >
+                <Txt small>
+                  {t(
+                    `Lesson ${teachingStep + 1} of ${teachingSteps.length}`,
+                    `第 ${teachingStep + 1} / ${teachingSteps.length} 小课`,
+                  )}
+                </Txt>
+                <Txt>{teachingSteps[teachingStep]}</Txt>
+              </View>
+            )}
+            <DownloadButton key={lesson.id} id={lesson.id} />
           </View>
-        )}
-        <DownloadButton key={lesson.id} id={lesson.id} />
-      </View>
-      <LessonCaseCoach lesson={lesson} />
-      <LessonSequences
-        lesson={lesson}
-        selected={alternativeId}
-        disabled={
-          busy ||
-          replaying ||
-          (["scan", "smart"].includes(input) && physicalActive)
-        }
-        onSelect={(value) => {
-          if (!work.ready) return;
-          reset();
-          setStep(0);
-          setReply(undefined);
-          setAlternativeId(value);
-        }}
-      />
-      <Row>
-        {[
-          ["virtual", "Virtual puzzle", "虚拟魔方"],
-          ["scan", "My physical puzzle", "实物魔方"],
-          ["smart", "Smart cube", "智能魔方"],
-        ].map(([id, en, zh]) => (
-          <Chip
-            key={id}
-            label={t(en, zh)}
-            selected={input === id}
-            disabled={busy || replaying}
-            onPress={() => {
-              if (work.ready) setInput(id);
+          <LessonCaseCoach lesson={lesson} />
+          <LessonSequences
+            lesson={lesson}
+            selected={alternativeId}
+            disabled={
+              busy ||
+              replaying ||
+              (["scan", "smart"].includes(input) && physicalActive)
+            }
+            onSelect={(value) => {
+              if (!work.ready) return;
+              reset();
+              setStep(0);
+              setReply(undefined);
+              setAlternativeId(value);
             }}
           />
-        ))}
-      </Row>
+          <Row>
+            {[
+              ["virtual", "Virtual puzzle", "虚拟魔方"],
+              ["scan", "My physical puzzle", "实物魔方"],
+              ["smart", "Smart cube", "智能魔方"],
+            ].map(([id, en, zh]) => (
+              <Chip
+                key={id}
+                label={t(en, zh)}
+                selected={input === id}
+                disabled={busy || replaying}
+                onPress={() => {
+                  if (work.ready) setInput(id);
+                }}
+              />
+            ))}
+          </Row>
+        </>
+      )}
       {input === "scan" && (
         <PhysicalPractice
           key={`${lesson.id}:${courseVersion}`}
@@ -377,222 +410,319 @@ function LessonView({
         />
       )}
       {input === "virtual" && (
-        <Card style={{ gap: 20 }}>
-          {isPyraminx(state) ? (
-            <PyraminxView state={state} lastMove={lastMove} onTurn={execute} />
-          ) : (
-            <CubeView state={state} lastMove={lastMove} onTurn={execute} />
+        <Card
+          style={{
+            gap: focusedPhone ? 8 : 20,
+            ...(focusedPhone ? { padding: 12 } : {}),
+          }}
+        >
+          {focusedPhone && (
+            <View style={{ gap: 2 }}>
+              <Txt small>{lesson.puzzle.replace("x", "×")}</Txt>
+              <Txt
+                style={{ fontSize: 18, lineHeight: 24, fontWeight: "700" }}
+                numberOfLines={2}
+              >
+                {lesson.title[locale]}
+              </Txt>
+            </View>
           )}
-          <View
-            style={{
-              gap: 16,
-              borderTopWidth: 1,
-              borderTopColor: c.line,
-              paddingTop: 20,
-            }}
-          >
-            <Txt small style={{ fontWeight: "600", color: c.green }}>
-              {t("Practice the moves", "跟着转一转")}
-            </Txt>
-            <Txt
-              selectable
-              style={{ fontSize: 22, fontWeight: "600", letterSpacing: 0 }}
-            >
-              {demonstration}
-            </Txt>
-            <MoveGrid
-              moves={Array.from(
-                new Set([
-                  ...(lesson.puzzle === "pyraminx"
-                    ? [
-                        "U",
-                        "L",
-                        "R",
-                        "B",
-                        "U'",
-                        "L'",
-                        "R'",
-                        "B'",
-                        "u",
-                        "l",
-                        "r",
-                        "b",
-                        "u'",
-                        "l'",
-                        "r'",
-                        "b'",
-                      ]
-                    : [
-                        "R",
-                        "U",
-                        "F",
-                        "L",
-                        "D",
-                        "B",
-                        "R'",
-                        "U'",
-                        "F'",
-                        "L'",
-                        "D'",
-                        "B'",
-                        "R2",
-                        "U2",
-                        "F2",
-                        "L2",
-                        "D2",
-                        "B2",
-                      ]),
-                  ...sequence,
-                  ...(size === 4 ? ["Rw", "Uw", "Rw'", "Uw'"] : []),
-                ]),
-              )}
-              onMove={execute}
-              disabled={input !== "virtual" || replaying || busy}
+          <AlgorithmCoach
+            externalAction={focusedPhone}
+            onAction={coaching ? () => execute(coaching.nextMove) : undefined}
+            disabled={busy || replaying}
+            coaching={coaching}
+            cursor={moves.length}
+            fallback={
+              practiceSolved(state)
+                ? t(
+                    "Algorithm complete. Inspect every face, then verify your practice.",
+                    "公式已完成，请观察各面后验证练习。",
+                  )
+                : t(
+                    "Your turns differ from the algorithm. Open More to undo or reset before following another cue.",
+                    "转动已偏离公式，请打开“更多”撤销或重置后，再跟随提示。",
+                  )
+            }
+          />
+          {isPyraminx(state) ? (
+            <PyraminxView
+              height={focusedPhone ? layout.cubeHeight : 290}
+              showFaces={!focusedPhone}
+              state={state}
+              lastMove={lastMove}
+              cueMove={!replaying ? coaching?.nextMove : undefined}
+              onTurn={execute}
             />
+          ) : (
+            <CubeView
+              height={focusedPhone ? layout.cubeHeight : 290}
+              showFaces={!focusedPhone}
+              state={state}
+              lastMove={lastMove}
+              cueMove={!replaying ? coaching?.nextMove : undefined}
+              onTurn={execute}
+            />
+          )}
+          {focusedPhone && (
+            <View
+              style={{ flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Button
+                  tutorialAction
+                  label={
+                    coaching
+                      ? t(
+                          `Next / ${coaching.nextMove}`,
+                          `下一步 / ${coaching.nextMove}`,
+                        )
+                      : t("Check practice", "检查练习")
+                  }
+                  disabled={
+                    busy || replaying || (!coaching && !practiceSolved(state))
+                  }
+                  onPress={() =>
+                    coaching ? execute(coaching.nextMove) : void complete()
+                  }
+                />
+              </View>
+              <Button
+                small
+                kind="secondary"
+                label={more ? t("Less", "收起") : t("More", "更多")}
+                onPress={() => setMore((v) => !v)}
+              />
+            </View>
+          )}
+          {(!focusedPhone || more) && (
+            <View
+              style={{
+                gap: 16,
+                borderTopWidth: 1,
+                borderTopColor: c.line,
+                paddingTop: 20,
+              }}
+            >
+              <Txt small style={{ fontWeight: "600", color: c.green }}>
+                {t("Practice the moves", "跟着转一转")}
+              </Txt>
+              <Txt
+                selectable
+                style={{ fontSize: 22, fontWeight: "600", letterSpacing: 0 }}
+              >
+                {demonstration}
+              </Txt>
+              <MoveGrid
+                moves={Array.from(
+                  new Set([
+                    ...(lesson.puzzle === "pyraminx"
+                      ? [
+                          "U",
+                          "L",
+                          "R",
+                          "B",
+                          "U'",
+                          "L'",
+                          "R'",
+                          "B'",
+                          "u",
+                          "l",
+                          "r",
+                          "b",
+                          "u'",
+                          "l'",
+                          "r'",
+                          "b'",
+                        ]
+                      : [
+                          "R",
+                          "U",
+                          "F",
+                          "L",
+                          "D",
+                          "B",
+                          "R'",
+                          "U'",
+                          "F'",
+                          "L'",
+                          "D'",
+                          "B'",
+                          "R2",
+                          "U2",
+                          "F2",
+                          "L2",
+                          "D2",
+                          "B2",
+                        ]),
+                    ...sequence,
+                    ...(size === 4 ? ["Rw", "Uw", "Rw'", "Uw'"] : []),
+                  ]),
+                )}
+                onMove={execute}
+                disabled={input !== "virtual" || replaying || busy}
+              />
+              <Row>
+                <Button
+                  small
+                  kind="secondary"
+                  label={t("Undo", "撤销")}
+                  onPress={() => {
+                    if (!work.ready) return;
+                    const last = moves.at(-1);
+                    if (last) {
+                      const m = inverse([last])[0];
+                      setState((s) => practiceApply(s, [m]));
+                      setMoves((prev) => prev.slice(0, -1));
+                      setLastMove(m);
+                    }
+                  }}
+                  disabled={!moves.length || replaying || busy}
+                />
+                <Button
+                  small
+                  kind="secondary"
+                  label={t("Reset drill", "重置练习")}
+                  onPress={reset}
+                  disabled={replaying || busy}
+                />
+                <Button
+                  small
+                  kind="secondary"
+                  label={t("Watch a demo", "观看演示")}
+                  tutorialDemo
+                  onPress={() => void replay()}
+                  disabled={replaying || busy}
+                />
+                <Button
+                  small
+                  label={t("Hint: next move", "提示：下一步")}
+                  disabled={busy || replaying}
+                  onPress={() =>
+                    setMessage(
+                      practiceSolved(state)
+                        ? t(
+                            "The checkpoint is solved; you can verify it now.",
+                            "检查点已完成，现在可以验证。",
+                          )
+                        : moves.every((move, index) => sequence[index] === move)
+                          ? t(
+                              `Next in the authored sequence: ${sequence[moves.length]}.`,
+                              `课程公式的下一步：${sequence[moves.length]}。`,
+                            )
+                          : t(
+                              "Your turns differ from the authored example. Undo to the matching point or reset before using the next-move hint.",
+                              "当前转动与课程示例不同。请撤销到对应步骤或重置后，再使用下一步提示。",
+                            ),
+                    )
+                  }
+                />
+              </Row>
+              <Txt small style={{ color: c.muted }}>
+                {t(
+                  lesson.puzzle === "pyraminx"
+                    ? "Uppercase turns move two layers by 120°. Lowercase turns move only a tip. Drag to orbit; tap for U."
+                    : "Drag to change the view. Tap the cube for a front turn. The labeled face net is available when 3D is unavailable.",
+                  lesson.puzzle === "pyraminx"
+                    ? "大写记号表示两层转动 120°，小写只转尖角。拖动改变视角，点击转 U。"
+                    : "拖动可改变观察角度，点击魔方可转动正面。无法显示 3D 时，可使用带记号的六面图。",
+                )}
+              </Txt>
+              <Button
+                label={t("Verify practice checkpoint", "验证练习检查点")}
+                onPress={() => void complete()}
+                disabled={
+                  busy ||
+                  !practiceSolved(state) ||
+                  input !== "virtual" ||
+                  replaying
+                }
+              />
+            </View>
+          )}
+        </Card>
+      )}
+      {!focusedPhone && (
+        <Button
+          kind="secondary"
+          label={
+            more
+              ? t("Hide lesson reference", "收起课程参考")
+              : t("Lesson reference and extra guidance", "课程参考与更多讲解")
+          }
+          onPress={() => setMore((v) => !v)}
+        />
+      )}
+      {more && (
+        <>
+          <Card style={{ backgroundColor: c.mint }}>
+            <Row style={{ justifyContent: "space-between" }}>
+              <Txt style={{ fontWeight: "600", fontSize: 20 }}>
+                {t("Understand the why", "想明白，为什么")}
+              </Txt>
+              <Txt small>
+                {teachingStep + 1} / {teachingSteps.length}
+              </Txt>
+            </Row>
+            <Txt>{teachingSteps[teachingStep]}</Txt>
             <Row>
               <Button
                 small
                 kind="secondary"
-                label={t("Undo", "撤销")}
-                onPress={() => {
-                  if (!work.ready) return;
-                  const last = moves.at(-1);
-                  if (last) {
-                    const m = inverse([last])[0];
-                    setState((s) => practiceApply(s, [m]));
-                    setMoves((prev) => prev.slice(0, -1));
-                    setLastMove(m);
-                  }
-                }}
-                disabled={!moves.length || replaying || busy}
+                label={t("Previous", "上一步")}
+                onPress={() => setStep(Math.max(0, teachingStep - 1))}
+                disabled={!teachingStep}
               />
               <Button
                 small
-                kind="secondary"
-                label={t("Reset drill", "重置练习")}
-                onPress={reset}
-                disabled={replaying || busy}
-              />
-              <Button
-                small
-                kind="secondary"
-                label={t("Watch a demo", "观看演示")}
-                onPress={() => void replay()}
-                disabled={replaying || busy}
-              />
-              <Button
-                small
-                label={t("Hint: next move", "提示：下一步")}
-                disabled={busy || replaying}
+                label={t("Next step", "下一步")}
                 onPress={() =>
-                  setMessage(
-                    practiceSolved(state)
-                      ? t(
-                          "The checkpoint is solved; you can verify it now.",
-                          "检查点已完成，现在可以验证。",
-                        )
-                      : moves.every((move, index) => sequence[index] === move)
-                        ? t(
-                            `Next in the authored sequence: ${sequence[moves.length]}.`,
-                            `课程公式的下一步：${sequence[moves.length]}。`,
-                          )
-                        : t(
-                            "Your turns differ from the authored example. Undo to the matching point or reset before using the next-move hint.",
-                            "当前转动与课程示例不同。请撤销到对应步骤或重置后，再使用下一步提示。",
-                          ),
-                  )
+                  setStep(Math.min(teachingSteps.length - 1, teachingStep + 1))
                 }
+                disabled={teachingStep === teachingSteps.length - 1}
               />
             </Row>
-            <Txt small style={{ color: c.muted }}>
-              {t(
-                lesson.puzzle === "pyraminx"
-                  ? "Uppercase turns move two layers by 120°. Lowercase turns move only a tip. Drag to orbit; tap for U."
-                  : "Drag to change the view. Tap the cube for a front turn. The labeled face net is available when 3D is unavailable.",
-                lesson.puzzle === "pyraminx"
-                  ? "大写记号表示两层转动 120°，小写只转尖角。拖动改变视角，点击转 U。"
-                  : "拖动可改变观察角度，点击魔方可转动正面。无法显示 3D 时，可使用带记号的六面图。",
-              )}
+          </Card>
+          <Card>
+            <Txt style={{ fontWeight: "600", fontSize: 20 }}>
+              {t("A little extra guidance", "再来一点讲解")}
             </Txt>
-            <Button
-              label={t("Verify practice checkpoint", "验证练习检查点")}
-              onPress={() => void complete()}
-              disabled={
-                busy ||
-                !practiceSolved(state) ||
-                input !== "virtual" ||
-                replaying
-              }
+            <Txt small style={{ color: c.muted }}>
+              {user?.permissions.canChat
+                ? t(
+                    "Ask about notation, reasoning or practice. Only a learning-intent category and approved lesson content reach the provider.",
+                    "可询问记号、原理或练习方法。仅学习意图分类和已审核课程内容会发送给服务商。",
+                  )
+                : t(
+                    "You’ll receive authored, validated explanations. Open-ended AI is restricted to verified adults.",
+                    "你将获得经过验证的课程讲解。开放式 AI 仅面向通过验证的成年人。",
+                  )}
+            </Txt>
+            <Field
+              label={t("What would help?", "你想了解什么？")}
+              value={question}
+              onChangeText={setQuestion}
+              maxLength={600}
             />
-          </View>
-        </Card>
+            <Button
+              kind="secondary"
+              label={
+                busy
+                  ? t("Thinking…", "请稍候……")
+                  : t("Explain this lesson", "讲解这一课")
+              }
+              onPress={() => void tutor()}
+              disabled={busy || replaying}
+            />
+            {reply && (
+              <>
+                <Notice text={reply.label} />
+                <Txt>{reply.explanation}</Txt>
+              </>
+            )}
+          </Card>
+        </>
       )}
-      <Card style={{ backgroundColor: c.mint }}>
-        <Row style={{ justifyContent: "space-between" }}>
-          <Txt style={{ fontWeight: "600", fontSize: 20 }}>
-            {t("Understand the why", "想明白，为什么")}
-          </Txt>
-          <Txt small>
-            {teachingStep + 1} / {teachingSteps.length}
-          </Txt>
-        </Row>
-        <Txt>{teachingSteps[teachingStep]}</Txt>
-        <Row>
-          <Button
-            small
-            kind="secondary"
-            label={t("Previous", "上一步")}
-            onPress={() => setStep(Math.max(0, teachingStep - 1))}
-            disabled={!teachingStep}
-          />
-          <Button
-            small
-            label={t("Next step", "下一步")}
-            onPress={() =>
-              setStep(Math.min(teachingSteps.length - 1, teachingStep + 1))
-            }
-            disabled={teachingStep === teachingSteps.length - 1}
-          />
-        </Row>
-      </Card>
-      <Card>
-        <Txt style={{ fontWeight: "600", fontSize: 20 }}>
-          {t("A little extra guidance", "再来一点讲解")}
-        </Txt>
-        <Txt small style={{ color: c.muted }}>
-          {user?.permissions.canChat
-            ? t(
-                "Ask about notation, reasoning or practice. Only a learning-intent category and approved lesson content reach the provider.",
-                "可询问记号、原理或练习方法。仅学习意图分类和已审核课程内容会发送给服务商。",
-              )
-            : t(
-                "You’ll receive authored, validated explanations. Open-ended AI is restricted to verified adults.",
-                "你将获得经过验证的课程讲解。开放式 AI 仅面向通过验证的成年人。",
-              )}
-        </Txt>
-        <Field
-          label={t("What would help?", "你想了解什么？")}
-          value={question}
-          onChangeText={setQuestion}
-          maxLength={600}
-        />
-        <Button
-          kind="secondary"
-          label={
-            busy
-              ? t("Thinking…", "请稍候……")
-              : t("Explain this lesson", "讲解这一课")
-          }
-          onPress={() => void tutor()}
-          disabled={busy || replaying}
-        />
-        {reply && (
-          <>
-            <Notice text={reply.label} />
-            <Txt>{reply.explanation}</Txt>
-          </>
-        )}
-      </Card>
       {!!message && <Notice text={message} />}
     </Screen>
   );

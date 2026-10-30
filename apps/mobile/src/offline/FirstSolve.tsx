@@ -6,6 +6,8 @@ import {
   openOfflineGuidance,
   OfflineGuidanceError,
   guidedTeaching,
+  algorithmCoaching,
+  teachingNotation,
   guidedFacelets,
   guidedSize,
   guidedState,
@@ -17,6 +19,7 @@ import {
 import { useApp } from "../state";
 import { Button, Card, Row, Txt, Notice, Busy } from "../ui";
 import { CubeView } from "../CubeView";
+import { AlgorithmCoach } from "../AlgorithmCoach";
 import { PyraminxView } from "../PyraminxView";
 import { Scanner } from "../Scanner";
 import { PyraminxScanner } from "../PyraminxScanner";
@@ -194,6 +197,16 @@ export function OfflineFirstSolve({ packet }: { packet: DownloadedLesson }) {
   const teaching = view?.step
     ? guidedTeaching(view.step, view.faces, locale, view.puzzle)
     : null;
+  const coaching = view?.step
+    ? algorithmCoaching(
+        view.step,
+        view.faces,
+        view.guideIndex,
+        view.puzzle,
+        locale,
+        view.matchedGuide && !view.needsScan,
+      )
+    : null;
   const moves = view
     ? view.puzzle === "pyraminx"
       ? ["U", "L", "R", "B", "u", "l", "r", "b"].flatMap((move) => [
@@ -248,8 +261,12 @@ export function OfflineFirstSolve({ packet }: { packet: DownloadedLesson }) {
               <Txt style={{ fontWeight: "700", fontSize: 21 }}>
                 {teaching?.title}
               </Txt>
-              <Txt>{teaching?.why}</Txt>
-              <Notice text={teaching?.frame || ""} />
+              <AlgorithmCoach
+                externalAction
+                coaching={coaching}
+                cursor={view.guideIndex}
+              />
+              {!coaching && <Notice text={teaching?.frame || ""} />}
               {view.input === "scan" && (
                 <Notice
                   text={t(
@@ -263,6 +280,7 @@ export function OfflineFirstSolve({ packet }: { packet: DownloadedLesson }) {
           {isPyraminx(state) ? (
             <PyraminxView
               state={state}
+              cueMove={view.nextMove}
               lastMove={lastMove}
               onTurn={
                 view.input === "virtual" && !view.completed ? turn : undefined
@@ -271,6 +289,8 @@ export function OfflineFirstSolve({ packet }: { packet: DownloadedLesson }) {
           ) : (
             <CubeView
               state={state}
+              cueMove={view.nextMove}
+              teachingFrame={coaching?.frame}
               lastMove={lastMove}
               onTurn={
                 view.input === "virtual" && !view.completed ? turn : undefined
@@ -289,24 +309,31 @@ export function OfflineFirstSolve({ packet }: { packet: DownloadedLesson }) {
                 />
               ) : (
                 <>
-                  <Txt small>{teaching?.check}</Txt>
+                  {view.ready && <Txt small>{teaching?.check}</Txt>}
                   {view.nextMove && (
                     <Button
+                      tutorialAction
                       label={
                         view.input === "virtual"
                           ? t(
-                              `Next turn · ${view.nextMove}`,
-                              `下一步 · ${view.nextMove}`,
+                              `Next turn · ${coaching?.nextMove || view.nextMove}`,
+                              `下一步 · ${coaching?.nextMove || view.nextMove}`,
                             )
                           : t(
-                              `I made this turn · ${view.nextMove}`,
-                              `我已转动这一步 · ${view.nextMove}`,
+                              `I made this turn · ${coaching?.nextMove || view.nextMove}`,
+                              `我已转动这一步 · ${coaching?.nextMove || view.nextMove}`,
                             )
                       }
                       onPress={() => turn(view.nextMove!)}
                     />
                   )}
-                  <MoveGrid moves={moves} onMove={turn} />
+                  <MoveGrid
+                    moves={moves}
+                    onMove={turn}
+                    displayMove={(move) =>
+                      teachingNotation(move, coaching?.frame)
+                    }
+                  />
                   <Button
                     small
                     kind="secondary"
@@ -360,6 +387,26 @@ export function OfflineFirstSolve({ packet }: { packet: DownloadedLesson }) {
                         "扫描并在本地检查此阶段",
                       )}
                       onPress={() => setScan("checkpoint")}
+                    />
+                  )}
+                  {view.canContinueWithoutCheck && (
+                    <Button
+                      label={t(
+                        "Continue without checking",
+                        "暂不检查，继续指导",
+                      )}
+                      disabled={
+                        !view.ready ||
+                        !view.matchedGuide ||
+                        view.guideIndex !== view.step?.moves.length
+                      }
+                      onPress={() =>
+                        act((session) => {
+                          session.continueWithoutCheck();
+                          setLastMove(undefined);
+                          setSequence(false);
+                        })
+                      }
                     />
                   )}
                   {view.input === "scan" && (

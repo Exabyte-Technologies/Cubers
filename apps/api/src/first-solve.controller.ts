@@ -19,6 +19,7 @@ import { z } from "zod";
 import { Prisma, type GuidedSolve } from "@prisma/client";
 import {
   lessonStage,
+  nextUnitStage,
   lessonStageSetup,
   scopedLessonPlan,
   scopedLessonStart,
@@ -535,6 +536,63 @@ export class FirstSolveController {
                 kind: "RESCAN",
                 at: new Date().toISOString(),
                 faces: plan.startingFaces,
+              },
+            ]),
+            version: { increment: 1 },
+          },
+        }),
+      );
+    });
+  }
+  @Post(":id/continue") async continueUnit(
+    @Req() r: Authed,
+    @Param("id") id: string,
+    @Body() body: unknown,
+  ) {
+    z.string().uuid().parse(id);
+    const { version } = z.object({ version: Version }).strict().parse(body);
+    return learningWrite(this.db, this.infra.config, r, async (tx, until) => {
+      const row = await this.locked(tx, id, r, version, until),
+        plan = planOf(row),
+        current = currentOf(row),
+        shown = view(row);
+      if (
+        !shown.step ||
+        !shown.matchedGuide ||
+        shown.guideIndex !== shown.step.moves.length
+      )
+        throw new BadRequestException(
+          "Complete the current algorithm before continuing without a check",
+        );
+      const checkpoints = row.checkpoints as any[];
+      if (checkpoints.length >= 100)
+        throw new BadRequestException(
+          "Start a new practice after 100 checkpoints",
+        );
+      let stage: number;
+      try {
+        stage = nextUnitStage(plan.steps, row.stage, current, plan.lessonId);
+      } catch (error) {
+        throw new BadRequestException((error as Error).message);
+      }
+      // An explicitly unverified continuation updates only the guide cursor.
+      // Completion status, Progress, reviews and physical evidence are untouched.
+      return view(
+        await tx.guidedSolve.update({
+          where: { id },
+          data: {
+            stage,
+            stageMoves: [],
+            checkpointFaces: row.currentFaces as Prisma.InputJsonValue,
+            checkpoints: json([
+              ...checkpoints,
+              {
+                kind: "CONTINUE_UNCHECKED",
+                goal: shown.step.goal,
+                ...(shown.step.target === undefined
+                  ? {}
+                  : { target: shown.step.target }),
+                at: new Date().toISOString(),
               },
             ]),
             version: { increment: 1 },

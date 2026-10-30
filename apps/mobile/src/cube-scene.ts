@@ -6,7 +6,7 @@ export function clearCubeGroup(group: THREE.Group) {
   for (const child of [...group.children]) {
     group.remove(child);
     child.traverse((o) => {
-      if (o instanceof THREE.Mesh) {
+      if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) {
         o.geometry.dispose();
         const materials = Array.isArray(o.material) ? o.material : [o.material];
         materials.forEach((m) => m.dispose());
@@ -20,6 +20,7 @@ export function buildCubeGroup(
   unlit = false,
 ) {
   clearCubeGroup(group);
+  group.userData.size = s.size;
   const center = (s.size - 1) / 2,
     step = 2.4 / s.size;
   for (let x = 0; x < s.size; x++)
@@ -51,6 +52,8 @@ export function buildCubeGroup(
           (z - center) * step,
         );
         body.userData.position = [x, y, z];
+        body.userData.basePosition = body.position.clone();
+        body.userData.baseQuaternion = body.quaternion.clone();
         group.add(body);
       }
   for (const sticker of s.stickers) {
@@ -76,7 +79,91 @@ export function buildCubeGroup(
     mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
     mesh.userData.position = sticker.p;
     mesh.userData.normal = sticker.normal;
+    mesh.userData.basePosition = mesh.position.clone();
+    mesh.userData.baseQuaternion = mesh.quaternion.clone();
     group.add(mesh);
+  }
+}
+
+export const faceNormal = (face: Face) =>
+  new THREE.Vector3(
+    ...({
+      U: [0, 1, 0],
+      D: [0, -1, 0],
+      R: [1, 0, 0],
+      L: [-1, 0, 0],
+      F: [0, 0, 1],
+      B: [0, 0, -1],
+    }[face] as [number, number, number]),
+  );
+export function cubeDragAngle(
+  group: THREE.Group,
+  camera: THREE.Camera,
+  start: { x: number; y: number },
+  delta: { x: number; y: number },
+  viewport: { width: number; height: number },
+  face: Face,
+) {
+  if (
+    Math.hypot(delta.x, delta.y) < 12 ||
+    viewport.width <= 0 ||
+    viewport.height <= 0
+  )
+    return 0;
+  camera.updateMatrixWorld();
+  group.updateWorldMatrix(true, true);
+  const normal = faceNormal(face),
+    plane = new THREE.Plane(normal, -1.2),
+    inverse = group.matrixWorld.clone().invert();
+  const at = (x: number, y: number) => {
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(
+      new THREE.Vector2(
+        (x / viewport.width) * 2 - 1,
+        1 - (y / viewport.height) * 2,
+      ),
+      camera,
+    );
+    const local = ray.ray.clone().applyMatrix4(inverse),
+      hit = new THREE.Vector3();
+    return local.intersectPlane(plane, hit)
+      ? hit.addScaledVector(normal, -1.2)
+      : null;
+  };
+  const a = at(start.x, start.y),
+    b = at(start.x + delta.x, start.y + delta.y);
+  if (!a || !b || a.length() < 0.15 || b.length() < 0.15) return 0;
+  return THREE.MathUtils.clamp(
+    Math.atan2(a.clone().cross(b).dot(normal), a.dot(b)),
+    -Math.PI / 2,
+    Math.PI / 2,
+  );
+}
+export function previewCubeFace(
+  group: THREE.Group,
+  face: Face | null,
+  angle: number,
+  lift: number,
+) {
+  const normal = face ? faceNormal(face) : new THREE.Vector3();
+  const axis =
+    face && "RL".includes(face) ? 0 : face && "UD".includes(face) ? 1 : 2;
+  const rotation = new THREE.Quaternion().setFromAxisAngle(normal, angle);
+  for (const mesh of group.children) {
+    const base = mesh.userData.basePosition as THREE.Vector3 | undefined;
+    const quaternion = mesh.userData.baseQuaternion as
+      THREE.Quaternion | undefined;
+    if (!base || !quaternion) continue;
+    mesh.position.copy(base);
+    mesh.quaternion.copy(quaternion);
+    const p = mesh.userData.position as number[] | undefined;
+    const extent = group.userData.size - 1;
+    if (face && p?.[axis] === ("RUF".includes(face) ? extent : 0)) {
+      mesh.position.applyQuaternion(rotation);
+      mesh.quaternion.premultiply(rotation);
+      if (mesh.userData.normal?.join(",") === normal.toArray().join(","))
+        mesh.position.addScaledVector(normal, lift);
+    }
   }
 }
 
@@ -126,7 +213,8 @@ export function cubeFaceAt(
   let nearest: THREE.Object3D | undefined,
     distance = Infinity;
   group.traverse((object) => {
-    if (!(object instanceof THREE.Mesh)) return;
+    if (!(object instanceof THREE.Mesh) || object.userData.tutorialOverlay)
+      return;
     const geometry = object.geometry;
     if (!geometry.boundingBox) geometry.computeBoundingBox();
     if (!geometry.boundingBox) return;

@@ -14,7 +14,7 @@ export function clearPyraminxGroup(group: THREE.Group) {
   for (const object of [...group.children]) {
     group.remove(object);
     object.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
+      if (child instanceof THREE.Mesh || child instanceof THREE.LineSegments) {
         child.geometry.dispose();
         (Array.isArray(child.material)
           ? child.material
@@ -93,6 +93,8 @@ export function buildPyraminxGroup(
           }),
     );
     mesh.userData.position = triangle.position;
+    mesh.userData.basePosition = mesh.position.clone();
+    mesh.userData.baseQuaternion = mesh.quaternion.clone();
     group.add(mesh);
   }
 }
@@ -129,7 +131,9 @@ export function pyraminxTurnAt(
     ),
     camera,
   );
-  const hit = ray.intersectObject(group, true)[0];
+  const hit = ray
+    .intersectObject(group, true)
+    .find((hit) => !hit.object.userData.tutorialOverlay);
   const position = hit?.object.userData.position as unknown;
   if (
     !Array.isArray(position) ||
@@ -141,6 +145,84 @@ export function pyraminxTurnAt(
   if (maximum !== 5 && maximum !== 7) return;
   const vertex = PYRA_VERTICES[position.indexOf(maximum)];
   return maximum === 7 ? vertex.toLowerCase() : vertex;
+}
+
+export function pyraminxSelection(move: string) {
+  const vertex = PYRA_VERTICES.indexOf(
+    move.toUpperCase() as (typeof PYRA_VERTICES)[number],
+  );
+  return {
+    vertex,
+    threshold: move === move.toLowerCase() ? 7 : 4,
+    axis: new THREE.Vector3(...PYRA_POINTS[vertex]).normalize(),
+  };
+}
+export function previewPyraminxSelection(
+  group: THREE.Group,
+  move: string | null,
+  angle: number,
+  lift: number,
+) {
+  const selected = move ? pyraminxSelection(move) : null;
+  for (const mesh of group.children) {
+    const base = mesh.userData.basePosition as THREE.Vector3 | undefined;
+    if (!base) continue;
+    mesh.position.copy(base);
+    mesh.quaternion.copy(mesh.userData.baseQuaternion);
+    if (
+      selected &&
+      mesh.userData.position?.[selected.vertex] >= selected.threshold
+    ) {
+      mesh.position
+        .applyAxisAngle(selected.axis, angle)
+        .addScaledVector(selected.axis, lift);
+      mesh.quaternion.premultiply(
+        new THREE.Quaternion().setFromAxisAngle(selected.axis, angle),
+      );
+    }
+  }
+}
+export function pyraminxDragAngle(
+  group: THREE.Group,
+  camera: THREE.Camera,
+  start: { x: number; y: number },
+  delta: { x: number; y: number },
+  viewport: { width: number; height: number },
+  move: string,
+) {
+  if (
+    Math.hypot(delta.x, delta.y) < 12 ||
+    viewport.width <= 0 ||
+    viewport.height <= 0
+  )
+    return 0;
+  const { axis } = pyraminxSelection(move);
+  camera.updateMatrixWorld();
+  group.updateWorldMatrix(true, true);
+  const inverse = group.matrixWorld.clone().invert(),
+    plane = new THREE.Plane(axis, 0);
+  const at = (x: number, y: number) => {
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(
+      new THREE.Vector2(
+        (x / viewport.width) * 2 - 1,
+        1 - (y / viewport.height) * 2,
+      ),
+      camera,
+    );
+    return ray.ray
+      .clone()
+      .applyMatrix4(inverse)
+      .intersectPlane(plane, new THREE.Vector3());
+  };
+  const a = at(start.x, start.y),
+    b = at(start.x + delta.x, start.y + delta.y);
+  if (!a || !b || a.length() < 0.15 || b.length() < 0.15) return 0;
+  return THREE.MathUtils.clamp(
+    Math.atan2(a.clone().cross(b).dot(axis), a.dot(b)),
+    (-Math.PI * 2) / 3,
+    (Math.PI * 2) / 3,
+  );
 }
 
 /** Fresh snapshots, undo and multi-move recovery must not invent an animation. */

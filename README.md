@@ -1,6 +1,6 @@
 # Cubers
 
-![Cubers — connecting people through puzzles. Learn. Play. Connect.](artifacts/branding/cubers-social-preview.png)
+![Cubers — connecting people through puzzles. Learn. Play. Connect.](docs/images/readme/cubers-banner.png)
 
 <p align="center">
   <strong>Your next solve starts here.</strong><br />
@@ -21,8 +21,8 @@ Cubers brings learning, practice, play and community into one place. Start with 
 Choose from **3×3, 2×2, 4×4 and Pyraminx**. Follow a pathway, open a unit, and work through its smaller lessons at your own pace. Beginner courses explain how the pieces fit together; advanced lessons help you recognize cases and practice more efficient solutions.
 
 <p align="center">
-  <img src="artifacts/screenshots/cubers-android36-learn-path-20261027.png" alt="Cubers beginner 3×3 pathway with a current-unit card and round lesson buttons" width="280" />
-  <img src="artifacts/screenshots/cubers-android36-pathways-20261027.png" alt="Pathway selector offering beginner and advanced 3×3 and 2×2, 4×4 and Pyraminx" width="280" />
+  <img src="docs/images/readme/learn-path.jpg" alt="Cubers beginner 3×3 pathway with a current-unit card and round lesson buttons" width="280" />
+  <img src="docs/images/readme/pathways.jpg" alt="Pathway selector offering beginner and advanced 3×3 and 2×2, 4×4 and Pyraminx" width="280" />
 </p>
 
 _Development screenshots from synthetic test sessions._

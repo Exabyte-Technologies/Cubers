@@ -292,6 +292,7 @@ export type GuidedSolveView = {
   moveCount: number;
   matchedGuide: boolean;
   guideIndex: number;
+  canContinueWithoutCheck?: boolean;
   createdAt: string;
   expiresAt: string;
   finishedAt: string | null;

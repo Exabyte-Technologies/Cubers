@@ -16,6 +16,8 @@ export * from "./first-solve";
 export * from "./first-solve-teaching";
 export * from "./guided";
 export * from "./guided-teaching";
+export * from "./algorithm-teaching";
+export * from "./unit-continuation";
 export * from "./puzzle";
 export * from "./curriculum";
 export * from "./pyraminx";
@@ -44,3 +46,4 @@ export * from "./service-messages";
 export * from "./activity-calendar";
 
 export * from "./lesson-stage";
+export * from "./tutorial-instructions";
